@@ -1,0 +1,9 @@
+# Global fallback — Team Lead reviews everything by default
+*                   @tereshchenko-nick
+
+/apps/api/          @tereshchenko-nick @pyvovarov-nick
+/apps/web/          @potapova-nick @vorontsov-nick
+/apps/mobile/       @potapova-nick @vorontsov-nick
+/packages/shared/   @tereshchenko-nick
+/prisma/            @tereshchenko-nick
+/.github/           @tereshchenko-nick
