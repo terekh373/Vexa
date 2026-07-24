@@ -1,9 +1,14 @@
 # Global fallback — Team Lead reviews everything by default
-*                   @tereshchenko-nick
+*                   @terekh373
 
-/apps/api/          @tereshchenko-nick @pyvovarov-nick
-/apps/web/          @potapova-nick @vorontsov-nick
-/apps/mobile/       @potapova-nick @vorontsov-nick
-/packages/shared/   @tereshchenko-nick
-/prisma/            @tereshchenko-nick
-/.github/           @tereshchenko-nick
+# Backend: Team Lead + backend dev
+/apps/api/          @terekh373 @suberbobbr
+/prisma/            @terekh373 @suberbobbr
+/packages/shared/   @terekh373 @suberbobbr
+
+# Frontend web + mobile: both frontend devs review each other
+/apps/web/          @devitfro @voer2
+/apps/mobile/       @devitfro @voer2
+
+# Infra: Team Lead only
+/.github/           @terekh373
