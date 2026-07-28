@@ -1,0 +1,658 @@
+// Vexa — схема бази даних (MVP, розділ 28.2 ТЗ).
+// Джерело істини для коду — prisma/schema.prisma. Цей файл описує ту саму
+// структуру у форматі DBML для побудови ER-діаграм (рис. 10 і рис. 11 ТЗ).
+// Візуалізація: https://dbdiagram.io/d -> Import -> DBML.
+//
+// Домовленості:
+//   * PK — uuid, генерується Postgres (gen_random_uuid()).
+//   * created_at / updated_at — у кожній таблиці; deleted_at — м'яке видалення.
+//   * Гроші — integer у копійках. Комісія — у базисних пунктах (1500 = 15%).
+
+Project vexa {
+  database_type: 'PostgreSQL'
+  note: 'Онлайн-маркетплейс навчальних курсів і матеріалів'
+}
+
+// ---------------------------------------------------------------- ENUMS
+Enum user_role {
+  STUDENT
+  AUTHOR
+  ADMIN
+}
+Enum user_status {
+  ACTIVE
+  BLOCKED
+}
+Enum content_type {
+  COURSE
+  MATERIAL
+}
+Enum course_status {
+  DRAFT
+  MODERATION
+  PUBLISHED
+  REJECTED
+  UNPUBLISHED
+}
+Enum lesson_type {
+  VIDEO
+  TEXT
+  FILE
+  QUIZ
+}
+Enum file_kind {
+  COVER
+  AVATAR
+  VIDEO
+  ATTACHMENT
+}
+Enum storage_provider {
+  S3
+  CLOUDFLARE_STREAM
+}
+Enum question_type {
+  SINGLE
+  MULTIPLE
+}
+Enum progress_status {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+Enum enrollment_source {
+  PURCHASE
+  ADMIN_GRANT
+  FREE
+}
+Enum order_status {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+Enum payment_provider {
+  LIQPAY
+  WAYFORPAY
+}
+Enum payment_status {
+  CREATED
+  PENDING
+  SUCCESS
+  FAILED
+  REVERSED
+}
+Enum balance_entry_type {
+  SALE
+  REFUND
+  PAYOUT
+  ADJUSTMENT
+}
+Enum payout_method {
+  CARD
+  IBAN
+}
+Enum payout_status {
+  REQUESTED
+  APPROVED
+  PAID
+  REJECTED
+}
+Enum review_status {
+  PUBLISHED
+  HIDDEN
+}
+Enum moderation_action {
+  SUBMITTED
+  APPROVED
+  REJECTED
+  UNPUBLISHED
+}
+Enum complaint_target_type {
+  COURSE
+  REVIEW
+  USER
+}
+Enum complaint_status {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  REJECTED
+}
+Enum notification_type {
+  ACCOUNT
+  PURCHASE
+  MODERATION
+  PAYOUT
+  REVIEW
+  SYSTEM
+}
+
+// ---------------------------------------------------------------- КОРИСТУВАЧІ
+Table users {
+  id uuid [pk]
+  email varchar(255) [unique, not null]
+  password_hash varchar(255) [note: 'null для акаунтів через Google OAuth']
+  full_name varchar(160) [not null]
+  roles "user_role[]" [not null, default: `'{STUDENT}'`]
+  status user_status [not null, default: 'ACTIVE']
+  locale varchar(5) [not null, default: 'uk']
+  google_id varchar(64) [unique]
+  email_verified_at timestamptz
+  avatar_file_id uuid [ref: > files.id]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  deleted_at timestamptz
+  note: 'Єдиний акаунт: учень може стати автором без окремої реєстрації'
+}
+
+Table author_profiles {
+  id uuid [pk]
+  user_id uuid [unique, not null, ref: - users.id]
+  display_name varchar(160) [not null]
+  headline varchar(255)
+  bio text
+  website_url varchar(255)
+  is_verified boolean [not null, default: false]
+  verified_at timestamptz
+  commission_rate_bps integer [note: 'null = ставка платформи за замовчуванням']
+  rating_avg decimal(3,2) [not null, default: 0]
+  reviews_count integer [not null, default: 0]
+  students_count integer [not null, default: 0]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table refresh_tokens {
+  id uuid [pk]
+  user_id uuid [not null, ref: > users.id]
+  token_hash varchar(255) [unique, not null]
+  user_agent varchar(255)
+  ip_address varchar(64)
+  expires_at timestamptz [not null]
+  revoked_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  note: 'Refresh-токени зберігаються хешованими, з можливістю відкликання'
+}
+
+// ---------------------------------------------------------------- ТАКСОНОМІЯ
+Table categories {
+  id uuid [pk]
+  parent_id uuid [ref: > categories.id]
+  slug varchar(120) [unique, not null]
+  name_uk varchar(120) [not null]
+  name_en varchar(120)
+  icon_key varchar(64)
+  sort_order integer [not null, default: 0]
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  note: 'Дерево категорій каталогу'
+}
+
+Table curriculum_subjects {
+  id uuid [pk]
+  slug varchar(120) [unique, not null]
+  name_uk varchar(120) [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table curriculum_topics {
+  id uuid [pk]
+  subject_id uuid [not null, ref: > curriculum_subjects.id]
+  grade integer [note: '1..11, null = поза шкільною програмою']
+  title varchar(255) [not null]
+  sort_order integer [not null, default: 0]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (subject_id, grade, title) [unique]
+  }
+  note: 'Довідник НУШ: предмет -> клас -> тема'
+}
+
+Table course_topics {
+  course_id uuid [not null, ref: > courses.id]
+  topic_id uuid [not null, ref: > curriculum_topics.id]
+  created_at timestamptz [not null]
+
+  indexes {
+    (course_id, topic_id) [pk]
+  }
+}
+
+// ---------------------------------------------------------------- ФАЙЛИ
+Table files {
+  id uuid [pk]
+  uploaded_by_id uuid [ref: > users.id]
+  kind file_kind [not null]
+  provider storage_provider [not null, default: 'S3']
+  storage_key varchar(512) [not null, note: 'S3-ключ або UID відео Cloudflare Stream']
+  original_name varchar(255) [not null]
+  mime_type varchar(127) [not null]
+  size_bytes bigint [not null]
+  duration_sec integer
+  is_ready boolean [not null, default: true]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  deleted_at timestamptz
+}
+
+// ---------------------------------------------------------------- КОНТЕНТ
+Table courses {
+  id uuid [pk]
+  author_id uuid [not null, ref: > users.id]
+  category_id uuid [not null, ref: > categories.id]
+  cover_file_id uuid [ref: > files.id]
+  type content_type [not null]
+  status course_status [not null, default: 'DRAFT']
+  slug varchar(180) [unique, not null]
+  title varchar(180) [not null]
+  short_description varchar(400) [not null]
+  description text [not null]
+  outcomes "text[]" [not null, note: 'Чого ви навчитеся']
+  language varchar(5) [not null, default: 'uk']
+  grade integer
+  price_amount integer [not null, default: 0, note: 'копійки']
+  currency varchar(3) [not null, default: 'UAH']
+  rating_avg decimal(3,2) [not null, default: 0]
+  reviews_count integer [not null, default: 0]
+  students_count integer [not null, default: 0]
+  lessons_count integer [not null, default: 0]
+  duration_sec integer [not null, default: 0]
+  submitted_at timestamptz
+  published_at timestamptz
+  rejection_reason text
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  deleted_at timestamptz
+
+  indexes {
+    (status, category_id)
+    (status, published_at)
+    (author_id, status)
+    (type, status)
+  }
+  note: 'Курс (проходження онлайн) і матеріал (завантаження) — одна таблиця, різниця в type'
+}
+
+Table modules {
+  id uuid [pk]
+  course_id uuid [not null, ref: > courses.id]
+  title varchar(180) [not null]
+  sort_order integer [not null, default: 0]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  deleted_at timestamptz
+}
+
+Table lessons {
+  id uuid [pk]
+  module_id uuid [not null, ref: > modules.id]
+  type lesson_type [not null]
+  title varchar(180) [not null]
+  sort_order integer [not null, default: 0]
+  is_free_preview boolean [not null, default: false]
+  text_content text [note: 'для type = TEXT']
+  video_file_id uuid [ref: > files.id, note: 'для type = VIDEO']
+  duration_sec integer
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  deleted_at timestamptz
+}
+
+Table lesson_files {
+  id uuid [pk]
+  lesson_id uuid [not null, ref: > lessons.id]
+  file_id uuid [not null, ref: > files.id]
+  sort_order integer [not null, default: 0]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (lesson_id, file_id) [unique]
+  }
+}
+
+Table course_files {
+  id uuid [pk]
+  course_id uuid [not null, ref: > courses.id]
+  file_id uuid [not null, ref: > files.id]
+  title varchar(180) [not null]
+  sort_order integer [not null, default: 0]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (course_id, file_id) [unique]
+  }
+  note: 'Набір файлів матеріалу (type = MATERIAL), без плеєра'
+}
+
+// ---------------------------------------------------------------- ТЕСТУВАННЯ
+Table quizzes {
+  id uuid [pk]
+  lesson_id uuid [unique, not null, ref: - lessons.id]
+  title varchar(180) [not null]
+  pass_score integer [not null, default: 60, note: 'відсоток для проходження']
+  time_limit_sec integer
+  attempts_allowed integer
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table questions {
+  id uuid [pk]
+  quiz_id uuid [not null, ref: > quizzes.id]
+  type question_type [not null, default: 'SINGLE']
+  text text [not null]
+  points integer [not null, default: 1]
+  sort_order integer [not null, default: 0]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table answer_options {
+  id uuid [pk]
+  question_id uuid [not null, ref: > questions.id]
+  text text [not null]
+  is_correct boolean [not null, default: false, note: 'ніколи не віддається клієнту учня']
+  sort_order integer [not null, default: 0]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table quiz_attempts {
+  id uuid [pk]
+  quiz_id uuid [not null, ref: > quizzes.id]
+  user_id uuid [not null, ref: > users.id]
+  score integer [not null, default: 0]
+  max_score integer [not null, default: 0]
+  is_passed boolean [not null, default: false]
+  started_at timestamptz [not null]
+  finished_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table quiz_attempt_answers {
+  id uuid [pk]
+  attempt_id uuid [not null, ref: > quiz_attempts.id]
+  question_id uuid [not null, ref: > questions.id]
+  selected_option_ids "uuid[]" [not null]
+  is_correct boolean [not null, default: false]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (attempt_id, question_id) [unique]
+  }
+}
+
+// ---------------------------------------------------------------- ДОСТУП І ПРОГРЕС
+Table enrollments {
+  id uuid [pk]
+  user_id uuid [not null, ref: > users.id]
+  course_id uuid [not null, ref: > courses.id]
+  order_item_id uuid [unique, ref: - order_items.id]
+  source enrollment_source [not null, default: 'PURCHASE']
+  progress_percent integer [not null, default: 0]
+  last_lesson_id uuid
+  completed_at timestamptz
+  revoked_at timestamptz [note: 'закриття доступу при поверненні коштів']
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (user_id, course_id) [unique]
+  }
+  note: 'Єдине джерело права на платний контент. Створюється лише webhook-ом оплати'
+}
+
+Table lesson_progress {
+  id uuid [pk]
+  enrollment_id uuid [not null, ref: > enrollments.id]
+  lesson_id uuid [not null, ref: > lessons.id]
+  status progress_status [not null, default: 'NOT_STARTED']
+  watched_seconds integer [not null, default: 0]
+  completed_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (enrollment_id, lesson_id) [unique]
+  }
+}
+
+// ---------------------------------------------------------------- КОМЕРЦІЯ
+Table carts {
+  id uuid [pk]
+  user_id uuid [unique, not null, ref: - users.id]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table cart_items {
+  id uuid [pk]
+  cart_id uuid [not null, ref: > carts.id]
+  course_id uuid [not null, ref: > courses.id]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (cart_id, course_id) [unique]
+  }
+}
+
+Table orders {
+  id uuid [pk]
+  number serial [unique, not null, note: 'людський номер для чека']
+  user_id uuid [not null, ref: > users.id]
+  status order_status [not null, default: 'PENDING']
+  total_amount integer [not null]
+  currency varchar(3) [not null, default: 'UAH']
+  paid_at timestamptz
+  cancelled_at timestamptz
+  refunded_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  deleted_at timestamptz
+}
+
+Table order_items {
+  id uuid [pk]
+  order_id uuid [not null, ref: > orders.id]
+  course_id uuid [not null, ref: > courses.id]
+  author_id uuid [not null, ref: > users.id]
+  title_snapshot varchar(180) [not null]
+  price_amount integer [not null]
+  commission_rate_bps integer [not null]
+  commission_amount integer [not null]
+  author_amount integer [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (order_id, course_id) [unique]
+  }
+  note: 'Фінансовий снапшот: комісія й частка автора фіксуються в момент оплати. CHECK: commission_amount + author_amount = price_amount'
+}
+
+Table payments {
+  id uuid [pk]
+  order_id uuid [not null, ref: > orders.id]
+  provider payment_provider [not null]
+  provider_payment_id varchar(128)
+  status payment_status [not null, default: 'CREATED']
+  amount integer [not null]
+  currency varchar(3) [not null, default: 'UAH']
+  payload jsonb
+  failure_reason varchar(255)
+  processed_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (provider, provider_payment_id) [unique]
+  }
+}
+
+Table payment_webhook_events {
+  id uuid [pk]
+  payment_id uuid [ref: > payments.id]
+  provider payment_provider [not null]
+  external_id varchar(191) [not null]
+  payload jsonb [not null]
+  signature_valid boolean [not null, default: false]
+  processed_at timestamptz
+  error text
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (provider, external_id) [unique]
+  }
+  note: 'Журнал вебхуків. Унікальний external_id робить обробку ідемпотентною'
+}
+
+// ---------------------------------------------------------------- ГРОШІ АВТОРА
+Table balances {
+  id uuid [pk]
+  user_id uuid [unique, not null, ref: - users.id]
+  available_amount integer [not null, default: 0]
+  pending_amount integer [not null, default: 0, note: 'у межах 14 днів на повернення']
+  withdrawn_amount integer [not null, default: 0]
+  currency varchar(3) [not null, default: 'UAH']
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  note: 'Кеш-агрегат над balance_entries'
+}
+
+Table balance_entries {
+  id uuid [pk]
+  user_id uuid [not null, ref: > users.id]
+  type balance_entry_type [not null]
+  amount integer [not null, note: 'зі знаком: SALE > 0, PAYOUT/REFUND < 0']
+  order_item_id uuid [ref: > order_items.id]
+  payout_id uuid [ref: > payouts.id]
+  comment varchar(255)
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  note: 'Append-only журнал — джерело істини по грошах автора'
+}
+
+Table payouts {
+  id uuid [pk]
+  author_id uuid [not null, ref: > users.id]
+  amount integer [not null]
+  currency varchar(3) [not null, default: 'UAH']
+  method payout_method [not null]
+  destination_masked varchar(64) [not null, note: 'лише маска, напр. "**** 4242"']
+  status payout_status [not null, default: 'REQUESTED']
+  comment varchar(255)
+  processed_by_id uuid [ref: > users.id]
+  processed_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+// ---------------------------------------------------------------- СОЦІАЛЬНЕ ТА АДМІН
+Table reviews {
+  id uuid [pk]
+  course_id uuid [not null, ref: > courses.id]
+  user_id uuid [not null, ref: > users.id]
+  rating integer [not null, note: 'CHECK 1..5']
+  text text
+  status review_status [not null, default: 'PUBLISHED']
+  author_reply text
+  author_replied_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (course_id, user_id) [unique]
+  }
+  note: 'Один відгук на курс від користувача, лише після покупки (перевірка в сервісі)'
+}
+
+Table notifications {
+  id uuid [pk]
+  user_id uuid [not null, ref: > users.id]
+  type notification_type [not null]
+  title varchar(180) [not null]
+  body text
+  payload jsonb
+  read_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table complaints {
+  id uuid [pk]
+  reporter_id uuid [not null, ref: > users.id]
+  target_type complaint_target_type [not null]
+  target_id uuid [not null, note: 'поліморфне посилання, без FK']
+  reason varchar(120) [not null]
+  comment text
+  status complaint_status [not null, default: 'OPEN']
+  resolved_by_id uuid [ref: > users.id]
+  resolved_at timestamptz
+  resolution text
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table moderation_log {
+  id uuid [pk]
+  course_id uuid [not null, ref: > courses.id]
+  moderator_id uuid [ref: > users.id]
+  action moderation_action [not null]
+  from_status course_status [not null]
+  to_status course_status [not null]
+  comment text
+  created_at timestamptz [not null]
+  note: 'Аудит переходів статусу курсу'
+}
+
+// ---------------------------------------------------------------- ГРУПИ ДЛЯ ДІАГРАМ
+TableGroup "Рис. 10 — Блок контенту" {
+  users
+  author_profiles
+  categories
+  curriculum_subjects
+  curriculum_topics
+  course_topics
+  courses
+  modules
+  lessons
+  lesson_files
+  course_files
+  files
+  quizzes
+  questions
+  answer_options
+  quiz_attempts
+  quiz_attempt_answers
+  enrollments
+  lesson_progress
+}
+
+TableGroup "Рис. 11 — Блок комерції" {
+  carts
+  cart_items
+  orders
+  order_items
+  payments
+  payment_webhook_events
+  balances
+  balance_entries
+  payouts
+  reviews
+  notifications
+  complaints
+  moderation_log
+  refresh_tokens
+}

@@ -1,0 +1,38 @@
+# Local development infrastructure. Production uses managed services (TZ section 9).
+name: vexa
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vexa
+      POSTGRES_PASSWORD: vexa
+      POSTGRES_DB: vexa
+    ports:
+      - "5433:5432"
+    volumes:
+      - vexa-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vexa -d vexa"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - vexa-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  vexa-postgres-data:
+  vexa-redis-data:
