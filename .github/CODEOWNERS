@@ -1,14 +1,31 @@
+# Vexa — review ownership.
+#
+# The LAST matching rule wins, so the global fallback must stay at the top:
+# every rule below it overrides it. Moving `*` to the bottom would make the
+# Team Lead the only reviewer for the whole repository.
+#
+# GitHub excludes the PR author from its own reviewer list. That is why every
+# path has at least two owners — otherwise an owner's PR gets no reviewer and
+# hangs forever. The only exception is /.github/, see the note at the bottom.
+
 # Global fallback — Team Lead reviews everything by default
-*                   @terekh373
+*                       @terekh373
 
 # Backend: Team Lead + backend dev
-/apps/api/          @terekh373 @suberbobbr
-/prisma/            @terekh373 @suberbobbr
-/packages/shared/   @terekh373 @suberbobbr
+/backend/               @terekh373 @suberbobbr
+
+# Database contract: schema, migrations, seed. Changing it out of band breaks
+# integration between backend and both clients.
+/backend/prisma/        @terekh373 @suberbobbr
+/docs/schema.dbml       @terekh373 @suberbobbr
 
 # Frontend web + mobile: both frontend devs review each other
-/apps/web/          @devitfro @voer2
-/apps/mobile/       @devitfro @voer2
+/web/                   @devitfro @voer2
+/mobile/                @devitfro @voer2
 
-# Infra: Team Lead only
-/.github/           @terekh373
+# Project documentation
+/docs/                  @terekh373
+
+# Infra: Team Lead only. A PR here cannot be approved by anyone else, so the
+# Team Lead merges it by temporarily disabling the protect-develop ruleset.
+/.github/               @terekh373
