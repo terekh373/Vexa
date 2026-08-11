@@ -1,0 +1,102 @@
+[
+  {
+    "id": 1,
+    "description": "Lorem ipsum dolor sit amet, consectetur...",
+    "author": "Author 1",
+    "rating": 4.5,
+    "reviews": 244,
+    "price": 56,
+    "isNew": false,
+    "isBookmarked": false
+  },
+  {
+    "id": 2,
+    "description": "Lorem ipsum dolor sit amet, consectetur...",
+    "author": "Author 1",
+    "rating": 4.5,
+    "reviews": 244,
+    "price": 56,
+    "isNew": false,
+    "isBookmarked": false
+  },
+  {
+    "id": 3,
+    "description": "Lorem ipsum dolor sit amet, consectetur...",
+    "author": "Author 1",
+    "rating": 4.5,
+    "reviews": 244,
+    "price": 56,
+    "isNew": false,
+    "isBookmarked": false
+  },
+  {
+    "id": 4,
+    "description": "Lorem ipsum dolor sit amet, consectetur...",
+    "author": "Author 1",
+    "rating": 4.5,
+    "reviews": 244,
+    "price": 56,
+    "isNew": false,
+    "isBookmarked": false
+  },
+  {
+    "id": 5,
+    "description": "Lorem ipsum dolor sit amet, consectetur...",
+    "author": "Author 1",
+    "rating": 4.5,
+    "reviews": 244,
+    "price": 56,
+    "isNew": false,
+    "isBookmarked": false
+  },
+    {
+    "id": 6,
+    "description": "Lorem ipsum dolor sit amet, consectetur...",
+    "author": "Author 1",
+    "rating": 4.5,
+    "reviews": 244,
+    "price": 56,
+    "isNew": true,
+    "isBookmarked": false
+  },
+    {
+    "id": 7,
+    "description": "Lorem ipsum dolor sit amet, consectetur...",
+    "author": "Author 1",
+    "rating": 4.5,
+    "reviews": 244,
+    "price": 56,
+    "isNew": true,
+    "isBookmarked": false
+  },
+    {
+    "id": 8,
+    "description": "Lorem ipsum dolor sit amet, consectetur...",
+    "author": "Author 1",
+    "rating": 4.5,
+    "reviews": 244,
+    "price": 56,
+    "isNew": true,
+    "isBookmarked": false
+  },
+    {
+    "id": 9,
+    "description": "Lorem ipsum dolor sit amet, consectetur...",
+    "author": "Author 1",
+    "rating": 4.5,
+    "reviews": 244,
+    "price": 56,
+    "isNew": true,
+    "isBookmarked": false
+  },
+  {
+    "id": 10,
+    "description": "Lorem ipsum dolor sit amet, consectetur...",
+    "author": "Author 1",
+    "rating": 4.5,
+    "reviews": 244,
+    "price": 56,
+    "isNew": true,
+    "isBookmarked": false
+  }
+]

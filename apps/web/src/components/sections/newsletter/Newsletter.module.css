@@ -1,0 +1,49 @@
+.newsletter {
+  width: 100%;
+  background: color-mix(in srgb, var(--purple-color) 20%, transparent);
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26px 0;
+}
+
+.info {
+  width: 35%;
+  display: flex;
+}
+
+.icon {
+  width: 75px;
+  height: 75px;
+  background: var(--main-bg-color);
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info h3 {
+  color: var(--main-dark-color);
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.info p {
+  color: var(--main-dark-color);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.form {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
