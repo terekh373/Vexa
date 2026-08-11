@@ -2,10 +2,10 @@
  * HTTP layer: parse input, call the service, shape the response.
  * No business rules here.
  */
-import { loginSchema, registerSchema } from '@vexa/shared';
 import type { Request, RequestHandler, Response } from 'express';
 import { consumeVerificationToken } from './emailVerification.service.js';
-import { login, register, type SessionContext } from './auth.service.js';
+import { loginSchema, refreshSchema, registerSchema } from '@vexa/shared';
+import { login, logout, logoutAll, refresh, register, type SessionContext } from './auth.service.js';
 
 /** Express 5 forwards a rejected promise to the error middleware on its own. */
 
@@ -39,4 +39,26 @@ export const verifyEmailHandler: RequestHandler = async (req: Request, res: Resp
   await consumeVerificationToken(token);
 
   res.status(200).json({ status: 'verified' });
+};
+
+export const refreshHandler: RequestHandler = async (req: Request, res: Response) => {
+  const input = refreshSchema.parse(req.body);
+  const result = await refresh(input.refreshToken, readSessionContext(req));
+
+  res.status(200).json(result);
+};
+
+export const logoutHandler: RequestHandler = async (req: Request, res: Response) => {
+  const input = refreshSchema.parse(req.body);
+  await logout(input.refreshToken);
+
+  // 204: the client has nothing to render, only local storage to clear.
+  res.status(204).send();
+};
+
+export const logoutAllHandler: RequestHandler = async (req: Request, res: Response) => {
+  const input = refreshSchema.parse(req.body);
+  const revokedCount = await logoutAll(input.refreshToken);
+
+  res.status(200).json({ revokedSessions: revokedCount });
 };

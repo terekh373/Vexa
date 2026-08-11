@@ -74,3 +74,14 @@ export interface AuthResponse {
   user: AuthUser;
   tokens: AuthTokens;
 }
+
+/**
+ * Refresh and logout both carry the refresh token in the body rather than a
+ * cookie: the mobile client has no cookie jar, and one transport for both
+ * clients keeps the flow single-branched.
+ */
+export const refreshSchema = z.object({
+  refreshToken: z.string().min(1, 'Відсутній refresh-токен'),
+});
+
+export type RefreshInput = z.infer<typeof refreshSchema>;

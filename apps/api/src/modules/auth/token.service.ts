@@ -151,6 +151,25 @@ export async function revokeRefreshToken(jti: string, userId: string): Promise<v
   await redis.multi().del(allowlistKey(jti)).srem(userSessionsKey(userId), jti).exec();
 }
 
+/**
+ * Atomically checks and removes a refresh token from the allowlist.
+ *
+ * Returns true only for the caller that actually deleted the key. A separate
+ * "is it allowed?" read followed by a delete would let two parallel refresh
+ * requests with the same token both pass the check and both rotate — the
+ * second one would then look like token reuse and kill a healthy session.
+ */
+export async function consumeRefreshToken(jti: string, userId: string): Promise<boolean> {
+  const results = await redis
+    .multi()
+    .del(allowlistKey(jti))
+    .srem(userSessionsKey(userId), jti)
+    .exec();
+
+  // Each entry is [error, value]; DEL returns the number of removed keys.
+  return results?.[0]?.[1] === 1;
+}
+
 /** Kills every session of a user. Called on logout-all and on reuse detection. */
 export async function revokeAllUserRefreshTokens(userId: string): Promise<void> {
   const jtis = await redis.smembers(userSessionsKey(userId));
