@@ -12,6 +12,7 @@ import { AppError } from './lib/errors.js';
 import { logger } from './lib/logger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { healthRouter } from './modules/health/health.routes.js';
+import { authRouter } from './modules/auth/auth.routes.js';
 
 function parseOrigins(value: string): string[] {
   return value
@@ -48,6 +49,7 @@ export function createApp(): Express {
     }),
   );
 
+  app.use('/api/auth', authRouter);
   app.use('/api', healthRouter);
 
   // 404 fallback. Express 5 rejects the old `app.all('*')` form — a bare

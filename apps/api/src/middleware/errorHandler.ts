@@ -25,6 +25,25 @@ function toErrorDetails(error: ZodError): ErrorDetail[] {
   }));
 }
 
+/**
+ * Structural check instead of a bare `instanceof`.
+ *
+ * A duplicated zod installation puts two distinct ZodError classes in memory,
+ * and `instanceof` silently fails across them — turning every validation
+ * failure into a 500. Keep the instanceof as the fast path and fall back to
+ * shape detection.
+ */
+function isZodError(error: unknown): error is ZodError {
+  if (error instanceof ZodError) return true;
+
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    (error as { name?: unknown }).name === 'ZodError' &&
+    Array.isArray((error as { issues?: unknown }).issues)
+  );
+}
+
 export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof AppError) {
     const body: ErrorResponseBody = {
@@ -39,7 +58,7 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
 
   // A ZodError arriving here means a schema ran outside the validate
   // middleware. Still answer 400 rather than 500 — the input is at fault.
-  if (err instanceof ZodError) {
+  if (isZodError(err)) {
     res.status(400).json({
       error: {
         code: 'VALIDATION_ERROR',
