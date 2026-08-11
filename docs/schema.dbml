@@ -254,6 +254,7 @@ Table courses {
   short_description varchar(400) [not null]
   description text [not null]
   outcomes "text[]" [not null, note: 'Чого ви навчитеся']
+  tags "text[]" [not null, note: 'Ключові слова для пошуку в каталозі']
   language varchar(5) [not null, default: 'uk']
   grade integer
   price_amount integer [not null, default: 0, note: 'копійки']

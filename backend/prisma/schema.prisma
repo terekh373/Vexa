@@ -376,6 +376,8 @@ model Course {
   description      String   @db.Text
   /// "What you will learn" bullets.
   outcomes         String[] @default([])
+  /// Search keywords supplied by the author. Included in the catalog tsvector.
+  tags             String[] @default([])
   language         String   @default("uk") @db.VarChar(5)
   /// Target school grade for filtering (null = not tied to a grade).
   grade            Int?

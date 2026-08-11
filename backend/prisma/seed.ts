@@ -307,7 +307,10 @@ async function seedCourseWithPlayer(): Promise<void> {
 
   await prisma.course.upsert({
     where: { id: id.courses.mathNmt },
-    update: { status: CourseStatus.PUBLISHED },
+    update: {
+      status: CourseStatus.PUBLISHED,
+      tags: ['НМТ', 'математика', 'алгебра', 'тести'],
+    },
     create: {
       id: id.courses.mathNmt,
       authorId: id.users.iryna,
@@ -326,6 +329,7 @@ async function seedCourseWithPlayer(): Promise<void> {
         'Правильно розподіляти час на тестуванні',
         'Закрити прогалини зі шкільної програми 7–11 класів',
       ],
+      tags: ['НМТ', 'математика', 'алгебра', 'тести'],
       grade: 11,
       priceAmount: uah(1490),
       lessonsCount: 3,
@@ -480,7 +484,10 @@ async function seedCourseWithPlayer(): Promise<void> {
 async function seedDownloadableMaterial(): Promise<void> {
   await prisma.course.upsert({
     where: { id: id.courses.englishMaterial },
-    update: { status: CourseStatus.PUBLISHED },
+    update: {
+      status: CourseStatus.PUBLISHED,
+      tags: ['Present Perfect', 'англійська мова', '7 клас', 'НУШ', 'презентація'],
+    },
     create: {
       id: id.courses.englishMaterial,
       authorId: id.users.oleh,
@@ -495,6 +502,7 @@ async function seedDownloadableMaterial(): Promise<void> {
         'Комплект містить презентацію на 24 слайди, конспект уроку для вчителя та роздатковий матеріал ' +
         'із завданнями трьох рівнів складності. Формати: PPTX і PDF.',
       outcomes: ['Готовий план уроку на 45 хвилин', 'Роздатковий матеріал для класу'],
+      tags: ['Present Perfect', 'англійська мова', '7 клас', 'НУШ', 'презентація'],
       grade: 7,
       priceAmount: uah(80),
       publishedAt: new Date('2026-06-10T08:30:00Z'),
@@ -523,7 +531,10 @@ async function seedDownloadableMaterial(): Promise<void> {
   // A draft course to exercise the moderation queue in the admin panel.
   await prisma.course.upsert({
     where: { id: id.courses.draftPsychology },
-    update: { status: CourseStatus.MODERATION },
+    update: {
+      status: CourseStatus.MODERATION,
+      tags: ['сон', 'підлітки', 'здоров’я'],
+    },
     create: {
       id: id.courses.draftPsychology,
       authorId: id.users.iryna,
@@ -534,6 +545,7 @@ async function seedDownloadableMaterial(): Promise<void> {
       title: 'Здоровий сон школяра: як відновити режим',
       shortDescription: 'Короткий курс для батьків і підлітків про режим сну під час підготовки до іспитів.',
       description: 'Чернетка на модерації. Використовується для демонстрації черги модерації в адмін-панелі.',
+      tags: ['сон', 'підлітки', 'здоров’я'],
       priceAmount: uah(390),
       submittedAt: new Date('2026-07-20T12:00:00Z'),
     },

@@ -4,6 +4,9 @@
   "private": true,
   "description": "Vexa — educational marketplace. Backend and database layer.",
   "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/src/server.js",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
     "db:migrate": "prisma migrate dev",
@@ -20,7 +23,8 @@
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
-    "bcryptjs": "^3.0.3"
+    "bcryptjs": "^3.0.3",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@dbml/cli": "^8.3.1",
