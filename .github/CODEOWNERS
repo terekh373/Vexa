@@ -12,20 +12,15 @@
 *                       @terekh373
 
 # Backend: Team Lead + backend dev
-/backend/               @terekh373 @suberbobbr
+/apps/api/              @terekh373 @suberbobbr
 
-# Database contract: schema, migrations, seed. Changing it out of band breaks
-# integration between backend and both clients.
-/backend/prisma/        @terekh373 @suberbobbr
+# Database contract: schema, migrations, seed.
+/apps/api/prisma/       @terekh373 @suberbobbr
 /docs/schema.dbml       @terekh373 @suberbobbr
 
-# Frontend web + mobile: both frontend devs review each other
-/web/                   @devitfro @voer2
-/mobile/                @devitfro @voer2
+# Shared contract between backend and clients
+/packages/shared/       @terekh373 @suberbobbr
 
-# Project documentation
-/docs/                  @terekh373
-
-# Infra: Team Lead only. A PR here cannot be approved by anyone else, so the
-# Team Lead merges it by temporarily disabling the protect-develop ruleset.
-/.github/               @terekh373
+# Frontend web + mobile
+/apps/web/              @devitfro @voer2
+/apps/mobile/           @devitfro @voer2
