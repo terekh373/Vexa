@@ -7,7 +7,16 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    rules: { '@typescript-eslint/no-explicit-any': 'error' },
+    rules: {
+      // Project rule: no implicit or explicit `any`
+      '@typescript-eslint/no-explicit-any': 'error',
+      // Underscore prefix marks a parameter kept for signature shape only —
+      // Express error middleware must declare four parameters to be recognised.
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+    },
   },
   {
     files: ['apps/api/**/*.ts'],
