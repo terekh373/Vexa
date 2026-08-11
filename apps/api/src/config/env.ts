@@ -1,12 +1,25 @@
-/**
- * Environment configuration.
- *
- * Parsed and validated once at process start. A missing or malformed variable
- * kills the process immediately with a readable message, instead of surfacing
- * hours later as `undefined` deep inside a request handler.
- */
-import 'dotenv/config';
+import { existsSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { config as loadDotenv } from 'dotenv';
 import { z } from 'zod';
+
+/**
+ * Load .env from the package root rather than the current working directory.
+ *
+ * `dotenv/config` resolves relative to process.cwd(), so a script started from
+ * the repository root would silently see no configuration at all. Both
+ * src/config/env.ts and the compiled dist/config/env.js sit two levels below
+ * apps/api, so the same relative path works in dev and in production.
+ */
+const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+const envFilePath = resolve(packageRoot, '.env');
+
+// In production the variables come from the platform environment and no .env
+// file exists — that is the expected case, not an error.
+if (existsSync(envFilePath)) {
+  loadDotenv({ path: envFilePath, quiet: true });
+}
 
 /**
  * Only variables the API actually reads are listed here. Storage, video and
