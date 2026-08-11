@@ -13,7 +13,9 @@ import {
   refreshHandler,
   registerHandler,
   verifyEmailHandler,
+  meHandler,
 } from './auth.controller.js';
+import { authenticate } from '../../middleware/authenticate.js';
 
 export const authRouter: Router = Router();
 
@@ -56,3 +58,5 @@ authRouter.post('/logout-all', logoutAllHandler);
 authRouter.post('/register', registrationLimiter, registerHandler);
 authRouter.post('/login', credentialsLimiter, loginHandler);
 authRouter.get('/verify-email', verifyEmailHandler);
+
+authRouter.get('/me', authenticate, meHandler);

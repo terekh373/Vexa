@@ -6,6 +6,8 @@ import type { Request, RequestHandler, Response } from 'express';
 import { consumeVerificationToken } from './emailVerification.service.js';
 import { loginSchema, refreshSchema, registerSchema } from '@vexa/shared';
 import { login, logout, logoutAll, refresh, register, type SessionContext } from './auth.service.js';
+import { findActiveById } from './auth.repository.js';
+import { AppError } from '../../lib/errors.js';
 
 /** Express 5 forwards a rejected promise to the error middleware on its own. */
 
@@ -61,4 +63,28 @@ export const logoutAllHandler: RequestHandler = async (req: Request, res: Respon
   const revokedCount = await logoutAll(input.refreshToken);
 
   res.status(200).json({ revokedSessions: revokedCount });
+};
+
+export const meHandler: RequestHandler = async (req: Request, res: Response) => {
+  // authenticate guarantees req.auth here; the guard keeps TypeScript honest.
+  if (req.auth === undefined) {
+    throw AppError.unauthorized('Authentication required');
+  }
+
+  // Read fresh from the database rather than trusting the token payload: the
+  // profile screen must show current data, not a 15-minute-old snapshot.
+  const user = await findActiveById(req.auth.userId);
+
+  if (user === null) {
+    throw AppError.unauthorized('Account no longer exists');
+  }
+
+  res.status(200).json({
+    id: user.id,
+    email: user.email,
+    fullName: user.fullName,
+    roles: user.roles,
+    emailVerified: user.emailVerifiedAt !== null,
+    locale: user.locale,
+  });
 };
