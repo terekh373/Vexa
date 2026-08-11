@@ -13,8 +13,6 @@ import { logger } from './lib/logger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { healthRouter } from './modules/health/health.routes.js';
 import { authRouter } from './modules/auth/auth.routes.js';
-import { authenticate } from './middleware/authenticate.js';
-import { requireRoles } from './middleware/requireRoles.js';
 
 function parseOrigins(value: string): string[] {
   return value
@@ -52,11 +50,6 @@ export function createApp(): Express {
   );
 
   app.use('/api/auth', authRouter);
-  // TEMPORARY: proves the 403 path of the access matrix until the first real
-  // admin endpoint lands. Remove in the moderation issue.
-  app.get('/api/admin/ping', authenticate, requireRoles('ADMIN'), (_req, res) => {
-    res.status(200).json({ status: 'admin ok' });
-  });
   app.use('/api', healthRouter);
 
   // 404 fallback. Express 5 rejects the old `app.all('*')` form — a bare
