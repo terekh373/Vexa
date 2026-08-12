@@ -1,0 +1,46 @@
+.section {
+  padding: 48px 0;
+  background: #F3EEFF;
+}
+.container {
+  display: flex;
+  gap: 100px;
+  justify-content: center;
+}
+
+.content {
+  width: 520px;
+}
+
+.content h3 {
+  color: var(--purple-color);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 48px;
+  margin-bottom: 12px;
+}
+.content p {
+  color: var(--main-dark-color);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 32px;
+  letter-spacing: 2%;
+  margin-bottom: 12px;
+}
+
+.content p:last-of-type {
+  color: var(--main-dark-color);
+  font-size: 16px;
+  font-weight: 400;
+  line-height:24px;
+  letter-spacing: 0%;
+  margin-bottom: 32px;
+}
+
+.img {
+  width: 620px;
+  height: auto;
+  object-fit: cover;
+  align-self: stretch;
+  border-radius: 32px;
+}

@@ -1,0 +1,26 @@
+import styles from './Main.module.css'
+import Preview from '../../sections/preview/Preview.jsx'
+import {PopularCategories} from '../../sections/popular-categories/PopularCategories.jsx'
+import Courses from '../../sections/courses/Courses.jsx'
+import { Features } from '../../sections/features/Features.jsx'
+import AIHelper from '../../sections/ai-helper/AIHelper.jsx'
+import BecomeAuthor from '../../sections/become-author/BecomeAuthor.jsx'
+import Newsletter from '../../sections/newsletter/Newsletter.jsx'
+import { Review } from '../../sections/rewiew/Review.jsx'
+
+const Main = () => {
+  return (
+    <main>
+      <Preview />
+      <PopularCategories />
+      <Courses />
+      <BecomeAuthor />
+      <Features />
+      <AIHelper />
+      <Review />
+      <Newsletter />
+    </main>
+  )
+}
+
+export default Main;
