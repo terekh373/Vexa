@@ -1,0 +1,46 @@
+.card {
+  width: 100%;
+  width: 260px;
+  border-radius: 16px;
+  border: 1px solid #e5e5e5;
+  padding: 12px;
+}
+
+.image {
+  width: 100%;
+  height: 140px;
+  border-radius: 12px;
+  background: #eeeeee;
+  animation: pulse 1.5s infinite;
+}
+
+.content {
+  padding-top: 16px;
+}
+
+.line {
+  width: 100%;
+  height: 14px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  background: #eeeeee;
+  animation: pulse 1.5s infinite;
+}
+
+.short {
+  width: 60%;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
