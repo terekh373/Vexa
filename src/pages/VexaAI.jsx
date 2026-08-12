@@ -4,7 +4,6 @@ import { Container } from '../components/layout/container/Container.jsx';
 import Button from '../components/ui/buttons/Button.jsx';
 import robotImage from '../assets/images/robot.png';
 
-// Масиви з даними, щоб не дублювати HTML-код
 const features = [
   { icon: '💬', title: 'AI-помічник', text: 'Поставте будь-яке запитання про навчання, викладання, предмети чи технології і AI підкаже відповіді.' },
   { icon: '📄', title: 'Генерація контенту', text: 'Створюйте конспекти, плани, презентації, тести, завдання та інші матеріали за кілька секунд.' },
@@ -35,12 +34,10 @@ const VexaAI = () => {
     <div className={styles.pageWrapper}>
       <Container>
         
-        {/* Хлібні крихти */}
         <div className={styles.breadcrumbs}>
           <span>Головна</span> / <span className={styles.activeBreadcrumb}>Vexa AI</span>
         </div>
 
-        {/* HERO СЕКЦІЯ (Головний блок з роботом) */}
         <section className={styles.hero}>
           <div className={styles.heroTextContent}>
             <h1 className={styles.mainTitle}>
@@ -63,7 +60,6 @@ const VexaAI = () => {
           </div>
         </section>
 
-        {/* СЕКЦІЯ: Можливості VEXA */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Можливості VEXA</h2>
           <div className={styles.grid6}>
@@ -77,7 +73,6 @@ const VexaAI = () => {
           </div>
         </section>
 
-        {/* СЕКЦІЯ: Як це працює */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Як це працює</h2>
           <div className={styles.stepsContainer}>
@@ -91,7 +86,6 @@ const VexaAI = () => {
                   <h3>{step.title}</h3>
                   <p>{step.text}</p>
                 </div>
-                {/* Додаємо стрілочку між кроками, крім останнього */}
                 {index < steps.length - 1 && (
                   <div className={styles.stepArrow}>➔</div>
                 )}
@@ -100,13 +94,11 @@ const VexaAI = () => {
           </div>
         </section>
 
-        {/* СЕКЦІЯ: Для кого VEXA AI */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Для кого VEXA AI</h2>
           <div className={styles.grid6}>
             {audience.map((item, index) => (
               <div key={index} className={styles.audienceCard}>
-                {/* Заглушка для фотографій, поки їх немає */}
                 <div className={styles.audiencePhotoPlaceholder}>Фото</div>
                 <h3>{item.title}</h3>
                 <p>{item.text}</p>

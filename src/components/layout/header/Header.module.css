@@ -23,3 +23,26 @@
   font-size: 16px;
   font-weight: 400;
 }
+
+.defaultLink {
+  text-decoration: none;
+  color: #000000;
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+.defaultLink:hover {
+  color: #6236FF; 
+}
+
+.activeLink {
+  text-decoration: none;
+  color: #6236FF; 
+  cursor: default;
+}
+
+.logoLink {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}

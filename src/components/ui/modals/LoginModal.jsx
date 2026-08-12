@@ -1,8 +1,23 @@
-import React from 'react';
+import React, { useState, useContext } from 'react';
 import styles from './LoginModal.module.css';
 import heroImage from "../../../assets/images/img02.png"; 
+import { AuthContext } from '../../../context/AuthContext.jsx';
 
 const LoginModal = ({ onClose }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { login } = useContext(AuthContext);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (email.trim() && password.trim()) {
+      login(email, password);
+      onClose();
+    } else {
+      alert('Будь ласка, введіть пошту та пароль');
+    }
+  };
+
   return (
     <div className={styles.overlay} onClick={onClose}>
       
@@ -61,12 +76,18 @@ const LoginModal = ({ onClose }) => {
           <h2 className={styles.title}>Ради вас бачити знову!</h2>
           <p className={styles.subtitle}>Увійдіть, щоб продовжити навчання</p>
 
-          <form className={styles.form}>
+          <form className={styles.form} onSubmit={handleLogin}>
+            
             <div className={styles.inputGroup}>
               <label>Електронна пошта</label>
               <div className={styles.inputWrapper}>
                 <span className={styles.inputIcon}>✉️</span>
-                <input type="email" placeholder="Введіть вашу пошту" />
+                <input 
+                  type="email" 
+                  placeholder="Введіть вашу пошту" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
                 <span className={styles.inputActionIcon}>👁️‍🗨️</span>
               </div>
             </div>
@@ -75,7 +96,12 @@ const LoginModal = ({ onClose }) => {
               <label>Пароль</label>
               <div className={styles.inputWrapper}>
                 <span className={styles.inputIcon}>🔒</span>
-                <input type="password" placeholder="Введіть пароль" />
+                <input 
+                  type="password" 
+                  placeholder="Введіть пароль" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
                 <span className={styles.inputActionIcon}>👁️‍🗨️</span>
               </div>
             </div>
@@ -89,7 +115,7 @@ const LoginModal = ({ onClose }) => {
               <a href="#" className={styles.forgotBtn}>Забули пароль?</a>
             </div>
 
-            <button type="button" className={styles.submitBtn}>
+            <button type="submit" className={styles.submitBtn}>
               Увійти
             </button>
           </form>

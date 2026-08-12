@@ -1,28 +1,21 @@
-// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Routes, Route } from 'react-router-dom'
-// import ProtectedRoute from './components/protected-route/ProtectedRoute.jsx'
-
-import { useState } from 'react'
 import './App.css'
 import Layout from './components/layout/Layout.jsx'
 import Home from './pages/Home.jsx'
+import VexaAI from './pages/VexaAI.jsx'
+import { AuthProvider } from './context/AuthContext.jsx'
 
 function App() {
   return (
-      <Routes>
-        {/* <Route path='/' element={<Auth /> /> */}
 
+    <AuthProvider>
+      <Routes>
         <Route path='/' element={<Layout />} > 
           <Route index element={<Home />} />
-
-          {/* <Route path='/profile' element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>} 
-          /> */}
-        
+          <Route path='vexa-ai' element={<VexaAI />} />
         </Route>
       </Routes>
+    </AuthProvider>
   )
 }
 
