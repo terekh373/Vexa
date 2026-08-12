@@ -3,11 +3,34 @@ import searchIcon from '../../../assets/icons/search.svg'
 
 const SearchWrapper = styled.div`
   position: relative;
-  max-width: 586px;
-  min-width: 386px;
-  padding: 10px;
-  
+  width: 100%;
+  /* padding: 10px;  */
 
+  ${({ $size}) => {
+    if($size === 'medium') {
+      return `
+        width: 586px;
+        width: 586px;
+
+        input {
+          padding: 10px 16px 10px 40px;
+          font-size: 16px;
+        }
+      `;
+    }
+
+    if ($size === 'large') {
+      return `
+        max-width: 1190px;
+
+        input {
+          padding: 10px 16px 10px 40px;
+          font-size: 16px;
+        }
+      `;
+    }
+  }}
+  
   img {
     position: absolute;
     left: 16px;
@@ -22,18 +45,47 @@ const SearchWrapper = styled.div`
     border: 1.5px solid #8A8F98;
     background: var(--main-bg-color);
     border-radius: 16px;
-    padding: 10px 16px 10px 40px;
-  
-    font-size: 16px;
-    outline: none;
     outline: none;
     color: var(--main-dark-color);
+  }
+
+  @media (max-width: 992px) {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  @media (max-width: 480px) {
+    padding: 8px;
+
+    input {
+      font-size: 14px;
+      padding: 9px 12px 9px 36px;
+    }
+
+    img {
+      left: 14px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+  
+  @media (max-width: 320px) {
+    padding: 6px;
+
+    input {
+      font-size: 14px;
+      padding: 8px 10px 8px 34px;
+    }
+
+    img {
+      left: 12px;
+    }
   }
 `;
 
 
-export const Search = ({ type='text', placeholder = 'Пошук курсів...', onKeyDown, onChange, required} ) => (
-  <SearchWrapper>
+export const Search = ({ size='medium', type='text', placeholder = 'Пошук курсів...', onKeyDown, onChange, required} ) => (
+  <SearchWrapper $size={size}>
     <img src={searchIcon} alt='search icon'/>
     <input type={type}
            placeholder={placeholder}

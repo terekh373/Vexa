@@ -5,16 +5,21 @@ const Card = styled.div`
   width: 352px;
   padding: 16px 8px;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   border: 1px solid var(--border-grey);
   border-radius: 16px;
+
+  div {
+    padding: 0 8px;
+  }
 
   img {
     border-radius: 16px;
     width: 124px;
     height: auto;
-    object-fit: contain;
+    align-self: stretch;
+    object-fit: cover;
     margin-right: 4px;
   }
 
@@ -58,7 +63,7 @@ const Star = styled.img`
 
 export const ReviewCard = ({ card }) => (
   <Card>
-    <img src={card.image} alt='monitor icon' />
+    <img src={card.image} alt='user photo' />
     <div>
       <span>{card.userName}</span>
       <span>{card.userNick}</span>

@@ -1,4 +1,4 @@
-import Main from '../components/layout/main/Main'
+import Main from '../../components/layout/main/Main.jsx'
 
 const Home = () => {
   return (

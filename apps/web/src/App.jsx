@@ -5,7 +5,8 @@ import { Routes, Route } from 'react-router-dom'
 import { useState } from 'react'
 import './App.css'
 import Layout from './components/layout/Layout.jsx'
-import Home from './pages/Home.jsx'
+import Home from './pages/home/Home.jsx'
+import Catalog from './pages/catalog/Catalog.jsx'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
 
         <Route path='/' element={<Layout />} > 
           <Route index element={<Home />} />
+          <Route path='/catalog' element={<Catalog />} />
 
           {/* <Route path='/profile' element={
             <ProtectedRoute>

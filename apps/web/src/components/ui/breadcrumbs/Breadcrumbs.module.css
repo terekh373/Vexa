@@ -1,0 +1,29 @@
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.link {
+  color: var(--secondary-grey);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.separator {
+  color: var(--secondary-grey);
+}
+
+.current {
+  color: var(--secondary-grey);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
