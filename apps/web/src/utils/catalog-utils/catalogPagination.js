@@ -1,15 +1,41 @@
 export const getItemsPerPage = () => {
-  const availableHeight = window.innerHeight - 450
+  const width = window.innerWidth;
 
-  const cardHeight = 328
-  const gap = 24
+  if (width >= 1440) {
+    return 12;
+  }
 
-  const rows = Math.max(
-    1,
-    Math.floor(
-      (availableHeight + gap) / (cardHeight + gap)
-    )
-  )
+  if (width >= 1024) {
+    return 9;
+  }
 
-  return rows * 4
-}
+  if (width >= 768) {
+    return 6;
+  }
+
+  return 4;
+};
+
+
+export const paginateCourses = (
+  courses,
+  currentPage,
+  itemsPerPage
+) => {
+  const totalPages = Math.ceil(
+    courses.length / itemsPerPage
+  );
+
+  const startIndex =
+    (currentPage - 1) * itemsPerPage;
+
+  const visibleCourses = courses.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
+  return {
+    visibleCourses,
+    totalPages,
+  };
+};
