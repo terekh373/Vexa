@@ -14,10 +14,10 @@ const Header = () => {
           <Logo />
           <ul className={styles.list}>
             <li>
-            <Link to='/catalog' className={styles.link} >Каталог курсів</Link>
+              <Link to='/catalog' className={styles.link}>Каталог курсів</Link>
             </li>
             <li>
-              <a>Для авторів</a>
+              <Link to='/for-authors' className={styles.link}>Для авторів</Link>
             </li>
             <li>
               <a>Vexa AI</a>

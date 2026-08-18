@@ -11,27 +11,19 @@ import Button from '../../components/ui/buttons/Button.jsx'
 import { filterCourses, sortCourses } from '../../utils/courseFilters.js'
 import CourseGrid from '../../components/ui/course-grid/CourseGrid.jsx'
 import CourseSkeleton from '../../components/ui/skeleton/CourseSkeleton.jsx'
-
-const getItemsPerPage = () => {
-  const availableHeight = window.innerHeight - 450;
-
-  const cardHeight = 328;
-  const gap = 24;
-
-  const rows = Math.max(1, Math.floor((availableHeight + gap) / (cardHeight + gap)));
-
-  return rows * 4;
-};
+import { getItemsPerPage } from '../../utils/catalog-utils/catalogPagination.js'
+import { categories, levels, languages, sortOptions } from '../../data/catalogFilters.js'
 
 const Catalog = () => {
   const [itemsPerPage, setItemsPerPage] = useState(getItemsPerPage);
-
   const [searchParams, setSearchParams] = useSearchParams();
+
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // URL PARAMETERS
   const search = searchParams.get('search') || '';
+  const [searchValue, setSearchValue] = useState(search);
   const sort = searchParams.get('sort') || '';
 
   const category = searchParams.get('category')?.split(',').filter(Boolean) || [];
@@ -51,6 +43,10 @@ const Catalog = () => {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+  useEffect(() => {
+    setSearchValue(search);
+  }, [search]);
 
   // LOAD COURSES
   useEffect(() => {
@@ -138,12 +134,7 @@ const Catalog = () => {
 
   // INVALID PAGE
   useEffect(() => {
-
-    if (
-      !loading &&
-      totalPages > 0 &&
-      currentPage > totalPages
-    ) {
+    if (!loading && totalPages > 0 && currentPage > totalPages) {
       const params =
         new URLSearchParams(searchParams)
 
@@ -161,46 +152,10 @@ const Catalog = () => {
     setSearchParams
   ]);
 
-  const categories = [
-    {
-      value: 'programming',
-      label: 'Програмування',
-      count: 12
-    },
-    {
-      value: 'design',
-      label: 'Дизайн',
-      count: 8
-    },
-    {
-      value: 'marketing',
-      label: 'Маркетинг',
-      count: 5
-    }
-  ];
-
-  const levels = [
-    {
-      value: 'beginner',
-      label: 'Початківець',
-      count: 10
-    },
-    {
-      value: 'intermediate',
-      label: 'Середній',
-      count: 7
-    },
-    {
-      value: 'advanced',
-      label: 'Просунутий',
-      count: 3
-    }
-  ];
-
   return (
     <Container>
       <main className={styles.container}>
-        <Breadcrumbs />
+        <Breadcrumbs title='Головна' link='/' pages='Каталог курсів'/>
 
         <h2 className={styles.title}>Каталог курсів</h2>
         <p className={styles.subtitle}>
@@ -211,18 +166,14 @@ const Catalog = () => {
         <div className={styles.row}>
           <Search
             size="large"
-            value={search}
+            value={searchValue}
+            onChange={(event) => setSearchValue(event.target.value)}
             onKeyDown={handleSearchKeyDown}
           />
 
           <Dropdown
             label="Сортування"
-            options={[
-              { value: 'rating-desc', label: 'Популярні' },
-              { value: 'price-asc', label: 'Від дешевих' },
-              { value: 'price-desc', label: 'Від дорогих' },
-              { value: 'reviews-desc', label: 'За кількістю відгуків' }
-            ]}
+            options={sortOptions}
             value={sort}
             onChange={(event) =>
               updateParams('sort', event.target.value)
@@ -251,24 +202,13 @@ const Catalog = () => {
 
           <FilterDropdown
             label="Мова"
-            options={[
-              {
-                value: 'uk',
-                label: 'Українська',
-                count: 15
-              },
-              {
-                value: 'en',
-                label: 'English',
-                count: 5
-              }
-            ]}
+            options={languages}
             value={language}
             onChange={(value) =>
               updateParams('language', value)
             }
           />
-          <Button title='Скинути фільтри' />
+          <Button title='Скинути фільтри' onClick={clearFilters} />
         </div>
 
         <div className={styles.content}>
@@ -329,11 +269,7 @@ const Catalog = () => {
             </button>
           </div>
         )}
-
-
         </div>
-
-
       </div>
       </main>
     </Container>

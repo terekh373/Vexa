@@ -1,0 +1,15 @@
+.container {
+  width: 100%;
+  padding: 32px 0 48px 0;
+}
+
+.section {
+  background: var(--footer-bg-color);
+  padding: 32px 0;
+  margin-bottom: 32px;
+}
+
+.sectionReview {
+  padding: 32px 0 48px 0;
+  border: 1px solid blue;
+}

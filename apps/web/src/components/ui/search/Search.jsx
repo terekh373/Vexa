@@ -83,16 +83,15 @@ const SearchWrapper = styled.div`
   }
 `;
 
-
-export const Search = ({ size='medium', type='text', value='', placeholder = 'Пошук курсів...', onKeyDown, onChange, required} ) => (
+export const Search = ({ size='medium', type='text', value, placeholder = 'Пошук курсів...', onKeyDown, onChange, required} ) => (
   <SearchWrapper $size={size}>
     <img src={searchIcon} alt='search icon'/>
     <input type={type}
            placeholder={placeholder}
            value={value}
-           onKeyDown={() => {}}
+           onKeyDown={onKeyDown}
            onChange={onChange}
            required={required}
     />
   </SearchWrapper>
-)
+);
