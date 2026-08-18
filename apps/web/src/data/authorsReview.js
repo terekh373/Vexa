@@ -1,8 +1,8 @@
 import Avatar01 from '../assets/images/for-authors-images/avatar-1.png'
-import Avatar02 from '../assets/images/for-authors-images/avatar-2.png'
-import Avatar03 from '../assets/images/for-authors-images/avatar-3.png'
+import Avatar03 from '../assets/images/for-authors-images/avatar-2.png'
+import Avatar02 from '../assets/images/for-authors-images/avatar-3.png'
 
-export const whatCanPublishingCards = [
+export const authorsReviewCards = [
   {
     id: 1,
     name: 'Олена Коваль',
@@ -10,7 +10,7 @@ export const whatCanPublishingCards = [
     image: Avatar01,
     imageAlt: 'Avatar 1 icon',
     position: 'Викладач англійської мови',
-    rating: 5,
+    stars: 4,
   },
   {
     id: 2,
@@ -19,7 +19,7 @@ export const whatCanPublishingCards = [
     image: Avatar02,
     imageAlt: 'Avatar 2 icon',
     position: 'Викладач веброзробки',
-    rating: 5,
+    stars: 5,
   },
   {
     id: 3,
@@ -28,6 +28,6 @@ export const whatCanPublishingCards = [
     image: Avatar03,
     imageAlt: 'Avatar 3 icon',
     position: 'Викладачка математики',
-    rating: 5,
+    stars: 5,
   },
 ];
