@@ -1,41 +1,26 @@
-import styled from 'styled-components'
-import icon01 from '../../../../assets/icons/monitor.svg'
+import styles from './FeatureCard.module.css'
+import arrow from '../../../../assets/icons/for-authors-icons/arrow_right_alt.svg'
 
-const Card = styled.div`
-  width: 260px;
-  padding: 8px 0 22px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+export const FeatureCard = ({ card, variant, showArrow}) => (
+  <div className={`${styles.card} ${styles[variant]}`}>
+    {card.decorImage && (
+      <img
+        className={styles.decorImage}
+        src={card.decorImage}
+        alt='decor image'
+      />
+    )}
 
-  img {
-    margin-bottom: 24px;
-  }
-
-  h4 {
-    color: var(--main-dark-color);
-    font-size: 20px;
-    font-weight: 700;
-    line-height: auto;
-    letter-spacing: 0%;
-    margin-bottom: 8px;
-  }
-
-  p {
-    width: 174px;
-    color: var(--secondary-grey);
-    font-size: 16px;
-    font-weight: 400;
-    line-height: auto;
-    letter-spacing: 0%;
-  }
-`
-
-export const FeatureCard = ( {card} ) => (
-  <Card>
-    <img src={card.image} alt='monitor icon' />
+    <img src={card.image} alt={card.imageAlt} />
     <h4>{card.title}</h4>
-    <p>{card.description}</p>
-  </Card>
-)
+    <p>{card.subtitle}</p>
+
+    {showArrow && (
+      <img
+        className={styles.arrow}
+        src={arrow}
+        alt=""
+      />
+    )}
+  </div>
+);

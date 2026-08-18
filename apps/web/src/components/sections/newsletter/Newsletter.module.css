@@ -11,8 +11,9 @@
 }
 
 .info {
-  width: 35%;
+  width: 38%;
   display: flex;
+  gap: 16px;
 }
 
 .icon {
@@ -20,7 +21,6 @@
   height: 75px;
   background: var(--main-bg-color);
   border-radius: 50%;
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -34,6 +34,7 @@
 }
 
 .info p {
+  /* width: 486px; */
   color: var(--main-dark-color);
   font-size: 16px;
   font-weight: 400;

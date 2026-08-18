@@ -73,8 +73,6 @@ export const Review = () => (
           <ReviewCard card={card} key={card.id} />
         ))}
       </Row>
-
     </Container>
-
   </Section>
-)
+);

@@ -7,6 +7,7 @@ import './App.css'
 import Layout from './components/layout/Layout.jsx'
 import Home from './pages/home/Home.jsx'
 import Catalog from './pages/catalog/Catalog.jsx'
+import ForAuthors from './pages/for-authors/ForAuthors.jsx'
 
 function App() {
   return (
@@ -15,7 +16,8 @@ function App() {
 
         <Route path='/' element={<Layout />} > 
           <Route index element={<Home />} />
-          <Route path='/catalog' element={<Catalog />} />
+          <Route path='catalog' element={<Catalog />} />
+          <Route path='for-authors' element={<ForAuthors />} />
 
           {/* <Route path='/profile' element={
             <ProtectedRoute>
