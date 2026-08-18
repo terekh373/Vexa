@@ -16,16 +16,18 @@ const SearchWrapper = styled.div`
           padding: 10px 16px 10px 40px;
           font-size: 16px;
         }
+  
       `;
     }
 
     if ($size === 'large') {
       return `
-        max-width: 1190px;
+        max-width: 1216px;
 
         input {
-          padding: 10px 16px 10px 40px;
+          padding: 12px 16px 12px 40px;
           font-size: 16px;
+          line-height: 24px;
         }
       `;
     }

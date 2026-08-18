@@ -47,6 +47,47 @@ export const languages = [
   },
 ]
 
+export const formats = [
+  {
+    value: 'videocurse',
+    label: 'Відеокурс',
+    count: 10,
+  },
+  {
+    value: 'text-matherials',
+    label: 'Текстові матеріали / завдання',
+    count: 7,
+  },
+  {
+    value: 'webinars',
+    label: 'Вебінари',
+    count: 52,
+  },
+]
+
+export const ratings = [
+  {
+    value: '5',
+    count: 95,
+  },
+  {
+    value: '4',
+    count: 125,
+  },
+  {
+    value: '3',
+    count: 87,
+  },
+  {
+    value: '2',
+    count: 24,
+  },
+  {
+    value: '1',
+    count: 8,
+  },
+]
+
 export const sortOptions = [
   {
     value: 'rating-desc',

@@ -1,11 +1,9 @@
 export const filterCourses = (
   courses,
-  { category, level, language, search }
+  { category, level, language, format, rating, search, minPrice, maxPrice, }
 ) => {
   return courses.filter((course) => {
 
-    // если категория выбрана —
-    // проверяем её
     if (
       category.length > 0 &&
       !category.includes(course.category)
@@ -13,8 +11,6 @@ export const filterCourses = (
       return false;
     }
 
-    // если уровень выбран —
-    // проверяем его
     if (
       level.length > 0 &&
       !level.includes(course.level)
@@ -22,8 +18,6 @@ export const filterCourses = (
       return false;
     }
 
-    // если язык выбран —
-    // проверяем его
     if (
       language.length > 0 &&
       !language.includes(course.language)
@@ -31,12 +25,41 @@ export const filterCourses = (
       return false;
     }
 
-    // если есть поиск
+    if (
+      format.length > 0 &&
+      !format.includes(course.format)
+    ) {
+      return false;
+    }
+
+    if (rating.length > 0) {
+      const matchesRating = rating.some((selectedRating) => {
+        const minRating = Number(selectedRating);
+        const maxRating = minRating + 1;
+
+        return (
+          course.rating >= minRating &&
+          course.rating < maxRating
+        );
+      });
+
+      if (!matchesRating) {
+        return false;
+      }
+    }
+
     if (
       search &&
       !course.title
         .toLowerCase()
         .includes(search.toLowerCase())
+    ) {
+      return false;
+    }
+
+    if (
+      course.price < minPrice ||
+      course.price > maxPrice
     ) {
       return false;
     }
