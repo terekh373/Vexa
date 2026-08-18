@@ -1,11 +1,18 @@
 import { useState } from 'react'
 import styles from './PriceFilter.module.css'
+import checkIcon from '../../assets/icons/check.svg'
 
 const MIN_PRICE = 0
 const MAX_PRICE = 500
 
-const PriceFilter = ({ minPrice, maxPrice, onChange }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const PriceFilter = ({
+  minPrice,
+  maxPrice,
+  onChange,
+  free,
+  discounted,
+}) => {
+  const [isOpen, setIsOpen] = useState(false)
 
   const handleMinChange = (event) => {
     const value = Number(event.target.value)
@@ -18,7 +25,7 @@ const PriceFilter = ({ minPrice, maxPrice, onChange }) => {
       min: value,
       max: maxPrice,
     })
-  };
+  }
 
   const handleMaxChange = (event) => {
     const value = Number(event.target.value)
@@ -31,7 +38,15 @@ const PriceFilter = ({ minPrice, maxPrice, onChange }) => {
       min: minPrice,
       max: value,
     })
-  };
+  }
+
+  const handleCheckboxChange = (name, checked) => {
+    onChange({
+      min: minPrice,
+      max: maxPrice,
+      [name]: checked,
+    })
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -51,6 +66,9 @@ const PriceFilter = ({ minPrice, maxPrice, onChange }) => {
 
       {isOpen && (
         <div className={styles.dropdown}>
+
+          {/* PRICE SLIDER */}
+
           <div className={styles.slider}>
             <div className={styles.track} />
 
@@ -85,6 +103,64 @@ const PriceFilter = ({ minPrice, maxPrice, onChange }) => {
             Від {minPrice.toLocaleString('uk-UA')} до{' '}
             {maxPrice.toLocaleString('uk-UA')} ₴
           </p>
+
+          {/* CHECKBOXES */}
+
+          <div className={styles.checkboxes}>
+
+            <label className={styles.option}>
+              <div className={styles.checkboxWrapper}>
+                <input
+                  type="checkbox"
+                  checked={free}
+                  onChange={(event) =>
+                    handleCheckboxChange(
+                      'free',
+                      event.target.checked
+                    )
+                  }
+                />
+
+                <span className={styles.checkbox}>
+                  {free && (
+                    <img
+                      src={checkIcon}
+                      alt=""
+                    />
+                  )}
+                </span>
+              </div>
+
+              <span>Безкоштовні</span>
+            </label>
+
+            <label className={styles.option}>
+              <div className={styles.checkboxWrapper}>
+                <input
+                  type="checkbox"
+                  checked={discounted}
+                  onChange={(event) =>
+                    handleCheckboxChange(
+                      'discounted',
+                      event.target.checked
+                    )
+                  }
+                />
+
+                <span className={styles.checkbox}>
+                  {discounted && (
+                    <img
+                      src={checkIcon}
+                      alt=""
+                    />
+                  )}
+                </span>
+              </div>
+
+              <span>Зі знижкою</span>
+            </label>
+
+          </div>
         </div>
       )}
     </div>

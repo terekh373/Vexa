@@ -26,6 +26,7 @@
   gap: 8px;
 }
 
+/* PRICE SLIDER */
 .slider {
   position: relative;
   width: 100%;
@@ -84,6 +85,7 @@
   pointer-events: auto;
 }
 
+/* PRICE */
 .price {
   margin: 16px 10px 10px;
   color: var(--main-dark-color);
@@ -93,6 +95,71 @@
   align-self: flex-start;
 }
 
+/* CHECKBOXES */
+.checkboxes {
+  display: flex;
+  flex-direction: column;
+  align-self: flex-start;
+  gap: 8px;
+}
+
+.option {
+  width: 100%;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  color: var(--main-dark-color);
+  font-size: 20px;
+  font-weight: normal;
+  line-height: 32px;
+  cursor: pointer;
+}
+
+.checkboxWrapper {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+
+}
+
+.checkboxWrapper input {
+  position: absolute;
+  inset: 0;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+  border: 1px solid var(--border-grey);
+  border-radius: 6px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkboxWrapper input:checked + .checkbox {
+  background: var(--purple-color);
+  border-color: var(--purple-color);
+}
+
+.checkbox img {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+/* ARROW */
 .arrow {
   width: 8px;
   height: 8px;

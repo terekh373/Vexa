@@ -33,6 +33,9 @@ const Catalog = () => {
   const format = searchParams.get('format')?.split(',').filter(Boolean) || [];
   const rating = searchParams.get('rating')?.split(',').filter(Boolean) || [];
 
+  const free = searchParams.get('free') === 'true';
+  const discounted = searchParams.get('discounted') === 'true';
+
   const minPrice = Number(searchParams.get('minPrice')) || 0;
   const maxPrice = Number(searchParams.get('maxPrice')) || 500;
 
@@ -40,7 +43,9 @@ const Catalog = () => {
 
   const checkedFilters = [
     ...category.map((value) => {
-      const option = categories.find((item) => item.value === value)
+      const option = categories.find(
+        (item) => item.value === value
+      )
 
       return {
         key: 'category',
@@ -50,7 +55,9 @@ const Catalog = () => {
     }),
 
     ...level.map((value) => {
-      const option = levels.find((item) => item.value === value)
+      const option = levels.find(
+        (item) => item.value === value
+      )
 
       return {
         key: 'level',
@@ -60,7 +67,9 @@ const Catalog = () => {
     }),
 
     ...format.map((value) => {
-      const option = formats.find((item) => item.value === value)
+      const option = formats.find(
+        (item) => item.value === value
+      )
 
       return {
         key: 'format',
@@ -70,7 +79,9 @@ const Catalog = () => {
     }),
 
     ...language.map((value) => {
-      const option = languages.find((item) => item.value === value)
+      const option = languages.find(
+        (item) => item.value === value
+      )
 
       return {
         key: 'language',
@@ -79,13 +90,27 @@ const Catalog = () => {
       }
     }),
 
-    ...rating.map((value) => {
-      return {
-        key: 'rating',
-        value,
-        label: `${value} ★`,
-      }
-    }),
+    ...rating.map((value) => ({
+      key: 'rating',
+      value,
+      label: `${value} ★`,
+    })),
+
+    ...(free
+      ? [{
+          key: 'free',
+          value: 'true',
+          label: 'Безкоштовні',
+        }]
+      : []),
+
+    ...(discounted
+      ? [{
+          key: 'discounted',
+          value: 'true',
+          label: 'Зі знижкою',
+        }]
+      : []),
   ];
 
   const removeFilter = (key, value) => {
@@ -101,15 +126,42 @@ const Catalog = () => {
     updateParams(key, newValues)
   };
 
-  const handlePriceChange = ({ min, max }) => {
-    const params = new URLSearchParams(searchParams)
+  // const handlePriceChange = ({ min, max }) => {
+  //   const params = new URLSearchParams(searchParams);
+
+  //   params.set('minPrice', String(min));
+  //   params.set('maxPrice', String(max));
+  //   params.set('page', '1');
+
+  //   setSearchParams(params);
+  // }
+
+  const handlePriceChange = ({ min, max, free, discounted, }) => {
+    const params = new URLSearchParams(searchParams);
 
     params.set('minPrice', String(min));
     params.set('maxPrice', String(max));
+
+    if (free !== undefined) {
+      if (free) {
+        params.set('free', 'true');
+      } else {
+        params.delete('free');
+      }
+    }
+
+    if (discounted !== undefined) {
+      if (discounted) {
+        params.set('discounted', 'true');
+      } else {
+        params.delete('discounted');
+      }
+    }
+
     params.set('page', '1');
 
     setSearchParams(params);
-  }
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -181,6 +233,8 @@ const Catalog = () => {
       search,
       minPrice,
       maxPrice,
+      free,
+      discounted,
     });
 
   // SORT
@@ -313,6 +367,8 @@ const Catalog = () => {
           <PriceFilter
             minPrice={minPrice}
             maxPrice={maxPrice}
+            free={free}
+            discounted={discounted}
             onChange={handlePriceChange}
           />
 
@@ -341,32 +397,31 @@ const Catalog = () => {
           </div>
         ) : (
           <>
-        
-              {checkedFilters.length > 0 && (
-                <div className={styles.checkedFilters}>
-                  <button 
+            {checkedFilters.length > 0 && (
+              <div className={styles.checkedFilters}>
+                <button 
+                  type="button"
+                  className={styles.removeAllBttn} 
+                  onClick={clearFilters}>
+                  Скинути все
+                </button>
+
+                {checkedFilters.map((filter) => (
+                  <button
+                    key={`${filter.key}-${filter.value}`}
                     type="button"
-                    className={styles.removeAllBttn} 
-                    onClick={clearFilters}>
-                    Скинути все
+                    className={styles.checkedFiltersBttn}
+                    onClick={() =>removeFilter(filter.key, filter.value)}
+                  >
+                    <span>{filter.label}</span>
+
+                    <span className={styles.removeFilterBttn}>
+                      ×
+                    </span>
                   </button>
-
-                  {checkedFilters.map((filter) => (
-                    <button
-                      key={`${filter.key}-${filter.value}`}
-                      type="button"
-                      className={styles.checkedFiltersBttn}
-                      onClick={() =>removeFilter(filter.key, filter.value)}
-                    >
-                      <span>{filter.label}</span>
-
-                      <span className={styles.removeFilterBttn}>
-                        ×
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
+                ))}
+              </div>
+            )}
             <CourseGrid courses={visibleCourses}/>
           </>
         )}
