@@ -61,18 +61,24 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
+  gap: 16px;
   margin-top: 40px;
-  border: 2px solid orange;
 }
 
 .pagination button {
   min-width: 40px;
   height: 40px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: white;
+  border: 2px solid var(--purple-color);
+  border-radius: 10px;
   cursor: pointer;
+  background-color: var(--main-bg-color);
+  color: var(--purple-color);
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pagination button:disabled {
@@ -81,8 +87,8 @@
 }
 
 .activePage {
-  background: #000 !important;
-  color: white;
+  background-color: var(--purple-color) !important;
+  color: white !important;
 }
 
 .checkedFilters {
