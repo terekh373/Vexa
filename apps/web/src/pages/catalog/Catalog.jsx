@@ -12,7 +12,8 @@ import { filterCourses, sortCourses } from '../../utils/courseFilters.js'
 import CourseGrid from '../../components/ui/course-grid/CourseGrid.jsx'
 import CourseSkeleton from '../../components/ui/skeleton/CourseSkeleton.jsx'
 import { getItemsPerPage } from '../../utils/catalog-utils/catalogPagination.js'
-import { categories, levels, languages, sortOptions } from '../../data/catalogFilters.js'
+import { categories, levels, languages, formats, ratings, sortOptions } from '../../data/catalogFilters.js'
+import PriceFilter from './PriceFilter.jsx'
 
 const Catalog = () => {
   const [itemsPerPage, setItemsPerPage] = useState(getItemsPerPage);
@@ -29,8 +30,86 @@ const Catalog = () => {
   const category = searchParams.get('category')?.split(',').filter(Boolean) || [];
   const level = searchParams.get('level')?.split(',').filter(Boolean) || [];
   const language = searchParams.get('language')?.split(',').filter(Boolean) || [];
+  const format = searchParams.get('format')?.split(',').filter(Boolean) || [];
+  const rating = searchParams.get('rating')?.split(',').filter(Boolean) || [];
+
+  const minPrice = Number(searchParams.get('minPrice')) || 0;
+  const maxPrice = Number(searchParams.get('maxPrice')) || 500;
 
   const currentPage = Number(searchParams.get('page')) || 1;
+
+  const checkedFilters = [
+    ...category.map((value) => {
+      const option = categories.find((item) => item.value === value)
+
+      return {
+        key: 'category',
+        value,
+        label: option?.label,
+      }
+    }),
+
+    ...level.map((value) => {
+      const option = levels.find((item) => item.value === value)
+
+      return {
+        key: 'level',
+        value,
+        label: option?.label,
+      }
+    }),
+
+    ...format.map((value) => {
+      const option = formats.find((item) => item.value === value)
+
+      return {
+        key: 'format',
+        value,
+        label: option?.label,
+      }
+    }),
+
+    ...language.map((value) => {
+      const option = languages.find((item) => item.value === value)
+
+      return {
+        key: 'language',
+        value,
+        label: option?.label,
+      }
+    }),
+
+    ...rating.map((value) => {
+      return {
+        key: 'rating',
+        value,
+        label: `${value} ★`,
+      }
+    }),
+  ];
+
+  const removeFilter = (key, value) => {
+    const currentValues = searchParams
+      .get(key)
+      ?.split(',')
+      .filter(Boolean) || []
+
+    const newValues = currentValues.filter(
+      (item) => item !== value
+    )
+
+    updateParams(key, newValues)
+  };
+
+  const handlePriceChange = ({ min, max }) => {
+    const params = new URLSearchParams(searchParams)
+
+    params.set('minPrice', String(min));
+    params.set('maxPrice', String(max));
+    params.set('page', '1');
+
+    setSearchParams(params);
+  }
 
   useEffect(() => {
     const handleResize = () => {
@@ -97,7 +176,11 @@ const Catalog = () => {
       category,
       level,
       language,
-      search
+      format,
+      rating,
+      search,
+      minPrice,
+      maxPrice,
     });
 
   // SORT
@@ -186,13 +269,14 @@ const Catalog = () => {
         {/* FILTERS */}
         <div className={styles.filters}>
           <FilterDropdown
-            label="Категорія"
+            label="Категорії"
             options={categories}
             value={category}
             onChange={(value) => updateParams('category', value)}
           />
+
           <FilterDropdown
-            label="Рівень"
+            label="Рівень складності"
             options={levels}
             value={level}
             onChange={(value) =>
@@ -201,13 +285,37 @@ const Catalog = () => {
           />
 
           <FilterDropdown
-            label="Мова"
+            label="Формат"
+            options={formats}
+            value={format}
+            onChange={(value) =>
+              updateParams('format', value)
+            }
+          />
+
+          <FilterDropdown
+            label="Мова курсу"
             options={languages}
             value={language}
             onChange={(value) =>
               updateParams('language', value)
             }
           />
+
+          <FilterDropdown
+            label="Рейтинг"
+            options={ratings}
+            value={rating}
+            onChange={(value) => updateParams('rating', value)}
+            type="rating"
+          />
+
+          <PriceFilter
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            onChange={handlePriceChange}
+          />
+
           <Button title='Скинути фільтри' onClick={clearFilters} />
         </div>
 
@@ -232,9 +340,36 @@ const Catalog = () => {
             </button>
           </div>
         ) : (
-          <CourseGrid courses={visibleCourses}/>
-        )}
+          <>
+        
+              {checkedFilters.length > 0 && (
+                <div className={styles.checkedFilters}>
+                  <button 
+                    type="button"
+                    className={styles.removeAllBttn} 
+                    onClick={clearFilters}>
+                    Скинути все
+                  </button>
 
+                  {checkedFilters.map((filter) => (
+                    <button
+                      key={`${filter.key}-${filter.value}`}
+                      type="button"
+                      className={styles.checkedFiltersBttn}
+                      onClick={() =>removeFilter(filter.key, filter.value)}
+                    >
+                      <span>{filter.label}</span>
+
+                      <span className={styles.removeFilterBttn}>
+                        ×
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            <CourseGrid courses={visibleCourses}/>
+          </>
+        )}
 
         {/* PAGINATION */}
         {!loading && totalPages > 1 && (
@@ -262,7 +397,6 @@ const Catalog = () => {
 
             <button
               disabled={currentPage === totalPages}
-
               onClick={() => updateParams('page', String(currentPage + 1))}
             >
               →

@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import styles from './FilterDropdown.module.css';
+import starIcon from '../../../assets/icons/star-purple.svg'
+import starGreyIcon from '../../../assets/icons/star-grey.svg'
+import checkIcon from '../../../assets/icons/check.svg';
 
-const FilterDropdown = ({ label, options, value, onChange }) => {
+const FilterDropdown = ({ label, options, value, onChange, type = 'default' }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleChange = (e) => {
@@ -32,13 +35,35 @@ const FilterDropdown = ({ label, options, value, onChange }) => {
             {options.map((option) => (
               <label key={option.value} className={styles.option}>
                 <div className={styles.box}>
-                  <input
-                    type='checkbox'
-                    value={option.value}
-                    checked={value.includes(option.value)}
-                    onChange={handleChange} 
-                  />
-                  <span>{option.label}</span>
+                  <div className={styles.checkboxWrapper}>
+                    <input
+                      type="checkbox"
+                      value={option.value}
+                      checked={value.includes(option.value)}
+                      onChange={handleChange}
+                    />
+
+                    <span className={styles.checkbox}>
+                      {value.includes(option.value) && (
+                        <img src={checkIcon} alt="" />
+                      )}
+                    </span>
+                  </div>
+
+                  {type === 'rating' ? (
+                    <div className={styles.stars}>
+                      {Array.from({ length: 5 }).map((_, index) => (
+                        <img
+                          key={index}
+                          src={index < Number(option.value) ? starIcon : starGreyIcon}
+                          className={styles.star}
+                          alt=""
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <span>{option.label}</span>
+                  )}
                 </div>
                 
                 <span className={styles.count}>{option.count}</span>
