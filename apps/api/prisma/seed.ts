@@ -24,7 +24,7 @@ import {
   NotificationType,
   ProgressStatus,
 } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+import { hashPassword } from '../src/modules/auth/password.service.js';
 
 const prisma = new PrismaClient();
 
@@ -113,7 +113,7 @@ const id = {
 } as const;
 
 async function seedUsers(): Promise<void> {
-  const passwordHash = await bcrypt.hash('Vexa12345!', 10);
+  const demoPasswordHash = await hashPassword('Vexa12345!');
   const now = new Date();
 
   const users = [
@@ -153,7 +153,7 @@ async function seedUsers(): Promise<void> {
     await prisma.user.upsert({
       where: { id: user.id },
       update: { fullName: user.fullName, roles: user.roles },
-      create: { ...user, passwordHash, emailVerifiedAt: now },
+      create: { ...user, passwordHash: demoPasswordHash, emailVerifiedAt: now },
     });
   }
 
