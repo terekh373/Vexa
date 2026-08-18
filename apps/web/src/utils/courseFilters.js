@@ -1,6 +1,6 @@
 export const filterCourses = (
   courses,
-  { category, level, language, format, rating, search, minPrice, maxPrice, }
+  { category, level, language, format, rating, search, minPrice, maxPrice,free, discounted }
 ) => {
   return courses.filter((course) => {
 
@@ -61,6 +61,16 @@ export const filterCourses = (
       course.price < minPrice ||
       course.price > maxPrice
     ) {
+      return false;
+    }
+
+    // FREE
+    if (free &&course.price !== 0) {
+      return false;
+    }
+
+    // DISCOUNT
+    if (discounted &&!course.discount) {
       return false;
     }
 
