@@ -20,7 +20,7 @@ const Header = () => {
               <Link to='/for-authors' className={styles.link}>Для авторів</Link>
             </li>
             <li>
-              <a>Vexa AI</a>
+              <Link to='/vexa-ai' className={styles.link}>Vexa AI</Link>
             </li>
           </ul>
 

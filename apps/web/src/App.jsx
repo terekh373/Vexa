@@ -18,6 +18,7 @@ function App() {
           <Route index element={<Home />} />
           <Route path='catalog' element={<Catalog />} />
           <Route path='for-authors' element={<ForAuthors />} />
+          {/* <Route path='vexa-ai' element={<VexaAI />} /> */}
 
           {/* <Route path='/profile' element={
             <ProtectedRoute>

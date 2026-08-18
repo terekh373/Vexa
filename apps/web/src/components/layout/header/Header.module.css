@@ -9,6 +9,7 @@
   gap: 16px;
   justify-content: space-between;
   align-items: center;
+  padding: 22px 0;
 }
 
 .list {
@@ -25,6 +26,22 @@
   font-size: 16px;
   font-weight: 400;
 }
+
+.link:hover {
+  cursor: pointer;
+  color: var(--purple-color);
+}
+
+link:active {
+  color: var(--adjuvant-purple);
+  text-decoration: underline;
+}
+
+link:disabled {
+  color: var(--border-grey);
+  text-decoration: underline;
+}
+
 
 /* 1440px */
 @media (max-width: 1440px) {
