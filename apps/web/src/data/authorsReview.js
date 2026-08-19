@@ -1,6 +1,6 @@
-import Avatar01 from '../assets/images/for-authors-images/avatar-1.png'
-import Avatar03 from '../assets/images/for-authors-images/avatar-2.png'
-import Avatar02 from '../assets/images/for-authors-images/avatar-3.png'
+import Avatar01 from '../assets/images/for-authors-images/Avatar-1.png'
+import Avatar03 from '../assets/images/for-authors-images/Avatar-2.png'
+import Avatar02 from '../assets/images/for-authors-images/Avatar-3.png'
 
 export const authorsReviewCards = [
   {
