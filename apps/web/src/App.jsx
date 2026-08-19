@@ -2,7 +2,6 @@
 import { Routes, Route } from 'react-router-dom'
 // import ProtectedRoute from './components/protected-route/ProtectedRoute.jsx'
 
-import { useState } from 'react'
 import './App.css'
 import Layout from './components/layout/Layout.jsx'
 import Home from './pages/home/Home.jsx'
