@@ -5,5 +5,10 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "scripts": { "build": "tsc --build" }
+  "scripts": {
+    "build": "tsc --build"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
 }

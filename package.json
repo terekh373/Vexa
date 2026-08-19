@@ -11,7 +11,7 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "typecheck": "tsc --build",
+    "typecheck": "tsc --build && tsc --noEmit -p apps/api/prisma",
     "build": "npm run build --workspaces --if-present",
     "postinstall": "npm run db:generate --workspace @vexa/api",
     "db:up": "docker compose up -d",
