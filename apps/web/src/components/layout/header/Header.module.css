@@ -9,6 +9,7 @@
   gap: 16px;
   justify-content: space-between;
   align-items: center;
+  padding: 22px 0;
 }
 
 .list {
@@ -19,7 +20,166 @@
   align-items: center;
 }
 
-.list li {
+.link {
+  text-decoration: none;
+  color: var(--main-dark-color);
   font-size: 16px;
   font-weight: 400;
+}
+
+.link:hover {
+  cursor: pointer;
+  color: var(--purple-color);
+}
+
+link:active {
+  color: var(--adjuvant-purple);
+  text-decoration: underline;
+}
+
+link:disabled {
+  color: var(--border-grey);
+  text-decoration: underline;
+}
+
+
+/* 1440px */
+@media (max-width: 1440px) {
+  .container {
+    gap: 12px;
+  }
+
+  .list {
+    gap: 12px;
+  }
+}
+
+/* 1200px */
+@media (max-width: 1200px) {
+  .container {
+    gap: 10px;
+  }
+
+  .list {
+    gap: 10px;
+  }
+
+  .list li {
+    font-size: 15px;
+  }
+}
+
+/* 992px */
+@media (max-width: 992px) {
+  .container {
+    flex-wrap: wrap;
+    row-gap: 12px;
+  }
+
+  /* Logo */
+  .container > :first-child {
+    order: 1;
+  }
+
+  /* Меню */
+  .container > :nth-child(2) {
+    order: 2;
+  }
+
+  /* Search */
+  .container > :nth-child(3) {
+    order: 3;
+    flex: 1 1 100%;
+  }
+
+  /* Кнопки */
+  .container > :nth-child(4) {
+    order: 1;
+  }
+}
+
+/* 768px */
+@media (max-width: 768px) {
+  .header {
+    padding: 14px 0;
+  }
+
+  .container {
+    gap: 12px;
+  }
+
+  .list {
+    gap: 10px;
+  }
+
+  .list li {
+    font-size: 14px;
+  }
+}
+
+/* 480px */
+@media (max-width: 480px) {
+  .header {
+    padding: 12px 0;
+  }
+
+  .container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  /* Logo */
+  .container > :first-child {
+    align-self: center;
+  }
+
+  /* Навигация */
+  .container > :nth-child(2) {
+    order: 2;
+    justify-content: center;
+    overflow-x: auto;
+  }
+
+  /* Search */
+  .container > :nth-child(3) {
+    order: 3;
+    width: 100%;
+  }
+
+  /* Кнопки */
+  .container > :nth-child(4) {
+    order: 4;
+    justify-content: center;
+  }
+}
+
+/* 320px */
+@media (max-width: 320px) {
+  .header {
+    padding: 10px 0;
+  }
+
+  .container {
+    gap: 10px;
+  }
+
+  .list {
+    gap: 8px;
+  }
+
+  .list li {
+    font-size: 13px;
+  }
+
+  .container > :nth-child(2) {
+    justify-content: flex-start;
+    overflow-x: auto;
+  }
+
+  .container > :nth-child(4) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
 }

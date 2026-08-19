@@ -3,20 +3,14 @@ import starIcon from '../../../../assets/icons/star.svg'
 
 const Card = styled.div`
   width: 352px;
-  padding: 16px 8px;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   border: 1px solid var(--border-grey);
   border-radius: 16px;
+  padding: 16px 8px;
+  box-sizing: border-box;
 
-  img {
-    border-radius: 16px;
-    width: 124px;
-    height: auto;
-    object-fit: contain;
-    margin-right: 4px;
-  }
 
   span:first-child {
     display: inline-block;
@@ -43,6 +37,10 @@ const Card = styled.div`
   }
 `
 
+const Content = styled.div`
+  padding: 0 8px;
+`
+
 const Stars = styled.div`
   display: flex;
   align-items: center;
@@ -56,23 +54,44 @@ const Star = styled.img`
   margin: 0 !important;
 `
 
+const ImageWrapper = styled.div`
+  width: 124px;
+  flex: 0 0 124px;
+  align-self: stretch;
+  overflow: hidden;
+  /* border-radius: 16px; */
+  border-radius: 16px;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`
+
 export const ReviewCard = ({ card }) => (
   <Card>
-    <img src={card.image} alt='monitor icon' />
-    <div>
-      <span>{card.userName}</span>
-      <span>{card.userNick}</span>
-      <p>{card.userReview}</p>
+    <ImageWrapper>
+      <img src={card.image} alt="user photo" />
+    </ImageWrapper>
 
-      <Stars>
-        {Array.from({ length: card.stars }).map((_, index) => (
-          <Star
-            key={index}
-            src={starIcon}
-            alt="star"
-          />
-        ))}
-      </Stars>
+    <div>
+      <Content>
+        <span>{card.userName}</span>
+        <span>{card.userNick}</span>
+        <p>{card.userReview}</p>
+
+        <Stars>
+          {Array.from({ length: card.stars }).map((_, index) => (
+            <Star
+              key={index}
+              src={starIcon}
+              alt="star"
+            />
+          ))}
+        </Stars>
+      </Content>
     </div>
   
   </Card>

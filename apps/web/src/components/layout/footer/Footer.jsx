@@ -15,9 +15,7 @@ const Footer = () => {
         <div className={styles.container}>
 
           <div className={styles.about}>
-            <Link to="/">
-             <Logo />
-            </Link>
+            <Logo />
 
             <p className={styles.description}>
               Платформа онлайн-курсів для тих, хто хоче розвиватися та досягати більшого.

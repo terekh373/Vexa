@@ -1,0 +1,174 @@
+.wrapper {
+  width: 316px;
+}
+
+.button {
+  width: 100%;
+  padding: 16px 10px;
+  margin-bottom: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--main-dark-color);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+.dropdown {
+  width: 316px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* PRICE SLIDER */
+.slider {
+  position: relative;
+  width: 100%;
+  height: 20px;
+  margin-top: 10px;
+}
+
+.track,
+.range {
+  position: absolute;
+  top: 8px;
+  height: 5px;
+}
+
+.track {
+  left: 0;
+  right: 0;
+  background: var(--border-grey);
+}
+
+.range {
+  background: var(--purple-color);
+}
+
+.rangeInput {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+.rangeInput::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
+  background: var(--purple-color);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.rangeInput::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
+  background: var(--purple-color);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* PRICE */
+.price {
+  margin: 16px 10px 10px;
+  color: var(--main-dark-color);
+  font-size: 20px;
+  font-weight: normal;
+  line-height: 32px;
+  align-self: flex-start;
+}
+
+/* CHECKBOXES */
+.checkboxes {
+  display: flex;
+  flex-direction: column;
+  align-self: flex-start;
+  gap: 8px;
+}
+
+.option {
+  width: 100%;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  color: var(--main-dark-color);
+  font-size: 20px;
+  font-weight: normal;
+  line-height: 32px;
+  cursor: pointer;
+}
+
+.checkboxWrapper {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+
+}
+
+.checkboxWrapper input {
+  position: absolute;
+  inset: 0;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+  border: 1px solid var(--border-grey);
+  border-radius: 6px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkboxWrapper input:checked + .checkbox {
+  background: var(--purple-color);
+  border-color: var(--purple-color);
+}
+
+.checkbox img {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+/* ARROW */
+.arrow {
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--purple-color);
+  border-bottom: 2px solid var(--purple-color);
+  transform: rotate(45deg);
+  transition: transform 0.2s;
+}
+
+.arrowUp {
+  transform: rotate(-135deg);
+}

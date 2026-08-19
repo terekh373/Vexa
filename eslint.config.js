@@ -22,4 +22,9 @@ export default tseslint.config(
     files: ['apps/api/**/*.ts'],
     languageOptions: { globals: globals.node },
   },
+  // Frontend — Browser
+  {
+    files: ['apps/web/**/*.{js,jsx,ts,tsx}'],
+    languageOptions: { globals: globals.browser },
+  },
 );

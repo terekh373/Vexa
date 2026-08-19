@@ -18,3 +18,64 @@ If you are developing a production application, we recommend using TypeScript wi
 <!-- npm install styled-components -->
 <!-- npm install react-router-dom -->
 <!-- npm install axios -->
+
+<!-- export const COURSE_CATEGORIES = [
+  'programming',
+  'design',
+  'marketing',
+] as const
+
+export type CourseCategory =
+  (typeof COURSE_CATEGORIES)[number]
+
+
+export const COURSE_LEVELS = [
+  'beginner',
+  'intermediate',
+  'advanced',
+] as const
+
+export type CourseLevel =
+  (typeof COURSE_LEVELS)[number]
+
+
+export const COURSE_FORMATS = [
+  'video',
+  'webinar',
+  'text',
+] as const
+
+export type CourseFormat =
+  (typeof COURSE_FORMATS)[number]
+
+
+export const COURSE_LANGUAGES = [
+  'uk',
+  'en',
+] as const
+
+export type CourseLanguage =
+  (typeof COURSE_LANGUAGES)[number]
+
+
+export type Course = {
+  id: number
+  title: string
+  description: string
+  author: string
+  image: string
+
+  rating: number
+  reviews: number
+  price: number
+
+  isNew: boolean
+  isBookmarked: boolean
+
+  category: CourseCategory
+  level: CourseLevel
+  format: CourseFormat
+  language: CourseLanguage
+
+  status: CourseStatus
+} -->

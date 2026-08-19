@@ -31,7 +31,7 @@ const Newsletter = () => {
               />
             </div>
 
-            <div>
+            <div className={styles.description}>
               <h3>Будьте в курсі новинок</h3>
 
               <p>

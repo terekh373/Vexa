@@ -3,6 +3,7 @@ import { Logo } from '../../ui/logo/Logo.jsx'
 import { Search } from '../../ui/search/Search.jsx'
 import Button from '../../ui/buttons/Button.jsx'
 import {Container} from '../container/Container.jsx';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
   return (
@@ -13,13 +14,13 @@ const Header = () => {
           <Logo />
           <ul className={styles.list}>
             <li>
-              <a>Каталог курсів</a>
+              <Link to='/catalog' className={styles.link}>Каталог курсів</Link>
             </li>
             <li>
-              <a>Для авторів</a>
+              <Link to='/for-authors' className={styles.link}>Для авторів</Link>
             </li>
             <li>
-              <a>Vexa AI</a>
+              <Link to='/vexa-ai' className={styles.link}>Vexa AI</Link>
             </li>
           </ul>
 
