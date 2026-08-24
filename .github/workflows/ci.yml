@@ -24,6 +24,20 @@ jobs:
       - run: npm ci
       - run: npm run lint
 
+  # The web client is JavaScript by decision of the tech lead (SRS amendment 1),
+  # so it is not covered by tsc. oxlint is its only automated gate.
+  lint-web:
+    name: lint-web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run lint --workspace @vexa/web
+
   typecheck:
     name: typecheck
     runs-on: ubuntu-latest
