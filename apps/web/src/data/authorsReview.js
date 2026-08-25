@@ -10,7 +10,7 @@ export const authorsReviewCards = [
     image: Avatar01,
     imageAlt: 'Avatar 1 icon',
     position: 'Викладач англійської мови',
-    stars: 4,
+    stars: 5,
   },
   {
     id: 2,

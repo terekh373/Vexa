@@ -168,6 +168,35 @@
   }
 }
 
+.whatYouCanLearn {
+  position: relative;
+  width: 300px;
+  height: stretch;
+  padding: 0 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: flex-start;
+  border: 1px solid var(--border-grey);
+  border-radius: 16px;
+  padding: 24px 6px;
+
+  img {
+    width: 46px;
+    height: 46px;
+    margin-bottom: 0;
+  }
+
+  h4 {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    margin-bottom: 0;
+    text-align: start;
+  }
+}
+
 
 .small {}
 

@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { Container } from '../../layout/container/Container'
 import { OpenMore } from '../../ui/openmore/OpenMore'
-import { ReviewCard } from '../../ui/cards/review-card/ReviewCard'
+import { ReviewCard } from '../../ui/cards/main-page-review-card/ReviewCard'
 
 import user01 from '../../../assets/images/user01.png'
 import user02 from '../../../assets/images/user02.png'

@@ -1,23 +1,42 @@
-import styles from './Course.module.css'
+import styles from './Course.module.css';
 import { useParams } from 'react-router-dom';
+import { useState } from 'react';
 
 import { Container } from '../../components/layout/container/Container';
 import Breadcrumbs from '../../components/ui/breadcrumbs/Breadcrumbs';
 
-import Clock from '../../assets/icons/Clock.svg'
-import Book from '../../assets/icons/Book-2.svg'
-import Star from '../../assets/icons/star.svg'
-import Group from '../../assets/icons/for-authors-icons/groups.svg'
+import Clock from '../../assets/icons/Clock.svg';
+import Book from '../../assets/icons/Book-2.svg';
+import Star from '../../assets/icons/star.svg';
+import Group from '../../assets/icons/for-authors-icons/groups.svg';
 
-import InfoBg from '../../assets/images/for-course-images/course-info-bg.png'
-import authorAvatar from '../../assets/images/for-course-images/author-avatar.png'
+import InfoBg from '../../assets/images/for-course-images/course-info-bg.png';
+import authorAvatar from '../../assets/images/for-course-images/author-avatar.png';
 import checkingIcon from '../../assets/icons/checking.svg'
 
 import Button from '../../components/ui/buttons/Button';
+import { Title } from '../../components/ui/title/Title';
+import { CardsList } from '../../components/ui/cards-list/CardsList.jsx';
+
+import { whatCanLearnCards } from '../../data/featureCards';
+import { studentsReviewCards } from '../../data/studentsReview.js';
+import { CourseAuthorCard } from './CourseAuthorcard.jsx';
+import { OpenMore } from '../../components/ui/openmore/OpenMore.jsx';
+
+import checkBallIcon from '../../assets/icons/check-ball.svg'
+
+import LessonModule from '../../components/ui/module/LessonModule.jsx';
+import { lessonsModule } from '../../data/lessonsModule.js'
 
 const Course = () => {
   const { idOrSlug } = useParams();
   console.log(idOrSlug);
+
+  const [isReviewsOpen, setIsReviewsOpen] = useState(false);
+
+  const toggleReviews = () => {
+    setIsReviewsOpen(prev => !prev);
+  };
 
   return (
     <Container>
@@ -54,7 +73,6 @@ const Course = () => {
               <span>3D-художниця та викладачка</span>
             </div>
           </div>
-
         </div>
         
         <div className={styles.coursePriceInfo}>
@@ -108,12 +126,95 @@ const Course = () => {
             <p>На цьому курсі ви з нуля опануєте основи роботи в Blender: розберетеся з інтерфейсом, навчитеся створювати та редагувати 3D-об'єкти, працювати з матеріалами, освітленням і камерою.
             Ви пройдете весь шлях від перших кроків до створення власних 3D-сцен та їх рендерингу. Курс підійде як новачкам, так і тим, хто хоче систематизувати свої знання та впевненіше працювати з 3D.
             </p>
-
           </div>
+
         </div>
 
-        <div className={styles.courseInfo}>
+        <ul className={styles.courseInfo}>
+          <li>
+            <img src={checkBallIcon} alt='check ball icon' />
+            <p>
+              <span>Рівень: </span>
+              <span>Початковий</span>
+            </p>
+          </li>
+
+          <li>
+            <img src={checkBallIcon} alt='check ball icon' />
+            <p>
+              <span>Формат: </span>
+              <span>Відеоуроки</span>
+            </p>
+          </li>
+
+          <li>
+            <img src={checkBallIcon} alt='check ball icon' />
+            <p>
+              <span>Мова: </span>
+              <span>Українська</span>
+            </p>
+          </li>
+
+          <li>
+            <img src={checkBallIcon} alt='check ball icon' />
+            <p>
+              <span>Субтитри: </span>
+              <span>Українські</span>
+            </p>
+          </li>
+
+          <li>
+            <img src={checkBallIcon} alt='check ball icon' />
+            <p>
+              <span>Доступ: </span>
+              <span>Назавжди</span>
+            </p>
+          </li>
+        </ul>
+      </section>
+
+      <section className={styles.lessonsBox}>
+        <div className={styles.modulesBox}>
+          {lessonsModule.map((module, index) => (
+            <LessonModule
+              key={index}
+              title={module.title}
+              info={module.info}
+              lessons={module.lessons}
+            />
+          ))}
         </div>
+
+        <div className={styles.certificateBox}>
+
+        </div>
+
+
+
+      </section>
+
+
+
+      <section>
+        <Title title='Чому ви навчитесь' size='small' />
+        <CardsList cards={whatCanLearnCards} variant='whatYouCanLearn'/>
+
+        <Title title='Автор курсу' size='small' />
+        <CourseAuthorCard />
+
+        <OpenMore 
+          title='Відгуки студентів' 
+          bttnTxt={isReviewsOpen ? 'Згорнути' : 'Дивитись всі курси'}
+          size='small' 
+          type='expand'
+          isOpen={isReviewsOpen}
+          onClick={toggleReviews}
+        />
+
+        <CardsList 
+          cards={isReviewsOpen ? studentsReviewCards : studentsReviewCards.slice(0, 3)} 
+          review='studentReview' 
+        />
 
       </section>
       </main>
