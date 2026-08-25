@@ -3,72 +3,16 @@ import starIcon from '../../../../assets/icons/star.svg'
 
 const Card = styled.div`
   width: 352px;
-
   display: flex;
-  align-items: stretch;
   gap: 4px;
 
   border: 1px solid var(--border-grey);
   border-radius: 16px;
-
   padding: 16px 8px;
 
   box-sizing: border-box;
   overflow: hidden;
-
-  span:first-child {
-    display: inline-block;
-    color: var(--main-dark-color);
-    font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 2px;
-  }
-
-  span {
-    display: block;
-    color: var(--secondary-grey);
-    font-size: 14px;
-    font-weight: 400;
-    margin-bottom: 14px;
-  }
-
-  p {
-    width: 100%;
-    color: var(--main-dark-color);
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 24px;
-    margin-bottom: 22px;
-
-    overflow-wrap: break-word;
-    word-break: break-word;
-  }
-`
-
-const Content = styled.div`
-  min-width: 0;
-
-  padding: 0 8px;
-
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  height: 100%;
-`
-
-const Stars = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-
-  margin-top: auto;
-`
-
-const Star = styled.img`
-  width: 16px !important;
-  height: 16px !important;
-  margin: 0 !important;
-`
+`;
 
 const ImageWrapper = styled.div`
   width: 124px;
@@ -87,7 +31,58 @@ const ImageWrapper = styled.div`
 
     object-fit: cover;
   }
-`
+`;
+
+const Content = styled.div`
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+`;
+
+const UserName = styled.span`
+  display: block;
+  color: var(--main-dark-color);
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 2px;
+`;
+
+const UserNick = styled.span`
+  display: block;
+  color: var(--secondary-grey);
+  font-size: 14px;
+  font-weight: 400;
+  margin-bottom: 14px;
+`;
+
+const TextReview = styled.p`
+  min-width: 0;
+  max-width: 100%;
+  color: var(--main-dark-color);
+  font-size: 14px;
+  font-weight: 400;
+  margin-bottom: 22px;
+  overflow-wrap: break-word;
+  word-break: break-word;
+`;
+
+const Stars = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  margin-top: auto;
+`;
+
+const Star = styled.img`
+  width: 16px !important;
+  height: 16px !important;
+  margin: 0 !important;
+`;
 
 export const ReviewCard = ({ card }) => (
   <Card>
@@ -96,11 +91,9 @@ export const ReviewCard = ({ card }) => (
     </ImageWrapper>
 
     <Content>
-      <span>{card.userName}</span>
-
-      <span>{card.userNick}</span>
-
-      <p>{card.userReview}</p>
+      <UserName>{card.userName}</UserName>
+      <UserNick>{card.userNick}</UserNick>
+      <TextReview>{card.userReview}</TextReview>
 
       <Stars>
         {Array.from({ length: card.stars }).map((_, index) => (
@@ -113,4 +106,4 @@ export const ReviewCard = ({ card }) => (
       </Stars>
     </Content>
   </Card>
-)
+);

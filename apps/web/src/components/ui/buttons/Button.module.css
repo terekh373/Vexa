@@ -63,10 +63,15 @@
   border: none;
   background-color: transparent;
 }
+.link:hover {
+  box-shadow: none;
+}
 
 .link img {
-  width: 16px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
+  display: block;
+  margin-left: 32px;
 }
 
 .secondary-gray {

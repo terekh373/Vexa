@@ -60,7 +60,6 @@ const Courses = () => {
             ))}
           </ul>
         </div>
-
       </section>
     </Container>
   )

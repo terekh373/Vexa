@@ -1,0 +1,55 @@
+.module {
+  border: 1px solid #d9dce1;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.moduleHeader {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border: none;
+  background: white;
+  cursor: pointer;
+
+  font-size: 12px;
+  text-align: left;
+}
+
+.moduleRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.arrow {
+  transition: transform 0.2s ease;
+}
+
+.arrow--open {
+  transform: rotate(180deg);
+}
+
+.moduleLessons {
+  padding: 0 20px 12px;
+}
+
+.lesson {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 7px 0;
+
+  font-size: 12px;
+}
+
+.lesson span:last-child {
+  white-space: nowrap;
+}
