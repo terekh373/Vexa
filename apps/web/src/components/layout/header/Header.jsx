@@ -5,6 +5,8 @@ import Button from '../../ui/buttons/Button.jsx'
 import {Container} from '../container/Container.jsx';
 import { Link } from 'react-router-dom';
 
+import { routes } from '@vexa/shared';
+
 const Header = () => {
   return (
     <>
@@ -14,13 +16,13 @@ const Header = () => {
           <Logo />
           <ul className={styles.list}>
             <li>
-              <Link to='/catalog' className={styles.link}>Каталог курсів</Link>
+              <Link to={routes.catalog()} className={styles.link}>Каталог курсів</Link>
             </li>
             <li>
-              <Link to='/for-authors' className={styles.link}>Для авторів</Link>
+              <Link to={routes.forAuthors()} className={styles.link}>Для авторів</Link>
             </li>
             <li>
-              <Link to='/vexa-ai' className={styles.link}>Vexa AI</Link>
+              <Link to={routes.vexaAi()} className={styles.link}>Vexa AI</Link>
             </li>
           </ul>
 
