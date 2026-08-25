@@ -53,6 +53,8 @@ export const routes = {
   home: (): string => build('/'),
 
   catalog: (query: CatalogQuery = {}): string => build(`/courses${toQueryString(query)}`),
+  forAuthors: (): string => build('/for-authors'),
+  vexaAi: (): string => build('/vexa-ai'),
 
   /** Category landing page — separate from a filtered catalog for SEO. */
   category: (slug: string): string => build(`/categories/${slug}`),
@@ -141,6 +143,10 @@ export const routes = {
  * two cannot drift apart.
  */
 export const routePatterns = {
+  home: '/',
+  catalog: '/courses',
+  forAuthors: '/for-authors',
+  vexaAi: '/vexa-ai',
   course: '/courses/:idOrSlug',
   category: '/categories/:slug',
   curriculumSubject: '/curriculum/:subjectSlug',
