@@ -238,7 +238,7 @@
 }
 
 .lessonsBox {
-  border: 5px solid blue;
+  /* border: 5px solid blue; */
   display: flex;
   gap: 32px;
   align-items: center;
@@ -247,11 +247,28 @@
 
 .modulesBox {
   width: 70%;
-  border: 2px solid green;
 }
 
 .certificateBox {
   width: 30%;
-  border: 2px solid orange;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 0 54px;
+  background: var(--footer-bg-color);
+  border-radius: 32px;
 
+  img {
+    width: 296px;
+    height: 200px;
+  }
+
+  p {
+    color: var(--purple-color);
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 24px;
+    text-align: center;
+  }
 }
