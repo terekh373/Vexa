@@ -1,7 +1,9 @@
 export const lessonsModule = [
   {
+    id: 1,
     title: 'Модуль 1. Вступ до Blender',
     info: '4 уроки · 2 год',
+    hours: 2,
     lessons: [
       {
         title: 'Урок 1. Знайомство з Blender та інтерфейсом',
@@ -38,13 +40,32 @@ export const lessonsModule = [
     ],
   },
   {
+    id: 2,
     title: 'Модуль 2. Основи моделювання',
     info: '8 уроки · 5 год',
+    hours: 0,
     lessons: [],
   },
   {
+    id: 3,
     title: 'Модуль 3. Матеріали та текстури',
     info: '6 уроки · 3 год',
+    hours: 0,
     lessons: [],
   },
+  {
+    id: 4,
+    title: 'Модуль 4. Матеріали та текстури',
+    info: '6 уроки · 3 год',
+    hours: 0,
+    lessons: [],
+  },
+  {
+    id: 5,
+    title: 'Модуль 5. Матеріали та текстури',
+    info: '6 уроки · 3 год',
+    hours: 0,
+    lessons: [],
+  },
+
 ];
