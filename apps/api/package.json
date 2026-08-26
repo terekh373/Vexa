@@ -14,6 +14,7 @@
     "db:deploy": "prisma migrate deploy",
     "db:reset": "prisma migrate reset",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:catalog": "tsx prisma/seed-catalog.ts",
     "db:studio": "prisma studio",
     "db:validate": "prisma validate",
     "db:dbml:check": "dbml2sql ../../docs/schema.dbml --postgres"
