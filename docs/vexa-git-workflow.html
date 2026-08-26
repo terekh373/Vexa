@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vexa — Git &amp; GitHub workflow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Onest:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16181d;
+  --ink-2:#4a4f59;
+  --ink-3:#7c828d;
+  --paper:#e9eae5;
+  --card:#fdfdfc;
+  --line:#cfd2ca;
+  --line-2:#e2e4dd;
+
+  --main:#7a1f3d;
+  --develop:#2e4ea8;
+  --feature:#0e7c66;
+  --warn:#b4531a;
+
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --body:"Onest",system-ui,sans-serif;
+  --display:"Unbounded","Onest",system-ui,sans-serif;
+
+  --w:1180px;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--body);
+  font-weight:400;
+  font-size:16px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- masthead ---------- */
+.masthead{
+  border-bottom:1px solid var(--line);
+  background:
+    linear-gradient(var(--paper),var(--paper)) padding-box;
+}
+.masthead-inner{
+  max-width:var(--w);margin:0 auto;padding:52px 32px 0;
+}
+.eyebrow{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3);margin:0 0 18px;
+}
+.eyebrow b{color:var(--develop);font-weight:600}
+h1{
+  font-family:var(--display);font-weight:800;
+  font-size:clamp(38px,6.4vw,74px);
+  letter-spacing:-.045em;line-height:.94;margin:0 0 20px;
+}
+h1 .slash{color:var(--develop);font-weight:400}
+.lede{
+  max-width:60ch;font-size:18px;font-weight:300;color:var(--ink-2);
+  margin:0 0 34px;
+}
+.meta-strip{
+  display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--line);
+  margin-top:8px;
+}
+.meta-strip div{
+  padding:14px 22px 14px 0;margin-right:22px;border-right:1px solid var(--line-2);
+  font-family:var(--mono);font-size:12px;color:var(--ink-2);
+}
+.meta-strip div:last-child{border-right:none}
+.meta-strip span{display:block;color:var(--ink-3);font-size:10.5px;
+  letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px}
+
+/* ---------- branch graph ---------- */
+.graph-wrap{
+  max-width:var(--w);margin:0 auto;padding:40px 32px 54px;
+}
+.graph-card{
+  background:var(--card);border:1px solid var(--line);
+  padding:28px 24px 20px;
+}
+.graph-card svg{width:100%;height:auto;display:block}
+.graph-caption{
+  font-family:var(--mono);font-size:11.5px;color:var(--ink-3);
+  margin:16px 0 0;padding-top:14px;border-top:1px solid var(--line-2);
+  line-height:1.7;
+}
+.graph-caption b{color:var(--ink-2);font-weight:600}
+
+.lane-label{font-family:var(--mono);font-size:12px;font-weight:600}
+.note-txt{font-family:var(--mono);font-size:10.5px;fill:#7c828d}
+
+@media (prefers-reduced-motion:no-preference){
+  .draw{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);
+    animation:draw 1.1s cubic-bezier(.65,.02,.32,1) forwards}
+  .dot{opacity:0;animation:pop .34s ease forwards}
+  .lbl{opacity:0;animation:fade .5s ease forwards}
+}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes pop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+@keyframes fade{to{opacity:1}}
+
+/* ---------- layout ---------- */
+.shell{max-width:var(--w);margin:0 auto;padding:0 32px 120px;
+  display:grid;grid-template-columns:224px 1fr;gap:56px;align-items:start}
+
+nav.toc{position:sticky;top:28px}
+nav.toc p{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-3);margin:0 0 12px}
+nav.toc ol{list-style:none;margin:0;padding:0;counter-reset:t}
+nav.toc li{counter-increment:t;margin:0}
+nav.toc a{
+  display:block;padding:6px 0 6px 30px;position:relative;
+  color:var(--ink-2);text-decoration:none;font-size:13.5px;line-height:1.35;
+  border-left:1px solid var(--line);transition:color .16s,border-color .16s;
+}
+nav.toc a::before{
+  content:counter(t,decimal-leading-zero);position:absolute;left:11px;top:6px;
+  font-family:var(--mono);font-size:10px;color:var(--ink-3);
+}
+nav.toc a:hover{color:var(--ink)}
+nav.toc a.active{color:var(--develop);border-left:1px solid var(--develop);font-weight:500}
+nav.toc a.active::before{color:var(--develop)}
+
+main{min-width:0;max-width:74ch}
+
+section{padding-top:8px;margin-bottom:64px;scroll-margin-top:24px}
+h2{
+  font-family:var(--display);font-weight:600;font-size:26px;letter-spacing:-.03em;
+  line-height:1.15;margin:0 0 6px;
+}
+.sec-num{font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+  color:var(--develop);display:block;margin-bottom:10px;font-weight:600}
+.sec-sub{color:var(--ink-2);font-weight:300;margin:0 0 26px;font-size:16.5px}
+h3{font-family:var(--body);font-weight:600;font-size:16.5px;letter-spacing:-.01em;
+  margin:32px 0 10px}
+h4{font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-3);margin:26px 0 8px}
+p{margin:0 0 14px}
+ul,ol{margin:0 0 16px;padding-left:20px}
+li{margin-bottom:6px}
+strong{font-weight:600}
+a{color:var(--develop)}
+
+code{font-family:var(--mono);font-size:.855em;background:#dfe1da;
+  padding:1.5px 5px;border-radius:2px;color:var(--ink)}
+
+/* ---------- code blocks ---------- */
+.cmd{position:relative;margin:0 0 20px}
+.cmd-head{
+  display:flex;justify-content:space-between;align-items:center;
+  background:#22252b;color:#8d949f;padding:7px 12px;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+}
+.cmd pre{
+  margin:0;background:#191c21;color:#dfe3e8;padding:16px 14px;
+  overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.75;
+}
+.cmd pre .c{color:#6f7885}
+.cmd pre .o{color:#8fb8ff}
+.copy{
+  background:none;border:1px solid #3a3f47;color:#9aa2ad;cursor:pointer;
+  font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  padding:3px 9px;border-radius:2px;transition:.15s;
+}
+.copy:hover{background:#2d3138;color:#e6eaef}
+.copy.done{color:#4ade80;border-color:#2f6b45}
+
+/* ---------- callouts ---------- */
+.callout{
+  border-left:3px solid var(--warn);background:#f6efe8;
+  padding:14px 18px;margin:0 0 20px;font-size:15px;
+}
+.callout.blue{border-left-color:var(--develop);background:#e8ecf6}
+.callout.green{border-left-color:var(--feature);background:#e5f0ec}
+.callout p:last-child{margin-bottom:0}
+.callout b{font-weight:600}
+
+/* ---------- tables ---------- */
+.tbl{width:100%;border-collapse:collapse;margin:0 0 22px;font-size:14.5px}
+.tbl th{
+  text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-3);font-weight:600;
+  padding:0 14px 8px 0;border-bottom:1px solid var(--line);
+}
+.tbl td{padding:11px 14px 11px 0;border-bottom:1px solid var(--line-2);
+  vertical-align:top;line-height:1.5}
+.tbl tr:last-child td{border-bottom:none}
+.tbl code{font-size:12.5px}
+
+/* ---------- branch chips ---------- */
+.chip{
+  font-family:var(--mono);font-size:11.5px;font-weight:600;
+  padding:2px 8px;border-radius:2px;white-space:nowrap;
+  display:inline-block;
+}
+.chip.m{background:#f0e2e7;color:var(--main)}
+.chip.d{background:#e3e8f5;color:var(--develop)}
+.chip.f{background:#e0efea;color:var(--feature)}
+
+/* ---------- step list ---------- */
+.steps{list-style:none;padding:0;margin:0;counter-reset:s}
+.steps>li{
+  counter-increment:s;position:relative;padding:0 0 4px 44px;margin-bottom:26px;
+}
+.steps>li::before{
+  content:counter(s);position:absolute;left:0;top:-1px;
+  width:28px;height:28px;border:1px solid var(--develop);color:var(--develop);
+  font-family:var(--mono);font-size:12px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;border-radius:50%;
+}
+.steps h3{margin:0 0 8px;font-size:16px}
+
+/* ---------- do / dont ---------- */
+.rules{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);
+  background:var(--card)}
+.rules>div{padding:20px 22px}
+.rules>div:first-child{border-right:1px solid var(--line)}
+.rules h4{margin-top:0}
+.rules ul{padding-left:16px;margin-bottom:0;font-size:14.5px}
+.rules li{margin-bottom:9px}
+.yes h4{color:var(--feature)}
+.no h4{color:var(--main)}
+
+footer{
+  border-top:1px solid var(--line);max-width:var(--w);margin:0 auto;
+  padding:26px 32px 60px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3);
+  display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
+}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;gap:0}
+  nav.toc{position:static;margin-bottom:44px;padding-bottom:24px;
+    border-bottom:1px solid var(--line)}
+  nav.toc ol{columns:2;column-gap:24px}
+  .rules{grid-template-columns:1fr}
+  .rules>div:first-child{border-right:none;border-bottom:1px solid var(--line)}
+  .masthead-inner,.graph-wrap,.shell,footer{padding-left:20px;padding-right:20px}
+}
+@media (max-width:560px){
+  nav.toc ol{columns:1}
+  .meta-strip div{border-right:none;padding-right:0;margin-right:0;
+    width:50%;padding-top:10px;padding-bottom:10px}
+}
+</style>
+</head>
+<body>
+<header class="masthead">
+  <div class="masthead-inner">
+    <p class="eyebrow">Дипломний проєкт <b>Vexa</b> · внутрішній регламент розробки · v1.1 · 24.08.2026</p>
+    <h1>Git <span class="slash">/</span> GitHub<br>workflow</h1>
+    <p class="lede">Как мы ведём задачи, ветки и код-ревью в репозитории Vexa. Один цикл: issue → ветка → коммиты → pull request → ревью → squash в <code>develop</code>. Всё остальное в этом документе — детали этого цикла и что делать, когда он ломается.</p>
+    <div class="meta-strip">
+      <div><span>Репозиторий</span>github.com/terekh373/Vexa</div>
+      <div><span>Локальный путь</span>C:\diploma\vexa</div>
+      <div><span>Ветка по умолчанию</span>develop</div>
+      <div><span>Стратегия мерджа</span>squash only</div>
+      <div><span>Команда</span>4 разработчика</div>
+    </div>
+  </div>
+</header>
+
+<div class="graph-wrap">
+  <div class="graph-card">
+    <svg viewBox="0 0 900 250" role="img" aria-label="Схема веток: main, develop и feature-ветка, их ответвление и слияние">
+      <text class="lane-label lbl" x="0" y="46" fill="#7a1f3d" style="animation-delay:.1s">main</text>
+      <text class="lane-label lbl" x="0" y="126" fill="#2e4ea8" style="animation-delay:.2s">develop</text>
+      <text class="lane-label lbl" x="0" y="206" fill="#0e7c66" style="animation-delay:.3s">feature/*</text>
+
+      <line class="draw" style="--len:760;animation-delay:.15s" x1="120" y1="40" x2="880" y2="40"
+            stroke="#7a1f3d" stroke-width="1" stroke-opacity=".28"/>
+      <line class="draw" style="--len:760;animation-delay:.25s" x1="120" y1="120" x2="880" y2="120"
+            stroke="#2e4ea8" stroke-width="2.5"/>
+      <path class="draw" style="--len:340;animation-delay:.45s"
+            d="M225 120 C 255 120, 260 200, 290 200 L 560 200 C 590 200, 595 120, 625 120"
+            fill="none" stroke="#0e7c66" stroke-width="2.5"/>
+      <path class="draw" style="--len:120;animation-delay:1.1s"
+            d="M760 120 C 790 120, 795 40, 825 40"
+            fill="none" stroke="#7a1f3d" stroke-width="2" stroke-dasharray="0"/>
+
+      <circle class="dot" style="animation-delay:.9s" cx="160" cy="120" r="5" fill="#2e4ea8"/>
+      <circle class="dot" style="animation-delay:.95s" cx="225" cy="120" r="6.5" fill="#fdfdfc" stroke="#2e4ea8" stroke-width="2.5"/>
+      <circle class="dot" style="animation-delay:1.35s" cx="625" cy="120" r="7" fill="#0e7c66"/>
+      <circle class="dot" style="animation-delay:1.45s" cx="760" cy="120" r="5" fill="#2e4ea8"/>
+      <circle class="dot" style="animation-delay:1.05s" cx="330" cy="200" r="5" fill="#0e7c66"/>
+      <circle class="dot" style="animation-delay:1.13s" cx="410" cy="200" r="5" fill="#0e7c66"/>
+      <circle class="dot" style="animation-delay:1.21s" cx="490" cy="200" r="5" fill="#0e7c66"/>
+      <circle class="dot" style="animation-delay:1.55s" cx="825" cy="40" r="6" fill="#7a1f3d"/>
+
+      <text class="note-txt lbl" style="animation-delay:1.6s" x="205" y="99">git checkout -b</text>
+      <text class="note-txt lbl" style="animation-delay:1.6s" x="330" y="228" text-anchor="middle">3 коміти</text>
+      <text class="note-txt lbl" style="animation-delay:1.65s" x="490" y="228" text-anchor="middle">PR #12</text>
+      <text class="note-txt lbl" style="animation-delay:1.7s" x="628" y="99">squash → 1 коміт</text>
+      <text class="note-txt lbl" style="animation-delay:1.75s" x="800" y="20">реліз</text>
+    </svg>
+    <p class="graph-caption">
+      <b>Одно направление движения.</b> Ветка всегда отходит от <span style="color:#2e4ea8">develop</span> и возвращается в него одним squash-коммитом — сколько бы коммитов вы ни сделали внутри. В <span style="color:#7a1f3d">main</span> код попадает только релизом, вручную и только через тимлида. Обратного пути нет: <code>develop</code> не мерджится в feature — вместо этого ветку обновляют через rebase.
+    </p>
+  </div>
+</div>
+
+<div class="shell">
+
+<nav class="toc">
+  <p>Содержание</p>
+  <ol>
+    <li><a href="#state">Где мы сейчас</a></li>
+    <li><a href="#model">Модель веток</a></li>
+    <li><a href="#issues">Issues: зачем и как</a></li>
+    <li><a href="#cycle">Рабочий цикл в CMD</a></li>
+    <li><a href="#naming">Имена веток и коммитов</a></li>
+    <li><a href="#contract">Контракт с бэкендом</a></li>
+    <li><a href="#pr">Pull request и ревью</a></li>
+    <li><a href="#trouble">Когда что-то пошло не так</a></li>
+    <li><a href="#windows">Настройка и запуск</a></li>
+    <li><a href="#cheat">Шпаргалка команд</a></li>
+    <li><a href="#rules">Правила команды</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<!-- ================= 1 ================= -->
+<section id="state">
+  <span class="sec-num">01</span>
+  <h2>Где мы сейчас</h2>
+  <p class="sec-sub">Состояние на начало Sprint 3. Раздел обновляется каждый спринт — если он расходится с реальностью, скажите тимлиду.</p>
+
+  <table class="tbl">
+    <thead><tr><th>Что</th><th>Состояние</th></tr></thead>
+    <tbody>
+      <tr><td>Монорепо</td><td><code>apps/api</code>, <code>apps/web</code>, <code>apps/mobile</code>, <code>packages/shared</code></td></tr>
+      <tr><td>База данных</td><td>Схема целиком: 24 модели, 21 enum, две миграции, seed с демо-контентом</td></tr>
+      <tr><td>Auth API</td><td>register / login / refresh / logout / verify-email / me, argon2, rate limiting</td></tr>
+      <tr><td>Курсы API</td><td><code>GET /api/courses/:id</code>, <code>/:id/reviews</code>. Каталог — в работе, issue #3</td></tr>
+      <tr><td>Веб</td><td>Layout, роутинг, каталог и страница курса на моках — переезжают на API в этом спринте</td></tr>
+      <tr><td>Мобилка</td><td>Пустой каркас. Стартует после стабилизации веб-MVP (ТЗ 17)</td></tr>
+      <tr><td>CI</td><td>Четыре чека: <code>lint</code>, <code>lint-web</code>, <code>typecheck</code>, <code>build</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout blue">
+    <p><b>Веб-клиент пишется на JavaScript, не на TypeScript.</b> Это решение тимлида, зафиксированное в «Змінах №1 до ТЗ». Бэкенд, <code>packages/shared</code> и мобилка остаются на TypeScript со строгой типизацией. Никто не начинает миграцию фронта по своей инициативе.</p>
+  </div>
+
+  <p>Следствие важнее самого решения: раз на вебе нет типов, компилятор больше не ловит расхождения между клиентом и API. Эту работу теперь делает документ — см. раздел&nbsp;06.</p>
+</section>
+
+<!-- ================= 2 ================= -->
+<section id="model">
+  <span class="sec-num">02</span>
+  <h2>Модель веток</h2>
+  <p class="sec-sub">Три типа веток, у каждой своя роль и свой уровень защиты.</p>
+
+  <table class="tbl">
+    <thead><tr><th>Ветка</th><th>Роль</th><th>Кто пушит</th><th>Защита</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="chip m">main</span></td>
+        <td>Стабильный код. То, что показываем на защите и деплоим в production.</td>
+        <td>Только тимлид, только релизным PR из <code>develop</code>.</td>
+        <td>PR + 1 апрув + Code Owners + все CI-чеки + up&nbsp;to&nbsp;date</td>
+      </tr>
+      <tr>
+        <td><span class="chip d">develop</span></td>
+        <td>Интеграционная ветка. Здесь собирается вся работа спринта. Ветка по умолчанию.</td>
+        <td>Никто напрямую. Только через PR.</td>
+        <td>PR + 1 апрув + Code Owners + все CI-чеки</td>
+      </tr>
+      <tr>
+        <td><span class="chip f">feature/*</span></td>
+        <td>Одна задача = одна ветка. Живёт не дольше спринта.</td>
+        <td>Автор ветки, свободно, хоть сто раз в день.</td>
+        <td>Нет</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout blue">
+    <p><b>Прямой push в <code>develop</code> отклоняется — это не поломка.</b> Так настроен ruleset <code>protect-develop</code>. Если git говорит <code>protected branch hook declined</code> — вы забыли создать ветку. Как это починить, не потеряв работу, — в разделе&nbsp;08.</p>
+  </div>
+
+  <div class="callout">
+    <p><b>Bypass-списка нет ни у кого, включая тимлида.</b> В августе один коммит всё-таки уехал в <code>develop</code> напрямую, минуя PR и ревью. Дыру закрыли. Если у вас получилось запушить в <code>develop</code> без PR — это баг настроек, сообщите, а не пользуйтесь.</p>
+  </div>
+
+  <h3>Кто что ревьюит</h3>
+  <p>Ревьюер назначается автоматически по файлу <code>.github/CODEOWNERS</code> — в зависимости от того, какие папки затронул PR.</p>
+
+  <table class="tbl">
+    <thead><tr><th>Путь</th><th>Владельцы</th></tr></thead>
+    <tbody>
+      <tr><td><code>/apps/api/</code></td><td>Тимлид + бэкенд-разработчик</td></tr>
+      <tr><td><code>/apps/api/prisma/</code>, <code>/docs/schema.dbml</code></td><td>Тимлид + бэкенд-разработчик</td></tr>
+      <tr><td><code>/packages/shared/</code></td><td>Тимлид + бэкенд-разработчик</td></tr>
+      <tr><td><code>/apps/web/</code>, <code>/apps/mobile/</code></td><td>Оба фронтенд-разработчика</td></tr>
+      <tr><td>всё остальное</td><td>Тимлид (глобальный фолбэк)</td></tr>
+    </tbody>
+  </table>
+
+  <p><code>packages/shared</code> — это контракт между бэком и фронтом: карта маршрутов, типы ответов API и zod-схемы. Менять его в обход тимлида нельзя, иначе на интеграции фронт и бэк разъедутся.</p>
+</section>
+<!-- ================= 3 ================= -->
+<section id="issues">
+  <span class="sec-num">03</span>
+  <h2>Issues: зачем и как</h2>
+  <p class="sec-sub">Issue — карточка задачи внутри репозитория. Заголовок, описание, исполнитель, метки, статус open / closed.</p>
+
+  <p>Смысл не в бюрократии, а в сквозной связке. Каждый артефакт ссылается на предыдущий, и через месяц можно открыть любой из них и восстановить контекст:</p>
+
+  <div class="cmd">
+    <div class="cmd-head"><span>связка</span></div>
+<pre>Issue #3  «api: каталог курсів — пошук, фільтри»
+   ↓  ветка   feature/3-catalog-api-port
+   ↓  PR      feat(api): catalog endpoints  <span class="c">→ в описании «Closes #3»</span>
+   ↓  merge   squash в develop
+   ↓  Issue #3 закрывается автоматически</pre>
+  </div>
+
+  <h3>Анатомия issue</h3>
+  <table class="tbl">
+    <thead><tr><th>Поле</th><th>Что это</th></tr></thead>
+    <tbody>
+      <tr><td><b>Номер</b></td><td>Сквозной счётчик, общий с pull request'ами. Поэтому в нумерации есть дыры — это нормально.</td></tr>
+      <tr><td><b>Assignee</b></td><td>Один человек. Задача без исполнителя не делается никем.</td></tr>
+      <tr><td><b>Labels</b></td><td><code>mvp</code>, <code>second-queue</code>, <code>backend</code>, <code>frontend</code>, <code>infra</code>, <code>bug</code></td></tr>
+      <tr><td><b>Milestone</b></td><td>Спринт. Видно прогресс: «4 из 12 закрыто».</td></tr>
+      <tr><td><b>Комментарии</b></td><td>Обсуждение решений. «Комиссию считаем до или после эквайринга?» — ответ остаётся в задаче, а не тонет в Telegram.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Формат описания</h3>
+  <p>Три блока, ничего лишнего. Пишем по-украински — как и весь контент проекта.</p>
+
+  <div class="cmd">
+    <div class="cmd-head"><span>шаблон issue</span><button class="copy">копировать</button></div>
+<pre>## Що зробити
+Реалізувати GET /api/courses згідно з розділом 15.3 ТЗ і таблицею 3.
+
+## Обсяг
+- [ ] Пагінація, zod-схема query-параметрів
+- [ ] Фільтри: тип контенту, категорія, клас, ціна, рейтинг, мова
+- [ ] Сортування: relevance, popularity, rating, date, price_asc, price_desc
+- [ ] У видачу потрапляють лише курси зі статусом PUBLISHED
+
+## Готово, коли
+Фільтри комбінуються між собою, чернетки недоступні
+неавторизованому користувачу, контракт описано в docs/frontend-api-map.md.</pre>
+  </div>
+
+  <div class="callout">
+    <p><b>Лейбл <code>second-queue</code> — главный инструмент против расползания объёма.</b> Раздел 24 ТЗ называет scope creep риском с высокой вероятностью. Когда посреди спринта приходит идея «а давайте ШІ-підбір курсів» — не спорим, а заводим issue с этим лейблом. Идея не потеряна, спринт не сломан.</p>
+  </div>
+
+  <div class="callout blue">
+    <p><b><code>second-queue</code> не значит «никогда».</b> Значит «не берём, пока не закрыт весь <code>mvp</code>». Обратное тоже верно: если задача есть в разделе 3.3 ТЗ, повесить на неё <code>second-queue</code> нельзя — так, модерация курсов остаётся в MVP, потому что без неё не выполняется критерий приёмки из раздела 21.</p>
+  </div>
+
+  <h3>Магические слова</h3>
+  <p>В <b>описании</b> pull request (не в заголовке):</p>
+  <ul>
+    <li><code>Closes #3</code> / <code>Fixes #3</code> / <code>Resolves #3</code> — issue закроется сама при мердже в <code>develop</code>.</li>
+    <li><code>Related to #3</code> — просто ссылка, без автозакрытия.</li>
+    <li><code>#3</code> в любом комментарии — превращается в ссылку. <code>@ник</code> — шлёт уведомление.</li>
+  </ul>
+
+  <h3>Сколько issues заводить</h3>
+  <p>6–12 на спринт, крупными кусками. Микрозадачи вроде «поправить отступ в футере» — в чат, не в трекер. Иначе доска превращается в свалку, и по ней перестают ориентироваться.</p>
+</section>
+
+<!-- ================= 4 ================= -->
+<section id="cycle">
+  <span class="sec-num">04</span>
+  <h2>Рабочий цикл в CMD</h2>
+  <p class="sec-sub">Восемь шагов от «взял задачу» до «issue закрыта». Повторяется для каждой задачи без исключений.</p>
+
+  <ol class="steps">
+
+    <li>
+      <h3>Взять задачу</h3>
+      <p>Открываете Issues, находите свою (или берёте свободную из текущего milestone), ставите себя в Assignee. Если задача не ваша — сначала спросите в чате.</p>
+    </li>
+
+    <li>
+      <h3>Обновить develop и отойти от него</h3>
+      <p>Всегда от свежего <code>develop</code>. Ветка, отведённая от вчерашнего состояния, соберёт конфликты на ровном месте.</p>
+      <div class="cmd">
+        <div class="cmd-head"><span>cmd</span><button class="copy">копировать</button></div>
+<pre>cd C:\diploma\vexa
+git checkout develop
+git pull
+git checkout -b feature/3-catalog-api-port</pre>
+      </div>
+    </li>
+
+    <li>
+      <h3>Работать и коммитить часто</h3>
+      <p>Коммит — это точка сохранения, а не отчёт о завершённой фиче. Делайте их каждые 30–60 минут осмысленной работы. Внутри feature-ветки история всё равно схлопнется в один squash-коммит, так что бояться «некрасивых» промежуточных коммитов не нужно.</p>
+      <div class="cmd">
+        <div class="cmd-head"><span>cmd</span><button class="copy">копировать</button></div>
+<pre>git status                     <span class="c">:: что изменилось</span>
+git add .                      <span class="c">:: или git add путь\к\файлу</span>
+git commit -m "feat(api): add course filters"</pre>
+      </div>
+      <p>Первым делом после <code>git status</code> — глазами проверьте список файлов. Если там мелькнул <code>.env</code>, <code>node_modules</code> или <code>*.tsbuildinfo</code> — стоп, чините <code>.gitignore</code>, не коммитьте.</p>
+    </li>
+
+    <li>
+      <h3>Пушить в свою ветку каждый день</h3>
+      <p>Первый push требует <code>-u</code>, дальше достаточно <code>git push</code>. Код, который лежит только на вашем ноутбуке, для команды не существует.</p>
+      <div class="cmd">
+        <div class="cmd-head"><span>cmd</span><button class="copy">копировать</button></div>
+<pre>git push -u origin feature/3-catalog-api-port   <span class="c">:: первый раз</span>
+git push                                        <span class="c">:: все следующие</span></pre>
+      </div>
+    </li>
+
+    <li>
+      <h3>Перед PR — подтянуть develop</h3>
+      <p>За два-три дня <code>develop</code> уехал вперёд. Подтягиваем его изменения к себе <b>через rebase</b>, чтобы история осталась линейной, а PR показывал только ваши изменения.</p>
+      <div class="cmd">
+        <div class="cmd-head"><span>cmd</span><button class="copy">копировать</button></div>
+<pre>git checkout develop
+git pull
+git checkout feature/3-catalog-api-port
+git rebase develop</pre>
+      </div>
+      <p>Если появились конфликты — раздел 08. Если ветку уже пушили, после rebase нужен <code>git push --force-with-lease</code> (обычный push будет отклонён — это ожидаемо).</p>
+    </li>
+
+    <li>
+      <h3>Проверить локально то же, что проверит CI</h3>
+      <p>Четыре команды — по числу чеков. Красный CI на чужом PR отнимает время у всех, свой всегда дешевле починить до пуша.</p>
+      <div class="cmd">
+        <div class="cmd-head"><span>cmd</span><button class="copy">копировать</button></div>
+<pre>npm run lint
+npm run lint --workspace @vexa/web    <span class="c">:: oxlint, только фронт</span>
+npm run typecheck                     <span class="c">:: api, shared, mobile</span>
+npm run build</pre>
+      </div>
+      <p><code>typecheck</code> намеренно не покрывает <code>apps/web</code>: там нет TypeScript, и включение web в проект компилятора давало бы зелёный чек, ничего не проверяя. За фронт отвечает <code>lint-web</code>.</p>
+    </li>
+
+    <li>
+      <h3>Открыть pull request</h3>
+      <p>На GitHub появится плашка «Compare &amp; pull request», либо Pull requests → New. Проверьте направление: <b>base = <code>develop</code></b>, compare = ваша ветка. В <code>main</code> — никогда.</p>
+      <p>Заполняете шаблон, ставите <code>Closes #3</code>, назначаете ревьюера по CODEOWNERS. Дальше ждёте четыре зелёных чека и апрув.</p>
+    </li>
+
+    <li>
+      <h3>Squash and merge, ветку удалить</h3>
+      <p>Кнопка мерджа доступна только когда CI зелёный и апрув есть. Способ мерджа один — <b>Squash and merge</b>, остальные отключены в настройках репозитория. Заголовок squash-коммита = заголовок PR, поэтому он должен быть осмысленным.</p>
+      <p>Ветка на GitHub удалится автоматически. Локальную подчистите сами:</p>
+      <div class="cmd">
+        <div class="cmd-head"><span>cmd</span><button class="copy">копировать</button></div>
+<pre>git checkout develop
+git pull
+git branch -d feature/3-catalog-api-port
+git remote prune origin        <span class="c">:: убрать ссылки на удалённые ветки</span></pre>
+      </div>
+    </li>
+  </ol>
+
+  <div class="callout green">
+    <p><b>Ветка живёт не дольше спринта.</b> Двухнедельная ветка с сорока файлами — это не PR, а мучение для ревьюера. Если задача разрослась, режьте её на две issue и два PR. Ориентир: не больше ~400 строк диффа.</p>
+  </div>
+
+  <div class="callout">
+    <p><b>Файлы через веб-интерфейс GitHub («Add files via upload») не заливаем.</b> Так уже был потерян один PR: 84 файла легли в корень репозитория и снесли структуру монорепо. Код попадает в репозиторий только через ветку и <code>git push</code>.</p>
+  </div>
+</section>
+<!-- ================= 5 ================= -->
+<section id="naming">
+  <span class="sec-num">05</span>
+  <h2>Имена веток и коммитов</h2>
+  <p class="sec-sub">Две конвенции, которые нужно запомнить один раз.</p>
+
+  <h3>Ветки</h3>
+  <div class="cmd">
+    <div class="cmd-head"><span>формат</span></div>
+<pre><span class="o">feature</span>/&lt;номер issue&gt;-&lt;краткое-описание-латиницей&gt;
+<span class="o">fix</span>/&lt;номер issue&gt;-&lt;описание&gt;
+<span class="o">chore</span>/&lt;описание&gt;          <span class="c">:: инфраструктура, конфиги, без issue</span></pre>
+  </div>
+  <ul>
+    <li>Только латиница, только нижний регистр, слова через дефис.</li>
+    <li>Хорошо: <code>feature/12-course-player</code>, <code>fix/18-cart-total</code></li>
+    <li>Плохо: <code>alina-dev</code>, <code>Vexa-front2</code>, <code>new-branch</code>, <code>feature/каталог</code>, <code>Fix_Bug2</code></li>
+  </ul>
+  <p>Персональные ветки вроде <code>alina-dev</code> или <code>Vexa-front2</code> запрещены отдельно: они живут месяцами, копят конфликты и в итоге не мерджатся вообще. Ровно это и произошло с <code>Vexa-front2</code>.</p>
+
+  <h3>Коммиты — Conventional Commits</h3>
+  <div class="cmd">
+    <div class="cmd-head"><span>формат</span></div>
+<pre>&lt;type&gt;(&lt;scope&gt;): &lt;описание в императиве, по-английски&gt;
+
+feat(api): add course catalog filters
+fix(web): correct cart total calculation
+chore(ci): cache npm dependencies
+docs(readme): add local setup steps
+refactor(api): extract payment service
+test(api): cover commission calculation</pre>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>type</th><th>когда</th></tr></thead>
+    <tbody>
+      <tr><td><code>feat</code></td><td>новая функциональность</td></tr>
+      <tr><td><code>fix</code></td><td>исправление бага</td></tr>
+      <tr><td><code>chore</code></td><td>конфиги, зависимости, инфраструктура</td></tr>
+      <tr><td><code>docs</code></td><td>документация</td></tr>
+      <tr><td><code>refactor</code></td><td>переписали без изменения поведения</td></tr>
+      <tr><td><code>test</code></td><td>тесты</td></tr>
+    </tbody>
+  </table>
+
+  <p>Scope — это зона: <code>api</code>, <code>web</code>, <code>mobile</code>, <code>db</code>, <code>shared</code>, <code>ci</code>. Сообщения коммитов — <b>по-английски</b>, как и комментарии в коде. Описания issues, тексты интерфейса и контент БД — по-украински.</p>
+
+  <div class="callout">
+    <p><b>Не пишите <code>update</code>, <code>fix</code>, <code>wip</code>, <code>ещё правки</code>.</b> Через месяц по такой истории невозможно найти, где сломалось. Заголовок должен отвечать на вопрос «что изменится в продукте, если применить этот коммит».</p>
+  </div>
+</section>
+
+<!-- ================= 6 ================= -->
+<section id="contract">
+  <span class="sec-num">06</span>
+  <h2>Контракт с бэкендом</h2>
+  <p class="sec-sub">Раз на вебе нет типов, расхождения клиента и API ловит не компилятор, а документ. Это самый хрупкий шов в проекте.</p>
+
+  <table class="tbl">
+    <thead><tr><th>Файл</th><th>Что в нём</th></tr></thead>
+    <tbody>
+      <tr><td><code>docs/frontend-api-map.md</code></td><td>Эндпоинты, параметры, форма ответа, коды ошибок. <b>Главный документ фронтенда.</b></td></tr>
+      <tr><td><code>packages/shared/src/routes.ts</code></td><td>Карта URL фронтенда. Ссылки строим через неё, а не конкатенацией строк.</td></tr>
+      <tr><td><code>docs/schema.dbml</code></td><td>Схема БД. Имена полей берём отсюда, не выдумываем.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <p><b>Изменил ответ API — обнови <code>docs/frontend-api-map.md</code> в том же PR.</b> Это пункт чеклиста, а не пожелание. Документ уже один раз разошёлся с кодом: в нём была указана цена как <code>priceAmount</code>, тогда как API отдаёт <code>price.amount</code>. Такое расхождение стоит фронтендеру полдня и выглядит как «бэкенд сломался».</p>
+  </div>
+
+  <h3>Что важно помнить всем</h3>
+  <ul>
+    <li><b>Деньги — целые копейки.</b> 500 грн = <code>50000</code>. Делить на 100 только при выводе на экран. Никаких float ни на клиенте, ни на сервере.</li>
+    <li><b>Права проверяются на сервере.</b> Скрытая кнопка — это удобство, а не защита. Доступ к платному контенту сервер перепроверяет на каждом запросе.</li>
+    <li><b>Токены живут в теле ответа</b>, не в куках. Access — 15 минут, refresh — 30 дней и одноразовый: после обновления старый мёртв.</li>
+    <li><b>На <code>403</code> refresh не делаем</b> — это нехватка прав, новый токен не поможет.</li>
+    <li><b>Статусы курса</b>: <code>DRAFT</code> → <code>MODERATION</code> → <code>PUBLISHED</code> / <code>REJECTED</code> → <code>UNPUBLISHED</code>. Гость видит только <code>PUBLISHED</code>.</li>
+  </ul>
+</section>
+
+<!-- ================= 7 ================= -->
+<section id="pr">
+  <span class="sec-num">07</span>
+  <h2>Pull request и ревью</h2>
+  <p class="sec-sub">PR — это не формальность перед мерджем, а место, где ловятся ошибки до того, как они попадут в develop.</p>
+
+  <h3>Что должно быть в PR</h3>
+  <ul>
+    <li><b>Заголовок</b> в формате Conventional Commits — он станет текстом squash-коммита.</li>
+    <li><b>Closes #N</b> в описании.</li>
+    <li><b>Как проверить</b> — 2–3 шага, чтобы ревьюер не гадал.</li>
+    <li><b>Скриншот</b>, если менялся интерфейс.</li>
+    <li><b>Чеклист</b> из шаблона: входные данные валидируются zod, права ролей проверяются на сервере, деньги в целых копейках, секреты не попали в коммит, миграция добавлена, <code>frontend-api-map.md</code> обновлён.</li>
+  </ul>
+
+  <h3>Автору: до того, как звать ревьюера</h3>
+  <ul>
+    <li>CI зелёный — все четыре чека.</li>
+    <li>Дифф прочитан своими глазами во вкладке Files changed. Половина замечаний находится там же самостоятельно.</li>
+    <li>Нет закомментированного кода, <code>console.log</code> и отладочных заглушек.</li>
+    <li>PR делает одну вещь. «Заодно поправил ещё три файла» — отдельный PR.</li>
+  </ul>
+
+  <h3>Ревьюеру: за что смотрим</h3>
+  <table class="tbl">
+    <thead><tr><th>Приоритет</th><th>Что проверяем</th></tr></thead>
+    <tbody>
+      <tr><td><b>Блокирует</b></td><td>Права ролей проверяются на сервере, а не на клиенте. Доступ к платному контенту не открывается без покупки. Секреты не в коде. Деньги в целых копейках, не float. Есть миграция, если менялась схема. Ответ API изменился — обновлён api-map.</td></tr>
+      <tr><td><b>Просим поправить</b></td><td>Нет валидации входных данных, есть <code>any</code> в TypeScript-коде, бизнес-логика уехала в контроллер, ошибки не обрабатываются или обрабатываются мимо <code>AppError</code>.</td></tr>
+      <tr><td><b>Комментарий</b></td><td>Именование, дубли, читаемость. Не повод блокировать PR.</td></tr>
+    </tbody>
+  </table>
+
+  <p>Ревью — в течение рабочего дня. Если PR висит больше суток, пишите автору напрямую: заблокированный человек стоит дороже, чем неидеальный код.</p>
+
+  <div class="callout blue">
+    <p><b>Свой PR апрувить нельзя.</b> Это ограничение GitHub, не настройка. Поэтому у каждой папки в CODEOWNERS минимум два владельца — иначе PR владельца повиснет навсегда. Единственное исключение — <code>/.github/</code>: инфраструктурные PR тимлид проводит, разово отключая ruleset.</p>
+  </div>
+</section>
+<!-- ================= 8 ================= -->
+<section id="trouble">
+  <span class="sec-num">08</span>
+  <h2>Когда что-то пошло не так</h2>
+  <p class="sec-sub">Пять ситуаций, которые случатся у каждого. Ни одна из них не требует удалять папку и клонировать заново.</p>
+
+  <h3>Начал работать, забыл создать ветку</h3>
+  <p>Коммиты ушли в локальный <code>develop</code>, push отклонён. Работа цела — её нужно перенести.</p>
+  <div class="cmd">
+    <div class="cmd-head"><span>cmd</span><button class="copy">копировать</button></div>
+<pre>git checkout -b feature/3-catalog-api   <span class="c">:: ветка от текущего состояния, коммиты уехали с ней</span>
+git push -u origin feature/3-catalog-api
+
+git checkout develop                     <span class="c">:: вернуть develop к состоянию сервера</span>
+git reset --hard origin/develop</pre>
+  </div>
+  <div class="callout">
+    <p><code>git reset --hard</code> безвозвратно стирает незакоммиченные изменения. Выполняйте его <b>только после</b> того, как убедились, что ветка с вашей работой запушена.</p>
+  </div>
+
+  <h3>Конфликт при rebase</h3>
+  <p>Git останавливается и показывает файлы с конфликтами. В VS Code они подсвечены, есть кнопки Accept Current / Accept Incoming / Accept Both.</p>
+  <div class="cmd">
+    <div class="cmd-head"><span>cmd</span><button class="copy">копировать</button></div>
+<pre>git status                     <span class="c">:: список конфликтующих файлов</span>
+<span class="c">:: правите файлы в VS Code, убираете маркеры &lt;&lt;&lt;&lt;&lt;&lt;&lt; ======= &gt;&gt;&gt;&gt;&gt;&gt;&gt;</span>
+git add .
+git rebase --continue
+
+git rebase --abort             <span class="c">:: если всё запуталось — откат к состоянию до rebase</span></pre>
+  </div>
+  <p>После успешного rebase ветка «переписана», поэтому обычный push будет отклонён:</p>
+  <div class="cmd">
+    <div class="cmd-head"><span>cmd</span><button class="copy">копировать</button></div>
+<pre>git push --force-with-lease</pre>
+  </div>
+  <p><code>--force-with-lease</code> вместо <code>--force</code>: он откажется пушить, если кто-то успел добавить коммиты в вашу ветку. В feature-ветке это безопасно. В <code>develop</code> и <code>main</code> force-push запрещён ruleset'ом.</p>
+
+  <h3>Ошибся в последнем коммите</h3>
+  <div class="cmd">
+    <div class="cmd-head"><span>cmd</span><button class="copy">копировать</button></div>
+<pre>git commit --amend -m "feat(api): correct message"   <span class="c">:: поправить сообщение</span>
+
+git add забытый-файл.ts                              <span class="c">:: дописать файл в последний коммит</span>
+git commit --amend --no-edit
+
+git reset --soft HEAD~1                              <span class="c">:: отменить коммит, изменения оставить</span></pre>
+  </div>
+  <p>Всё это безопасно, пока коммит <b>не запушен</b>. Если запушен — потребуется <code>--force-with-lease</code>, и делать так можно только в своей feature-ветке.</p>
+
+  <h3>Случайно закоммитил .env</h3>
+  <p>Репозиторий публичный, поэтому реагировать надо сразу.</p>
+  <div class="cmd">
+    <div class="cmd-head"><span>cmd</span><button class="copy">копировать</button></div>
+<pre>git rm --cached .env           <span class="c">:: убрать из индекса, файл на диске остаётся</span>
+<span class="c">:: убедиться, что .env есть в .gitignore</span>
+git commit -m "chore: remove env file from tracking"</pre>
+  </div>
+  <div class="callout">
+    <p><b>Этого недостаточно, если коммит уже улетел на GitHub.</b> Ключ остался в истории и считается скомпрометированным. Порядок такой: перевыпустить ключ в сервисе (LiqPay, Cloudflare R2, Cloudflare Stream, Brevo), сообщить тимлиду, и только потом чистить историю. Удалить файл новым коммитом — не то же самое, что удалить его из истории.</p>
+  </div>
+
+  <h3>Ветка отстала от develop на неделю</h3>
+  <p>Если конфликтов много и rebase превращается в бесконечную правку — проще начать заново от свежего <code>develop</code> и перенести изменения руками. Это не поражение, это часто быстрее.</p>
+  <div class="cmd">
+    <div class="cmd-head"><span>cmd</span><button class="copy">копировать</button></div>
+<pre>git log --oneline develop..HEAD     <span class="c">:: что есть у меня и нет в develop</span>
+git diff develop --stat             <span class="c">:: какие файлы затронуты</span></pre>
+  </div>
+  <p>Отдельный приём, когда нужный код лежит в чужой или старой ветке, а её структура уже неактуальна — вытащить файлы точечно, не мерджа ветку целиком:</p>
+  <div class="cmd">
+    <div class="cmd-head"><span>cmd</span><button class="copy">копировать</button></div>
+<pre>git checkout origin/feature/3-catalog-api -- packages/shared/src/catalog.ts
+
+<span class="c">:: если путь в старой ветке другой — забрать содержимое файла в новое место</span>
+git show origin/feature/3-catalog-api:backend/src/catalog/catalog.service.ts > apps\api\src\modules\courses\catalog.service.ts</pre>
+  </div>
+</section>
+
+<!-- ================= 9 ================= -->
+<section id="windows">
+  <span class="sec-num">09</span>
+  <h2>Настройка и запуск</h2>
+  <p class="sec-sub">Разовая настройка Git и первый запуск проекта.</p>
+
+  <div class="cmd">
+    <div class="cmd-head"><span>cmd · один раз на машину</span><button class="copy">копировать</button></div>
+<pre>git config --global user.name "Anton Tereshchenko"
+git config --global user.email "твой@email.com"
+
+git config --global core.autocrlf true      <span class="c">:: переводы строк CRLF/LF</span>
+git config --global core.longpaths true     <span class="c">:: длинные пути в node_modules</span>
+git config --global core.quotepath false    <span class="c">:: кириллица в именах файлов читаемо</span>
+git config --global pull.rebase false       <span class="c">:: git pull делает merge, не rebase</span>
+git config --global init.defaultBranch main</pre>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Настройка</th><th>Что чинит</th></tr></thead>
+    <tbody>
+      <tr><td><code>core.autocrlf</code></td><td>Windows пишет <code>CRLF</code>, CI на Linux ждёт <code>LF</code>. Без этого весь файл показывается как изменённый, хотя вы поправили одну строку.</td></tr>
+      <tr><td><code>core.longpaths</code></td><td><code>node_modules</code> легко выходит за лимит в 260 символов.</td></tr>
+      <tr><td><code>core.quotepath</code></td><td>Кириллические имена файлов перестают выводиться как <code>\320\224</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout green">
+    <p><b>Проект живёт в <code>C:\diploma\vexa</code></b> — короткий путь латиницей, без пробелов и кириллицы. Так и держим: часть npm-пакетов и сборщиков ломается на путях с пробелами и не-ASCII символами, и такие ошибки выглядят как что угодно, только не как проблема пути.</p>
+  </div>
+
+  <h3>Первый запуск</h3>
+  <div class="cmd">
+    <div class="cmd-head"><span>cmd</span><button class="copy">копировать</button></div>
+<pre>git clone https://github.com/terekh373/Vexa.git C:\diploma\vexa
+cd C:\diploma\vexa
+npm install
+
+copy apps\api\.env.example apps\api\.env    <span class="c">:: заполнить значения, спросить у тимлида</span>
+
+npm run db:up                  <span class="c">:: Postgres на 5433 + Redis в Docker</span>
+npm run db:migrate             <span class="c">:: применить миграции</span>
+npm run db:seed                <span class="c">:: демо-контент</span>
+npm run dev:api                <span class="c">:: API на :3000</span></pre>
+  </div>
+  <p>Фронтенд поднимается отдельным окном:</p>
+  <div class="cmd">
+    <div class="cmd-head"><span>cmd</span><button class="copy">копировать</button></div>
+<pre>npm run dev --workspace @vexa/web    <span class="c">:: Vite на :5173</span></pre>
+  </div>
+  <p>Postgres слушает <b>5433</b>, а не 5432: стандартный порт часто занят нативной службой PostgreSQL на Windows. Значение зашито в <code>docker-compose.yml</code> и <code>.env.example</code>, менять его в одиночку не надо.</p>
+  <p>URL репозитория — с заглавной <b>V</b>. Со строчной GitHub редиректит, но предупреждает <code>This repository moved</code>, и часть инструментов на редирект не рассчитана.</p>
+
+  <h3>GitHub CLI</h3>
+  <p>Не обязателен, но экономит время на issues и PR:</p>
+  <div class="cmd">
+    <div class="cmd-head"><span>cmd</span><button class="copy">копировать</button></div>
+<pre>winget install --id GitHub.cli
+gh auth login
+
+gh issue list --milestone "Sprint 3"
+gh pr create --base develop --fill
+gh pr checks</pre>
+  </div>
+</section>
+<!-- ================= 10 ================= -->
+<section id="cheat">
+  <span class="sec-num">10</span>
+  <h2>Шпаргалка команд</h2>
+  <p class="sec-sub">То, что нужно 95% времени.</p>
+
+  <table class="tbl">
+    <thead><tr><th>Команда</th><th>Что делает</th></tr></thead>
+    <tbody>
+      <tr><td><code>git status</code></td><td>Что изменилось и на какой я ветке. Запускать постоянно.</td></tr>
+      <tr><td><code>git branch</code></td><td>Список локальных веток, звёздочка — текущая.</td></tr>
+      <tr><td><code>git branch -a</code></td><td>Плюс ветки на сервере.</td></tr>
+      <tr><td><code>git checkout &lt;ветка&gt;</code></td><td>Переключиться.</td></tr>
+      <tr><td><code>git checkout -b &lt;ветка&gt;</code></td><td>Создать и переключиться.</td></tr>
+      <tr><td><code>git pull</code></td><td>Забрать изменения с сервера в текущую ветку.</td></tr>
+      <tr><td><code>git fetch --prune</code></td><td>Обновить информацию о ветках, убрать удалённые.</td></tr>
+      <tr><td><code>git add .</code></td><td>Подготовить все изменения к коммиту.</td></tr>
+      <tr><td><code>git commit -m "..."</code></td><td>Зафиксировать.</td></tr>
+      <tr><td><code>git push</code></td><td>Отправить на сервер.</td></tr>
+      <tr><td><code>git log --oneline -10</code></td><td>Последние десять коммитов компактно.</td></tr>
+      <tr><td><code>git diff</code></td><td>Что изменено, но не добавлено в коммит.</td></tr>
+      <tr><td><code>git diff --staged</code></td><td>Что попадёт в коммит.</td></tr>
+      <tr><td><code>git stash</code></td><td>Убрать изменения «в карман», чтобы переключить ветку.</td></tr>
+      <tr><td><code>git stash pop</code></td><td>Достать обратно.</td></tr>
+      <tr><td><code>git restore &lt;файл&gt;</code></td><td>Откатить файл к последнему коммиту. Необратимо.</td></tr>
+      <tr><td><code>git remote -v</code></td><td>Куда указывает origin.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>npm-скрипты проекта</h3>
+  <table class="tbl">
+    <thead><tr><th>Команда</th><th>Что делает</th></tr></thead>
+    <tbody>
+      <tr><td><code>npm run db:up</code> / <code>db:down</code></td><td>Поднять / погасить Postgres и Redis в Docker.</td></tr>
+      <tr><td><code>npm run db:migrate</code></td><td>Применить миграции (<code>prisma migrate dev</code>).</td></tr>
+      <tr><td><code>npm run db:seed</code></td><td>Залить демо-контент.</td></tr>
+      <tr><td><code>npm run db:studio</code></td><td>Prisma Studio — смотреть данные в браузере.</td></tr>
+      <tr><td><code>npm run db:reset</code></td><td>Снести БД и накатить заново. Данные теряются.</td></tr>
+      <tr><td><code>npm run dev:api</code></td><td>API в watch-режиме.</td></tr>
+      <tr><td><code>npm run dev --workspace @vexa/web</code></td><td>Фронтенд на Vite.</td></tr>
+      <tr><td><code>npm run lint</code> / <code>typecheck</code> / <code>build</code></td><td>То же, что проверит CI.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Опасные — думать перед запуском</h3>
+  <table class="tbl">
+    <thead><tr><th>Команда</th><th>Риск</th></tr></thead>
+    <tbody>
+      <tr><td><code>git reset --hard</code></td><td>Стирает незакоммиченные изменения без возможности вернуть.</td></tr>
+      <tr><td><code>git push --force</code></td><td>Перезаписывает историю на сервере. Использовать только <code>--force-with-lease</code> и только в своей ветке.</td></tr>
+      <tr><td><code>git clean -fd</code></td><td>Удаляет все неотслеживаемые файлы, включая локальный <code>.env</code>.</td></tr>
+      <tr><td><code>npm run db:reset</code></td><td>Удаляет все данные в локальной БД. Перед этим убедиться, что там нет ничего нужного.</td></tr>
+    </tbody>
+  </table>
+
+  <p>Если сомневаетесь — сначала <code>git status</code>, потом спросите в чате. Спросить дешевле, чем потерять день работы.</p>
+</section>
+
+<!-- ================= 11 ================= -->
+<section id="rules">
+  <span class="sec-num">11</span>
+  <h2>Правила команды</h2>
+  <p class="sec-sub">Договорённости, которые держат процесс. Не рекомендации.</p>
+
+  <div class="rules">
+    <div class="yes">
+      <h4>Делаем</h4>
+      <ul>
+        <li>Каждая задача — своя ветка от свежего <code>develop</code>.</li>
+        <li>Пушим свою ветку минимум раз в день.</li>
+        <li>Прогоняем все четыре чека до открытия PR.</li>
+        <li>Пишем <code>Closes #N</code> в описании PR.</li>
+        <li>Ревьюим в течение рабочего дня.</li>
+        <li>Обсуждение технических решений — в issue, не в личке.</li>
+        <li>Новая сущность в БД — сразу миграция.</li>
+        <li>Изменил ответ API — обновил <code>docs/frontend-api-map.md</code>.</li>
+        <li>Не понял чужое решение в ревью — спрашиваем, а не апрувим молча.</li>
+      </ul>
+    </div>
+    <div class="no">
+      <h4>Не делаем</h4>
+      <ul>
+        <li>Не пушим напрямую в <code>develop</code> и <code>main</code>.</li>
+        <li>Не заливаем файлы через веб-интерфейс GitHub.</li>
+        <li>Не апрувим PR не глядя, чтобы «разблокировать».</li>
+        <li>Не мерджим красный CI, отключая правило.</li>
+        <li>Не коммитим <code>.env</code>, <code>node_modules</code>, <code>dist</code>.</li>
+        <li>Не заводим личные ветки вида <code>имя-dev</code>.</li>
+        <li>Не держим ветку дольше спринта.</li>
+        <li>Не правим <code>packages/shared</code> и <code>apps/api/prisma</code> без тимлида.</li>
+        <li>Не берём задачи из <code>second-queue</code>, пока не закрыт <code>mvp</code>.</li>
+        <li>Не начинаем миграцию фронта на TypeScript по своей инициативе.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Ритм спринта</h3>
+  <table class="tbl">
+    <thead><tr><th>Когда</th><th>Что</th></tr></thead>
+    <tbody>
+      <tr><td>Начало спринта</td><td>Планирование: разбираем issues, ставим assignee и milestone.</td></tr>
+      <tr><td>Пн / Ср / Пт, 15 минут</td><td>Синк: что сделал, что блокирует. Не отчёт, а поиск блокеров.</td></tr>
+      <tr><td>Ежедневно</td><td>Пуш своей ветки. Проверка входящих PR на ревью.</td></tr>
+      <tr><td>Середина спринта</td><td>Контрольная точка: успеваем ли по критическому пути.</td></tr>
+      <tr><td>За два дня до конца</td><td>Заморозка фич, только багфиксы.</td></tr>
+      <tr><td>Конец спринта</td><td>Демо, ретроспектива, релиз в <code>main</code>, чистка мёртвых веток.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout green">
+    <p><b>Приоритет — объём MVP из раздела 3.3 ТЗ.</b> Это дипломный проект с жёстким сроком. Между «идеально» и «работает и защищаемо» выбираем второе — и говорим об этом честно на ревью, а не оптимизируем то, что никто не увидит на защите.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <span>Vexa · регламент разработки · v1.1 · обновляется по мере изменения процесса</span>
+  <span>Вопросы и правки — Team Lead розробки</span>
+</footer>
+
+<script>
+// Copy buttons for command blocks
+document.querySelectorAll('.copy').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var pre = btn.closest('.cmd').querySelector('pre');
+    var lines = pre.innerText.split('\n').map(function (l) {
+      return l.replace(/\s*::.*$/, '').trimEnd();   // strip cmd comments
+    }).filter(function (l, i, arr) {
+      return !(l === '' && arr[i - 1] === '');
+    });
+    navigator.clipboard.writeText(lines.join('\n').trim()).then(function () {
+      var old = btn.textContent;
+      btn.textContent = 'скопировано';
+      btn.classList.add('done');
+      setTimeout(function () {
+        btn.textContent = old;
+        btn.classList.remove('done');
+      }, 1600);
+    });
+  });
+});
+
+// Scroll spy for the table of contents
+var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));
+var map = {};
+links.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+
+var observer = new IntersectionObserver(function (entries) {
+  entries.forEach(function (e) {
+    if (e.isIntersecting) {
+      links.forEach(function (a) { a.classList.remove('active'); });
+      if (map[e.target.id]) map[e.target.id].classList.add('active');
+    }
+  });
+}, { rootMargin: '-10% 0px -70% 0px', threshold: 0 });
+
+document.querySelectorAll('section[id]').forEach(function (s) { observer.observe(s); });
+</script>
+
+</body>
+</html>
