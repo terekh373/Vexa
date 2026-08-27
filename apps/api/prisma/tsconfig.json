@@ -8,5 +8,5 @@
     "declaration": false,
     "types": ["node"]
   },
-  "include": ["seed.ts"]
+  "include": ["*.ts"]
 }
