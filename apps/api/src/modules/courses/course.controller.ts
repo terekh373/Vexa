@@ -1,53 +1,99 @@
 import type { RequestHandler } from 'express';
-import { getCourseDetails, getCourseReviews } from './course.service.js';
-import { courseIdParamsSchema, courseReviewsQuerySchema } from './course.validation.js';
 
-export const courseDetailsController: RequestHandler = async (req, res) => {
-  const params = courseIdParamsSchema.safeParse(req.params);
-  if (!params.success) {
-    res.status(400).json({ error: 'Invalid course id' });
-    return;
+import { AppError } from '../../lib/errors.js';
+
+import { getCatalog } from './catalog.service.js';
+import { courseCatalogQuerySchema } from './catalog.validation.js';
+
+import {
+  getCourseDetails,
+  getCourseReviews,
+} from './course.service.js';
+
+import {
+  courseIdOrSlugParamsSchema,
+  courseIdParamsSchema,
+  courseReviewsQuerySchema,
+} from './course.validation.js';
+
+export const catalogController: RequestHandler = async (
+  req,
+  res,
+) => {
+  const query = courseCatalogQuerySchema.safeParse(req.query);
+
+  if (!query.success) {
+    throw AppError.validation(
+      'Invalid catalog query',
+      query.error.issues.map((issue) => ({
+        field: issue.path.join('.'),
+        message: issue.message,
+      })),
+    );
   }
 
-  try {
-    const userId = typeof res.locals.userId === 'string' ? res.locals.userId : undefined;
-    const course = await getCourseDetails(params.data.id, userId);
-    if (course === null) {
-      res.status(404).json({ error: 'Course not found' });
-      return;
-    }
-    res.json(course);
-  } catch (error) {
-    console.error('Failed to load course details', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  const result = await getCatalog(query.data);
+
+  res.json(result);
 };
 
-export const courseReviewsController: RequestHandler = async (req, res) => {
+export const courseDetailsController: RequestHandler = async (
+  req,
+  res,
+) => {
+  const params = courseIdOrSlugParamsSchema.safeParse(req.params);
+
+  if (!params.success) {
+    throw AppError.validation('Invalid course id or slug');
+  }
+
+  const userId =
+    typeof res.locals.userId === 'string'
+      ? res.locals.userId
+      : undefined;
+
+  const course = await getCourseDetails(
+    params.data.idOrSlug,
+    userId,
+  );
+
+  if (course === null) {
+    throw AppError.notFound('Course not found');
+  }
+
+  res.json(course);
+};
+
+export const courseReviewsController: RequestHandler = async (
+  req,
+  res,
+) => {
   const params = courseIdParamsSchema.safeParse(req.params);
   const query = courseReviewsQuerySchema.safeParse(req.query);
 
   if (!params.success) {
-    res.status(400).json({ error: 'Invalid course id' });
-    return;
-  }
-  if (!query.success) {
-    res.status(400).json({
-      error: 'Invalid pagination parameters',
-      details: query.error.flatten().fieldErrors,
-    });
-    return;
+    throw AppError.validation('Invalid course id');
   }
 
-  try {
-    const result = await getCourseReviews(params.data.id, query.data.page, query.data.limit);
-    if (result === null) {
-      res.status(404).json({ error: 'Course not found' });
-      return;
-    }
-    res.json(result);
-  } catch (error) {
-    console.error('Failed to load course reviews', error);
-    res.status(500).json({ error: 'Internal server error' });
+  if (!query.success) {
+    throw AppError.validation(
+      'Invalid pagination parameters',
+      query.error.issues.map((issue) => ({
+        field: issue.path.join('.'),
+        message: issue.message,
+      })),
+    );
   }
+
+  const result = await getCourseReviews(
+    params.data.id,
+    query.data.page,
+    query.data.limit,
+  );
+
+  if (result === null) {
+    throw AppError.notFound('Course not found');
+  }
+
+  res.json(result);
 };

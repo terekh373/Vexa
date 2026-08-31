@@ -13,3 +13,4 @@ export type CourseStatus = (typeof COURSE_STATUSES)[number];
 export * from './auth.js';
 export * from './course.js';
 export * from './routes.js';
+export * from './catalog.js';
