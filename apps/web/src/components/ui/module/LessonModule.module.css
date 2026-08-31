@@ -43,11 +43,7 @@
 }
 
 .arrow {
-  /* display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease; */
-    display: flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;

@@ -12,3 +12,25 @@
   padding: 0;
   list-style: none;
 }
+
+@media (max-width: 960px) {
+  .container {
+    padding: 24px 0 0 0;
+  }
+
+  .cardlist {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
+  }
+
+  .cardlist li {
+    width: calc((100% - 48px) / 3);
+  }
+}
+
+@media (max-width: 540px) {
+  .container {
+    display: none;
+  }
+}
