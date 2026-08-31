@@ -7,6 +7,7 @@ import Home from './pages/home/Home.jsx'
 import Catalog from './pages/catalog/Catalog.jsx'
 import ForAuthors from './pages/for-authors/ForAuthors.jsx'
 import Course from './pages/course/Course.jsx'
+import VexaAI from './pages/vexa-ai/VexaAI.jsx';
 
 function App() {
   return (
@@ -16,8 +17,8 @@ function App() {
           <Route path={routePatterns.catalog} element={<Catalog />} />
           <Route path={routePatterns.forAuthors} element={<ForAuthors />} />
           <Route path={routePatterns.course} element={<Course />} />
-          
-           {/* <Route path={routePatterns.vexaAi} element={<VexaAI />} /> */}
+  
+          <Route path={routePatterns.vexaAi} element={<VexaAI />} />
         </Route>
       </Routes>
   )

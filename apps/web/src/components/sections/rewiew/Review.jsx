@@ -9,6 +9,14 @@ import user03 from '../../../assets/images/user03.png'
 
 const Section = styled.section`
   padding: 48px 0;
+
+  @media (max-width: 960px) {
+    padding: 28px 0;
+  }
+
+  @media (max-width: 540px) {
+    padding: 26px 0;
+  }
 `
 
 const Row = styled.div`
@@ -23,6 +31,24 @@ const Row = styled.div`
     font-size: 16px;
     font-weight: 400;
     line-height: 24px;
+  }
+
+  @media (max-width: 960px) {
+    flex-wrap: wrap;
+    gap: 24px;
+    padding: 0 44px;
+  }
+
+  @media (max-width: 540px) {
+    flex-direction: column;
+    align-items: stretch;
+    align-items: center;
+    gap: 32px;
+    padding: 0;
+
+    p {
+      width: 100%;
+    }
   }
 `
 
