@@ -31,7 +31,7 @@ export const Features = ({ cards = [] }) => (
         <Title title='Чому Vexa?' size='large' />
         <Row>
           {cards.map((card) => (
-            <FeatureCard card={card} variant='whyVexa' />
+            <FeatureCard card={card} variant='whyVexa' key={card.id} />
           ))}
         </Row>
     </Featurebox> 
