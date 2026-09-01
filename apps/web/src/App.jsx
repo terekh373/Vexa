@@ -8,6 +8,7 @@ import Catalog from './pages/catalog/Catalog.jsx'
 import ForAuthors from './pages/for-authors/ForAuthors.jsx'
 import Course from './pages/course/Course.jsx'
 import VexaAI from './pages/vexa-ai/VexaAI.jsx';
+import NotFound from './pages/not-found/NotFound.jsx'
 
 function App() {
   return (
@@ -19,9 +20,10 @@ function App() {
           <Route path={routePatterns.course} element={<Course />} />
   
           <Route path={routePatterns.vexaAi} element={<VexaAI />} />
+          <Route path='*' element={<NotFound />} />
         </Route>
       </Routes>
   )
-}
+};
 
 export default App;

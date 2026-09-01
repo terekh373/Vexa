@@ -145,7 +145,7 @@
 
 .whatCanPublishing {
   position: relative;
-  width: 300px;
+  min-width: 300px;
   height: stretch;
   padding: 0 24px;
   text-align: center;
@@ -170,17 +170,20 @@
 
 .whatYouCanLearn {
   position: relative;
-  width: 300px;
+  /* width: 300px; */
+  min-width: 300px;
+  width: 100%;
   height: stretch;
   padding: 0 24px;
-  text-align: center;
   display: flex;
   flex-direction: row;
   gap: 4px;
   align-items: flex-start;
+  align-items: center;
   border: 1px solid var(--border-grey);
   border-radius: 16px;
   padding: 24px 6px;
+  justify-content: flex-start;
 
   img {
     width: 46px;
@@ -196,7 +199,6 @@
     text-align: start;
   }
 }
-
 
 .small {}
 
