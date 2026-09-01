@@ -28,7 +28,7 @@ export const CardsList = ({ cards = [], variant, showArrow, last, beforeLast, re
       <StudentsReviewCard key={card.id} card={card} />
     ) 
     : (
-      <FeatureCard key={card.id} card={card} variant={variant} showArrow={showArrow && index < cards.length - 1} />
+      <FeatureCard key={card.id} card={card} variant={variant} showArrow={showArrow && index < cards.length - 1} index={index} />
     )
    ))}
   </Container>

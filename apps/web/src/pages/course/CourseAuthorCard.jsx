@@ -87,7 +87,7 @@ const AuthorCoursesInfoItem = styled.li`
   }
 `
 
-export const CourseAuthorCard = () => (
+export const CourseAuthorCard = ({ author }) => (
   <Card>
     <AuthorInfo>
       <AuthorAvatar
@@ -95,12 +95,9 @@ export const CourseAuthorCard = () => (
         alt="author avatar"
       />
       <div>
-        <AuthorName>Олена Коваль</AuthorName>
-        <AuthorRole>3D-художниця та викладачка</AuthorRole>
-        <Description>
-        Понад 7 років працюю у сфері 3D-графіки. Створювала моделі
-        для ігор, реклами та анімації. Навчаю просто про складне.
-      </Description>
+        <AuthorName>{author.name}</AuthorName>
+        <AuthorRole>{author.headline}</AuthorRole>
+        <Description>{author.bio}</Description>
       </div>
     </AuthorInfo>
 
