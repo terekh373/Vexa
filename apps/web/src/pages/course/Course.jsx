@@ -21,8 +21,7 @@ import checkBallIcon from '../../assets/icons/check-ball.svg';
 import Button from '../../components/ui/buttons/Button';
 import { Title } from '../../components/ui/title/Title';
 import { CardsList } from '../../components/ui/cards-list/CardsList.jsx';
-
-import { CourseAuthorCard } from './CourseAuthorСard.jsx';
+import { CourseAuthorCard } from './CourseAuthorCard.jsx';
 import { OpenMore } from '../../components/ui/openmore/OpenMore.jsx';
 import LessonModule from '../../components/ui/module/LessonModule.jsx';
 
