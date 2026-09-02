@@ -1,9 +1,11 @@
 .container {
   padding: 48px 0 0 0;
 }
+
 .box {
   padding-bottom: 40px;
 }
+
 .cardlist {
   display: flex;
   justify-content: space-between;

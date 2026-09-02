@@ -15,27 +15,26 @@
   height: auto;
 }
 
-.info {
-  h3 {
-    margin-bottom: 16px;
+.info h3 {
+  margin-bottom: 16px;
 
-    color: var(--main-dark-color);
-    font-size: 40px;
-    font-weight: 600;
-    line-height: 48px;
-  }
-
-  p {
-    color: var(--main-dark-color);
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 24px;
-  }
-
-  p:last-of-type {
-    margin-bottom: 32px;
-  }
+  color: var(--main-dark-color);
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 48px;
 }
+
+.info p {
+  color: var(--main-dark-color);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.info p:last-of-type {
+  margin-bottom: 32px;
+}
+
 
 .bttnBox {
   display: flex;
