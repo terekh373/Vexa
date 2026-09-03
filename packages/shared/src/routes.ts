@@ -22,15 +22,22 @@ function build(path: string): string {
  */
 export interface CatalogQuery {
   q?: string;
+  type?: 'course' | 'material';
   category?: string;
-  type?: 'COURSE' | 'MATERIAL';
   grade?: number;
   priceMin?: number;
   priceMax?: number;
   rating?: number;
-  language?: string;
-  sort?: 'relevance' | 'popular' | 'rating' | 'newest' | 'price_asc' | 'price_desc';
+  language?: 'uk' | 'en';
+  sort?:
+    | 'relevance'
+    | 'popularity'
+    | 'rating'
+    | 'date'
+    | 'price_asc'
+    | 'price_desc';
   page?: number;
+  limit?: number;
 }
 
 function toQueryString(query: CatalogQuery): string {
