@@ -33,6 +33,40 @@ services:
       timeout: 5s
       retries: 10
 
+  # Local stand-in for Cloudflare R2. Same S3 API, so the API code is identical
+  # in dev and prod — only S3_* variables differ. Console: http://localhost:9001
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - vexa-minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # One-shot: creates the bucket the API expects, then exits. Idempotent —
+  # `mb --ignore-existing` is a no-op on every later `docker compose up`.
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 minioadmin minioadmin &&
+      mc mb --ignore-existing local/vexa-dev
+      "
+
 volumes:
   vexa-postgres-data:
   vexa-redis-data:
+  vexa-minio-data:
