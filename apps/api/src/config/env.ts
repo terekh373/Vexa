@@ -42,6 +42,17 @@ const envSchema = z.object({
 
   // Comma-separated list of allowed browser origins.
   CORS_ORIGINS: z.string().default('http://localhost:5173'),
+
+  // Object storage (Cloudflare R2 or any S3-compatible endpoint). Required:
+  // the files module signs URLs at request time, and a missing key would only
+  // surface as a 500 on the first upload instead of at startup.
+  S3_ENDPOINT: z.string().url('S3_ENDPOINT must be a URL'),
+  S3_REGION: z.string().min(1).default('auto'),
+  S3_BUCKET: z.string().min(1, 'S3_BUCKET is required'),
+  S3_ACCESS_KEY_ID: z.string().min(1, 'S3_ACCESS_KEY_ID is required'),
+  S3_SECRET_ACCESS_KEY: z.string().min(1, 'S3_SECRET_ACCESS_KEY is required'),
+  // Signed URL lifetime, seconds. SRS 20.2 sets the default at 10 minutes.
+  S3_SIGNED_URL_TTL_SEC: z.coerce.number().int().positive().default(600),
 });
 
 export type Env = z.infer<typeof envSchema>;
