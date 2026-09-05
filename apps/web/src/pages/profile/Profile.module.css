@@ -1,0 +1,207 @@
+.dashboardWrapper {
+    padding: 30px 0;
+    minHeight: 85vh;
+  }
+  
+  .welcomeTitle {
+    font-size: 32px;
+    font-weight: bold;
+    color: #111;
+    margin-bottom: 5px;
+  }
+  
+  .welcomeSubtitle {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 30px;
+  }
+
+  .gridContainer {
+    display: flex;
+    gap: 30px;
+    background-color: #F4F1FA;
+    padding: 40px;
+    border-radius: 30px;
+    align-items: flex-start;
+  }
+  
+  .leftColumn {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+  
+  .rightColumn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+  
+  .profileCard {
+    background-color: #FFFFFF;
+    border-radius: 20px;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 5px 20px rgba(98, 54, 255, 0.03);
+  }
+  
+  .photoBox {
+    width: 110px;
+    height: 130px;
+    border: 2px solid #6236FF;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #6236FF;
+    font-weight: 500;
+    background: white;
+  }
+  
+  .infoBox {
+    width: 100%;
+    padding: 12px;
+    background: #F8F9FA;
+    border-radius: 12px;
+    text-align: center;
+    color: #333;
+    font-size: 15px;
+    font-weight: 500;
+  }
+  
+  .logoutBtn {
+    background-color: #6236FF;
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  
+  .logoutBtn:hover {
+    opacity: 0.9;
+  }
+  
+  .coursesCard {
+    background-color: #FFFFFF;
+    border-radius: 20px;
+    padding: 25px;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 5px 20px rgba(98, 54, 255, 0.03);
+  }
+  
+  .sectionTitle {
+    font-size: 18px;
+    font-weight: bold;
+    color: #222;
+    margin-bottom: 15px;
+  }
+  
+  .emptyCourses {
+    flex: 1;
+    border: 2px dashed #D5CEEE;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #777;
+    font-size: 15px;
+    background: #FAFAFC;
+  }
+  
+  .calendarCard {
+    background-color: #FFFFFF;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(98, 54, 255, 0.03);
+  }
+  
+  .calendarHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .calendarHeader h3 {
+    font-size: 18px;
+    margin: 0;
+  }
+  
+  .calendarNav {
+    color: #6236FF;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  
+  .daysGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+  }
+  
+  .dayCell {
+    background: #F8F9FA;
+    border-radius: 12px;
+    padding: 12px 5px;
+    text-align: center;
+  }
+  
+  .dayName {
+    font-size: 12px;
+    color: #777;
+    font-weight: bold;
+  }
+  
+  .dayDate {
+    font-size: 12px;
+    color: #222;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+  
+  .daySubject {
+    font-size: 11px;
+    color: #aaa;
+    background: white;
+    padding: 4px;
+    border-radius: 6px;
+  }
+  
+  .bottomRow {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .tasksCard {
+    flex: 1;
+    background-color: #FFFFFF;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(98, 54, 255, 0.03);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .emptyBox {
+    background: #F8F9FA;
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    color: #777;
+    font-size: 14px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }

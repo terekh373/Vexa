@@ -1,0 +1,161 @@
+.pageWrapper {
+    padding: 30px 0 50px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .headerSection {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .topSubtitle {
+    font-size: 14px;
+    color: #6236FF;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  
+  .title {
+    font-size: 36px;
+    font-weight: bold;
+    color: #111;
+    margin-bottom: 10px;
+  }
+  
+  .brand {
+    color: #6236FF;
+  }
+  
+  .subtitle {
+    font-size: 16px;
+    color: #555;
+  }
+
+  .cardsContainer {
+    display: flex;
+    gap: 30px;
+    width: 100%;
+    max-width: 1100px;
+    margin-bottom: 30px;
+  }
+  
+  .card {
+    flex: 1;
+    background: #FFFFFF;
+    border-radius: 24px;
+    display: flex;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(98, 54, 255, 0.05);
+    border: 1px solid #EAE5F8;
+  }
+  
+  .cardContent {
+    flex: 1.2;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .roleHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+  }
+  
+  .roleIcon {
+    font-size: 22px;
+  }
+  
+  .roleTitle {
+    font-size: 22px;
+    font-weight: bold;
+    color: #111;
+    margin: 0;
+  }
+  
+  .roleSub {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 15px;
+    font-weight: 500;
+  }
+  
+  .roleDesc {
+    font-size: 13px;
+    color: #444;
+    line-height: 1.4;
+    margin-bottom: 20px;
+  }
+  
+  .featuresList {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 25px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 13px;
+    color: #333;
+  }
+  
+  .featuresList li {
+    color: #333;
+    font-weight: 500;
+  }
+  
+  .selectBtn {
+    background-color: #6236FF;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: auto;
+    transition: opacity 0.2s;
+  }
+  
+  .selectBtn:hover {
+    opacity: 0.9;
+  }
+  
+  .imageWrapper {
+    flex: 1;
+    background: #F4F1FA;
+  }
+  
+  .roleImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .footerNote {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: #555;
+    background: #F4F1FA;
+    padding: 15px 30px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 600px;
+  }
+  
+  .footerNote p {
+    margin: 0;
+    font-weight: 500;
+  }
+  
+  .footerSubNote {
+    font-size: 11px;
+    color: #888;
+  }

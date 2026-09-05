@@ -1,5 +1,8 @@
 import styles from './AuthorsReviewCard.module.css'
-import starIcon from '../../../../assets/icons/star-purple.svg'
+import purpleStarIcon from '../../../../assets/icons/star-purple.svg'
+import greyStarIcon from '../../../../assets/icons/star-grey.svg'
+
+const STARS_LENGTH = 5;
 
 export const AuthorsReviewCard = ({ card }) => (
   <div className={styles.card}>
@@ -15,10 +18,10 @@ export const AuthorsReviewCard = ({ card }) => (
       </div>
 
       <div>
-      {Array.from({ length: card.stars }).map((_, index) => (
+      {Array.from({ length: STARS_LENGTH }).map((_, index) => (
         <img
           key={index}
-          src={starIcon}
+          src={index < card.stars ? purpleStarIcon : greyStarIcon}
           alt="star icon"
           className={styles.starIcon}
         />
