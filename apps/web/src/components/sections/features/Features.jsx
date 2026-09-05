@@ -12,6 +12,17 @@ const Row = styled.div`
   display: flex;
   align-self: center;
   justify-content: space-between;
+
+   @media (max-width: 960px) {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
+  }
+
+  @media (max-width: 540px) {
+    flex-direction: column;
+    gap: 16px;
+  }
 `
 
 export const Features = ({ cards = [] }) => (
@@ -20,7 +31,7 @@ export const Features = ({ cards = [] }) => (
         <Title title='Чому Vexa?' size='large' />
         <Row>
           {cards.map((card) => (
-            <FeatureCard card={card} variant='whyVexa' />
+            <FeatureCard card={card} variant='whyVexa' key={card.id} />
           ))}
         </Row>
     </Featurebox> 
