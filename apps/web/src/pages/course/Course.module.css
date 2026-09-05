@@ -1,0 +1,274 @@
+.container {
+  height: 100%;
+}
+
+.courseRow {
+  display: flex;
+  gap: 32px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 48px;
+}
+
+.courseMainInfo {
+  width: 900px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 32px;
+  padding: 24px 200px 24px 0;
+}
+
+.courseMainInfo h2 {
+  color: var(--main-dark-color);
+  font-size: 40px;
+  font-weight: bold;
+  line-height: 48px;
+  margin-bottom: 16px;
+  width: 356px;
+}
+
+.courseMainInfo p {
+  width: 400px;
+  color: var(--main-dark-color);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 30px;
+  margin-bottom: 24px;
+}
+
+.listCoursePage {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.itemCoursePage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  img {
+    width: 20px;
+    height: 20px;
+  }
+
+  span {
+    white-space: nowrap;
+    display: inline-block;
+    color: var(--main-dark-color);
+    font-size: 16px;
+    font-weight: 600;
+    width: fit-content;
+  }
+}
+
+.author {
+  display: flex;
+  width: 328px;
+  gap: 16px;
+  align-items: center;
+
+  img {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+  }
+
+  span {
+    display: inline-block;
+    color: var(--main-dark-color);
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+.coursePriceInfo {
+  height: stretch;
+  background: var(--footer-bg-color);
+  border-radius: 32px;
+  padding: 12px 0;
+  width: 568px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.courseRowBttn {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.checkBox {
+  border: 1px solid var(--purple-color);
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.priorityList {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var();
+    font-size: 16px;
+    font-weight: normal;
+    line-height: 24px;
+  }
+}
+
+.coursePriceInfo p:last-of-type {
+  color: var(--secondary-grey);
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 24px;
+}
+
+.coursePrice {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  
+  span {
+    display: inline-block;
+    color: var(--secondary-grey);
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 24px;
+  }
+
+  span:first-child {
+    color: var(--main-dark-color);
+    font-size: 40px;
+    font-weight: 600;
+    line-height: 48px;
+  }
+
+  span:last-child {
+    color: var(--purple-color);
+  }
+}
+
+.aboutCourseBox {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 48px;
+}
+
+.courseDetails {
+  width: 900px;
+
+  ul {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  li {
+    cursor: pointer;
+  }
+  li:hover {
+    color: var(--purple-color);
+  }
+  li:active {
+    color: var(--adjuvant-purple);
+    text-decoration: underline;
+    font-weight: 600;
+  }
+}
+
+.courseInfo {
+  width: 282px;
+
+  li {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    color: var(--main-dark-color);
+    font-size: 16px;
+    line-height: 24px;
+
+    span:first-child {
+      font-weight: 500;
+    }
+
+     span:last-child {
+      font-weight: 400;
+    }
+  }
+}
+
+.about {
+  h3 {
+    color: var(--main-dark-color);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 24px;
+    margin-bottom: 24px;
+  }
+
+  h4 {
+    color: var(--main-dark-color);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 18px;
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: var(--main-dark-color);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+  }
+}
+
+.lessonsBox {
+  /* border: 5px solid blue; */
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  margin-bottom: 48px;
+}
+
+.modulesBox {
+  width: 70%;
+}
+
+.certificateBox {
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 0 54px;
+  background: var(--footer-bg-color);
+  border-radius: 32px;
+
+  img {
+    width: 296px;
+    height: 200px;
+  }
+
+  p {
+    color: var(--purple-color);
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 24px;
+    text-align: center;
+  }
+}

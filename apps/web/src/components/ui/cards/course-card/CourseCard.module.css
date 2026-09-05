@@ -4,6 +4,8 @@
   border-radius: 16px;
   padding: 16px 8px;
   position: relative;
+  text-decoration: none;
+  display: block;
 }
 .pricerow {
   display: flex;

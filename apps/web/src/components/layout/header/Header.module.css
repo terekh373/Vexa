@@ -32,16 +32,54 @@
   color: var(--purple-color);
 }
 
-link:active {
+.link:active {
   color: var(--adjuvant-purple);
   text-decoration: underline;
 }
 
-link:disabled {
+.link:disabled {
   color: var(--border-grey);
   text-decoration: underline;
 }
 
+/* =========================================
+   СТИЛІ ДЛЯ ПРАВОГО БЛОКУ ТА АВТОРИЗАЦІЇ 
+   (Винесені з медіазапитів)
+   ========================================= */
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 15px; 
+}
+
+.authPrompt {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Відступ між текстом і кнопкою */
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+  user-select: none; /* Заборона виділення */
+}
+
+.loginText {
+  color: #333;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.loginText:hover {
+  color: #6236FF;
+  background-color: #F4F1FA;
+}
+
+/* =========================================
+   АДАПТИВНІСТЬ (МЕДІАЗАПИТИ)
+   ========================================= */
 
 /* 1440px */
 @media (max-width: 1440px) {
