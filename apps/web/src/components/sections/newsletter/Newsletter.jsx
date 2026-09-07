@@ -56,7 +56,6 @@ const Newsletter = () => {
               title='Підписатися' 
               size='medium'
               variant='secondary-purple'
-
             />
           </form>
         </div>

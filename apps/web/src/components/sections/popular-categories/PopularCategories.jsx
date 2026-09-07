@@ -6,7 +6,15 @@ import { OpenMore } from '../../ui/openmore/OpenMore'
 
 const Section = styled.section`
   padding: 48px 0;
-  background: #F3EEFF;
+  background: var(--footer-bg-color);
+
+  @media (max-width: 960px) {
+    padding: 32px 0;
+  }
+
+  @media (max-width: 540px) {
+    padding: 16px 0;
+  }
 `
 
 const List = styled.div`
@@ -14,6 +22,18 @@ const List = styled.div`
   flex-direction: row;
   align-items: center;
   gap: 16px;
+
+  @media (max-width: 960px) {
+    flex-wrap: wrap;
+    gap: 12px;
+    row-gap: 16px;
+    justify-content: flex-start;
+  }
+
+  @media (max-width: 540px) {
+    gap: 8px;
+    row-gap: 10px;
+  }
 `
 
 export const PopularCategories = () => (

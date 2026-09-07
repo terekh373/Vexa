@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { Container } from '../../layout/container/Container'
 import { OpenMore } from '../../ui/openmore/OpenMore'
-import { ReviewCard } from '../../ui/cards/review-card/ReviewCard'
+import { ReviewCard } from '../../ui/cards/main-page-review-card/ReviewCard'
 
 import user01 from '../../../assets/images/user01.png'
 import user02 from '../../../assets/images/user02.png'
@@ -9,6 +9,14 @@ import user03 from '../../../assets/images/user03.png'
 
 const Section = styled.section`
   padding: 48px 0;
+
+  @media (max-width: 960px) {
+    padding: 28px 0;
+  }
+
+  @media (max-width: 540px) {
+    padding: 26px 0;
+  }
 `
 
 const Row = styled.div`
@@ -23,6 +31,24 @@ const Row = styled.div`
     font-size: 16px;
     font-weight: 400;
     line-height: 24px;
+  }
+
+  @media (max-width: 960px) {
+    flex-wrap: wrap;
+    gap: 24px;
+    padding: 0 44px;
+  }
+
+  @media (max-width: 540px) {
+    flex-direction: column;
+    align-items: stretch;
+    align-items: center;
+    gap: 32px;
+    padding: 0;
+
+    p {
+      width: 100%;
+    }
   }
 `
 

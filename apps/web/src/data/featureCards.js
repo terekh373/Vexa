@@ -30,6 +30,14 @@ import flag from '../assets/icons/for-authors-icons/flag.svg'
 import check from '../assets/icons/for-authors-icons/check.svg'
 import lightning from '../assets/icons/for-authors-icons/lightning.svg'
 
+import li01 from '../assets/icons/course-page/li-01.svg'
+import li02 from '../assets/icons/course-page/li-02.svg'
+import li03 from '../assets/icons/course-page/li-03.svg'
+import li04 from '../assets/icons/course-page/li-04.svg'
+import li05 from '../assets/icons/course-page/li-05.svg'
+import li06 from '../assets/icons/course-page/li-06.svg'
+
+
 export const whyBecomeAuthorCards = [
   {
     id: 1,
@@ -232,6 +240,51 @@ export const whatCanPublishingCards = [
     subtitle: 'Консультації, гайди та персональний супровід для успішного розвитку.',
     image: heart,
     imageAlt: 'heart icon',
+  },
+];
+
+export const whatCanLearnCards = [
+  {
+    id: 1,
+    title: 'Інтерфейс та основи роботи у Blender',
+    subtitle: '',
+    image: li01,
+    imageAlt: 'course icon',
+  },
+  {
+    id: 2,
+    title: "Моделювання об'єктів з нуля",
+    subtitle: '',
+    image: li02,
+    imageAlt: 'course icon',
+  },
+  {
+    id: 3,
+    title: 'Матеріали, текстури та освітлення',
+    subtitle: '',
+    image: li03,
+    imageAlt: 'course icon',
+  },
+  {
+    id: 4,
+    title: 'Анімація та рендеринг сцен',
+    subtitle: '',
+    image: li04,
+    imageAlt: 'course icon',
+  },
+  {
+    id: 5,
+    title: 'Робота з камерами та композицією',
+    subtitle: '',
+    image: li05,
+    imageAlt: 'course icon',
+  },
+  {
+    id: 6,
+    title: 'Практичний проект на завершення',
+    subtitle: '',
+    image: li06,
+    imageAlt: 'course icon',
   },
 ];
 

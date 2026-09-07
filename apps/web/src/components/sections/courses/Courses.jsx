@@ -45,7 +45,7 @@ const Courses = () => {
           <OpenMore title='Рекомендовані курси' bttnTxt='Всі категорії'/>
           <ul className={styles.cardlist}>
             {recommendedCourses.map((card) => (
-              <li><CourseCard card={card} key={card.id}/></li>
+              <li key={card.id}><CourseCard card={card} key={card.id}/></li>
             ))}
           </ul>
         </div>
@@ -60,7 +60,6 @@ const Courses = () => {
             ))}
           </ul>
         </div>
-
       </section>
     </Container>
   )

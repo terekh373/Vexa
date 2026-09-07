@@ -1,7 +1,7 @@
 import styles from './ForAuthors.module.css'
 import { Container } from '../../components/layout/container/Container.jsx'
 import Breadcrumbs from '../../components/ui/breadcrumbs/Breadcrumbs.jsx'
-import { CardList } from './CardList.jsx'
+import { CardsList } from '../../components/ui/cards-list/CardsList.jsx'
 import { whyBecomeAuthorCards, howItWorksCards, whatPublishingCards, whatCanPublishingCards } from '../../data/featureCards.js'
 import { Title } from '../../components/ui/title/Title.jsx'
 import { authorsReviewCards } from '../../data/authorsReview.js'
@@ -70,27 +70,27 @@ const ForAuthors = () => {
           </div>
 
           <Title title='Чому варто стати автором VEXA' size='small' />
-          <CardList cards={whyBecomeAuthorCards} variant='whyBecomeAuthor' />
+          <CardsList cards={whyBecomeAuthorCards} variant='whyBecomeAuthor' />
 
           <Title title='Як це працює' size='small' />
-          <CardList cards={howItWorksCards} variant='howItWorks' showArrow={true}/>
+          <CardsList cards={howItWorksCards} variant='howItWorks' showArrow={true}/>
 
           <Title title='Що можна публікувати на VEXA' size='small' />
-          <CardList cards={whatPublishingCards} beforeLast variant='whatPublishing' showArrow={false}/>
+          <CardsList cards={whatPublishingCards} beforeLast variant='whatPublishing' showArrow={false}/>
         </main>
       </Container>
 
       <section className={styles.section}>
         <Container>
           <Title title='Що можна публікувати на VEXA' size='small' />
-          <CardList cards={whatCanPublishingCards} last variant='whatCanPublishing' showArrow={false}/>
+          <CardsList cards={whatCanPublishingCards} last variant='whatCanPublishing' showArrow={false}/>
         </Container>
       </section>
 
       <section className={styles.sectionReview}>
         <Container>
           <Title title='Що кажуть наші автори' size='small' />
-          <CardList cards={authorsReviewCards} review beforeLast/>
+          <CardsList cards={authorsReviewCards} review='authorReview' beforeLast/>
         </Container>
       </section>
     </>

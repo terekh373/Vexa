@@ -2,8 +2,11 @@ import styles from './CourseCard.module.css'
 import star from '../../../../assets/icons/star.svg'
 import badge from '../../../../assets/icons/badge.svg'
 
+import { Link } from 'react-router-dom'
+import { routes } from '@vexa/shared'
+
 const CourseCard = ({ card }) => (
-  <div className={styles.card} key={card.id}>
+  <Link to={routes.course(card.id)} className={styles.card}>
 
     {card.isNew && (
       <>
@@ -36,7 +39,7 @@ const CourseCard = ({ card }) => (
         ${card.price.toFixed(2)}
       </p>
     </div>
-  </div>
+  </Link>
 )
 
 export default CourseCard;

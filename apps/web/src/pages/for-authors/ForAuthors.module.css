@@ -18,22 +18,22 @@
 
 .info {
   width: 698px;
+}
 
-  h2 {
-    color: var(--main-dark-color);
-    font-size: 40px;
-    font-weight: 700;
-    line-height: 48px;
-    margin-bottom: 16px;
-  }
+.info h2 {
+  color: var(--main-dark-color);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 48px;
+  margin-bottom: 16px;
+}
 
-  p {
-    color: var(--main-dark-color);
-    font-size: 18px;
-    font-weight: 400;
-    line-height: 30px;
-    margin-bottom: 64px;
-  }
+.info p {
+  color: var(--main-dark-color);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 30px;
+  margin-bottom: 64px;
 }
 
 .bttnRow {
@@ -52,23 +52,23 @@
   display: flex;
   align-items: center;
   gap: 12px;
+}
 
-  img {
-    width: 24px;
-    height: 36px;
-    display: inline-block;
-  }
+.infoItem img {
+  width: 24px;
+  height: 36px;
+  display: inline-block;
+}
 
-  span {
-    color: var(--main-dark-color);
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
+.infoItem span {
+  color: var(--main-dark-color);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
 
-  span:last-of-type {
-    color: var(--main-dark-color);
-    font-size: 14px;
-    font-weight: 400;
-  }
+.infoItem span:last-of-type {
+  color: var(--main-dark-color);
+  font-size: 14px;
+  font-weight: 400;
 }

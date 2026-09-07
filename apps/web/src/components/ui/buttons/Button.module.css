@@ -5,6 +5,7 @@
 
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
 }
 
@@ -64,9 +65,15 @@
   background-color: transparent;
 }
 
+.link:hover {
+  box-shadow: none;
+}
+
 .link img {
-  width: 16px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
+  display: block;
+  margin-left: 32px;
 }
 
 .secondary-gray {
@@ -88,6 +95,12 @@
 
 .medium {
   padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.zero {
+  padding: 0 12px;
   font-size: 16px;
   font-weight: 400;
 }

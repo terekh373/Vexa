@@ -1,7 +1,6 @@
 import styles from './Button.module.css'
-import arrowRight from '../../../assets/icons/arrow-right.svg'
 
-const Button = ({ title, onClick, variant='primary', size='medium', type='button' }) => {
+const Button = ({ title, onClick, variant='primary', size='medium', type='button', icon}) => {
   return (
     <button onClick={onClick}
             className={`${styles.button} ${styles[variant]} ${styles[size]}`}
@@ -9,8 +8,8 @@ const Button = ({ title, onClick, variant='primary', size='medium', type='button
     >
       {title}
 
-      {variant === 'link' && (
-          <img src={arrowRight} alt="" aria-hidden="true" />
+       {icon && (
+          <img src={icon} alt="button icon" aria-hidden="true" />
       )}
     </button>
   )
