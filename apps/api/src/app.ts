@@ -14,8 +14,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { healthRouter } from './modules/health/health.routes.js';
 import { authRouter } from './modules/auth/auth.routes.js';
 import { courseRouter } from './modules/courses/course.routes.js';
-import { filesRouter } from './modules/files/files.routes.js';
-
+import { authorRouter } from './modules/author/author.routes.js';
 function parseOrigins(value: string): string[] {
   return value
     .split(',')
@@ -30,7 +29,6 @@ export function createApp(): Express {
   // which the rate limiter depends on to key its counters correctly.
   app.set('trust proxy', 1);
   app.disable('x-powered-by');
-
   app.use(helmet());
   app.use(cors({ origin: parseOrigins(env.CORS_ORIGINS), credentials: true }));
 
@@ -39,7 +37,6 @@ export function createApp(): Express {
   app.use(express.json({ limit: '1mb' }));
 
   app.use(pinoHttp({ logger }));
-
   // Baseline limit for the whole API. Auth endpoints get a much stricter
   // limiter of their own in the login/register commit.
   app.use(
@@ -52,10 +49,9 @@ export function createApp(): Express {
   );
 
   app.use('/api/auth', authRouter);
+  app.use('/api/author', authorRouter);
   app.use('/api/courses', courseRouter);
-  app.use('/api/files', filesRouter);
   app.use('/api', healthRouter);
-
   // 404 fallback. Express 5 rejects the old `app.all('*')` form — a bare
   // app.use() after all routes is the supported equivalent.
   app.use((_req, _res, next) => {
