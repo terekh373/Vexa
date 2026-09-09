@@ -16,7 +16,13 @@
     "postinstall": "npm run db:generate --workspace @vexa/api",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
-    "dev:api": "npm run dev --workspace @vexa/api"
+    "db:migrate": "npm run db:migrate --workspace @vexa/api",
+    "db:seed": "npm run db:seed --workspace @vexa/api",
+    "db:seed:catalog": "npm run db:seed:catalog --workspace @vexa/api",
+    "db:reset": "npm run db:reset --workspace @vexa/api",
+    "db:studio": "npm run db:studio --workspace @vexa/api",
+    "dev:api": "npm run dev --workspace @vexa/api",
+    "dev:web": "npm run dev --workspace @vexa/web"
   },
   "devDependencies": {
     "@eslint/js": "^9.12.0",
