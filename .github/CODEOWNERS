@@ -21,6 +21,12 @@
 # Shared contract between backend and clients
 /packages/shared/       @terekh373 @suberbobbr
 
-# Frontend web + mobile
-/apps/web/              @devitfro @voer2
-/apps/mobile/           @devitfro @voer2
+# Frontend web + mobile. Four owners for the catch-up sprint: both frontend
+# devs are unavailable, and the Team Lead plus the backend dev are taking
+# their tasks. Any single approval satisfies the rule.
+/apps/web/              @terekh373 @suberbobbr @devitfro @voer2
+/apps/mobile/           @terekh373 @suberbobbr @devitfro @voer2
+
+# Workflow configuration and this file itself. Two owners so a change here
+# can never deadlock: GitHub excludes the PR author from its own reviewers.
+/.github/               @terekh373 @suberbobbr
