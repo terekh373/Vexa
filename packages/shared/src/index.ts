@@ -15,3 +15,4 @@ export * from './course.js';
 export * from './routes.js';
 export * from './catalog.js';
 export * from './file.js';
+export * from './category.js';
