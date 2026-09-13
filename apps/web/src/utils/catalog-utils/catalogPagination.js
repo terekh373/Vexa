@@ -16,26 +16,33 @@ export const getItemsPerPage = () => {
   return 4;
 };
 
+export const getPaginationPages = (totalPages, currentPage) => {
+  if (totalPages <= 5) {
+    return Array.from(
+      { length: totalPages },
+      (_, index) => index + 1,
+    );
+  }
 
-export const paginateCourses = (
-  courses,
-  currentPage,
-  itemsPerPage
-) => {
-  const totalPages = Math.ceil(
-    courses.length / itemsPerPage
-  );
+  if (currentPage <= 3) {
+    return [1, 2, 3, 'dots', totalPages];
+  }
 
-  const startIndex =
-    (currentPage - 1) * itemsPerPage;
+  if (currentPage < totalPages - 2) {
+    return [
+      'dots',
+      currentPage - 1,
+      currentPage,
+      currentPage + 1,
+      'dots',
+      totalPages,
+    ];
+  }
 
-  const visibleCourses = courses.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
-
-  return {
-    visibleCourses,
+  return [
+    'dots',
+    totalPages - 2,
+    totalPages - 1,
     totalPages,
-  };
+  ];
 };

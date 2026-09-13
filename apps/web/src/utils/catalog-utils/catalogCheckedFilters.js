@@ -1,89 +1,69 @@
+const findLabel = (options, value) =>
+  options.find((item) => item.value === value)?.label || value;
+
 export const getCheckedFilters = ({
   category,
-  level,
-  format,
+  grade,
+  type,
   language,
   rating,
-  free,
-  discounted,
+  priceMin,
+  priceMax,
   categories,
-  levels,
-  formats,
+  grades,
+  contentTypes,
   languages,
 }) => {
-  return [
-    ...category.map((value) => {
-      const option = categories.find(
-        (item) => item.value === value
-      );
+  const filters = [];
 
-      return {
-        key: 'category',
-        value,
-        label: option?.label || value,
-      };
-    }),
+  if (category) {
+    filters.push({
+      key: 'category',
+      label: findLabel(categories, category),
+    });
+  }
 
-    ...level.map((value) => {
-      const option = levels.find(
-        (item) => item.value === value
-      );
+  if (grade) {
+    filters.push({
+      key: 'grade',
+      label: findLabel(grades, grade),
+    });
+  }
 
-      return {
-        key: 'level',
-        value,
-        label: option?.label || value,
-      };
-    }),
+  if (type) {
+    filters.push({
+      key: 'type',
+      label: findLabel(contentTypes, type),
+    });
+  }
 
-    ...format.map((value) => {
-      const option = formats.find(
-        (item) => item.value === value
-      );
+  if (language) {
+    filters.push({
+      key: 'language',
+      label: findLabel(languages, language),
+    });
+  }
 
-      return {
-        key: 'format',
-        value,
-        label: option?.label || value,
-      };
-    }),
-
-    ...language.map((value) => {
-      const option = languages.find(
-        (item) => item.value === value
-      );
-
-      return {
-        key: 'language',
-        value,
-        label: option?.label || value,
-      };
-    }),
-
-    ...rating.map((value) => ({
+  if (rating) {
+    filters.push({
       key: 'rating',
-      value,
-      label: `${value} ★`,
-    })),
+      label: `${rating}+ ★`,
+    });
+  }
 
-    ...(free
-      ? [
-          {
-            key: 'free',
-            value: 'true',
-            label: 'Безкоштовні',
-          },
-        ]
-      : []),
+  if (priceMin !== null) {
+    filters.push({
+      key: 'priceMin',
+      label: `Від ${(priceMin / 100).toLocaleString('uk-UA')} ₴`,
+    });
+  }
 
-    ...(discounted
-      ? [
-          {
-            key: 'discounted',
-            value: 'true',
-            label: 'Зі знижкою',
-          },
-        ]
-      : []),
-  ];
+  if (priceMax !== null) {
+    filters.push({
+      key: 'priceMax',
+      label: `До ${(priceMax / 100).toLocaleString('uk-UA')} ₴`,
+    });
+  }
+
+  return filters;
 };
