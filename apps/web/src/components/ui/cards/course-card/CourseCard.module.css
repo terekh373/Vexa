@@ -77,3 +77,26 @@
   right: 24px;
   cursor: pointer;
 }
+.courseTitle {
+  margin-bottom: 8px;
+  color: var(--main-dark-color);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.pricerow {
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
