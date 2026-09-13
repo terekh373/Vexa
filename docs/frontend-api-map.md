@@ -43,6 +43,35 @@
 `POST /api/auth/logout` — `{ refreshToken }` → `204`.
 `GET /api/auth/me` — з Bearer → профіль; без токена → `401`.
 
+## Категорії
+
+`GET /api/categories`
+
+Публічний ендпоінт, без токена. Повертає дерево активних категорій
+(`isActive = true`), відсортоване на бекенді: спершу `sortOrder`, далі
+`nameUk`. Пагінації немає — довідник компактний.
+
+Відповідь `200`:
+
+    { "items": [
+        { "id": "uuid", "slug": "shkilni-predmety", "nameUk": "Шкільні предмети",
+          "parentId": null, "sortOrder": 1,
+          "children": [
+            { "id": "uuid", "slug": "anhliiska-mova", "nameUk": "Англійська мова",
+              "parentId": "uuid", "sortOrder": 1, "children": [] }
+          ] }
+      ] }
+
+- `children` присутній завжди, навіть порожній масив у листа дерева.
+- `slug` іде прямо у `?category=` параметр каталогу (`GET /api/courses`).
+- Лічильників курсів (`count`) у відповіді немає — з'являться разом із
+  фасетами каталогу окремою задачею.
+- Порожня база → `{ "items": [] }`, статус `200`, не `404`.
+- Відповідь кешується на сервері на 5 хвилин (Redis, fail-open). Клієнту
+  кешувати окремо не потрібно.
+
+Тип відповіді — `CategoryTreeResponse` у `@vexa/shared`.
+
 ## Курси
 
 ### Каталог
@@ -79,6 +108,43 @@ Query-параметри:
   "total": 0,
   "totalPages": 0
 }
+```
+
+### Сторінка курсу
+
+`GET /api/courses/:idOrSlug` — доступний без токена (`optionalAuth`). З
+Bearer-токеном додатково рахується `hasAccess` за `Enrollment` користувача.
+
+Верхній рівень відповіді:
+
+- `type` — `COURSE` або `MATERIAL`.
+- `price.amount` — ціна **в копійках**, integer; `price.currency`.
+- `cover`, `category`, `author` (з `avatar`).
+- `rating.average`, `rating.count`.
+- `studentsCount`, `lessonsCount`, `durationSec`, `publishedAt`.
+- `hasAccess` — куплено (`Enrollment`), автор курсу, або курс безкоштовний
+  (`priceAmount === 0`).
+
+`modules[]`: `id`, `title`, `position`, `lessons[]`.
+
+`lessons[]`: `id`, `type`, `title`, `position`, `isPreview`, `isLocked`,
+`durationSec`, і `content` — **лише коли урок доступний** (куплено або
+безкоштовне прев'ю). **Відсутність поля `content` — ознака закритого уроку**,
+клієнт не повинен намагатися його відрендерити.
+
+**Розбіжність імен між публічним і авторським API** (це не помилка, а
+поточний стан `develop` — фронт має мапити явно):
+
+| Публічний (`/api/courses/:idOrSlug`) | Авторський (`/api/author/*`) |
+|---|---|
+| `position` | `sortOrder` |
+| `isPreview` | `isFreePreview` |
+
+`GET /api/courses/:id/reviews` — **лише по UUID**, не по slug (`404` на
+slug). Query: `page` (за замовчуванням `1`), `limit` (за замовчуванням `10`,
+максимум `50`). Відповідь: `averageRating`, `reviewsCount`, масив `reviews`
+(з `author`, включно з `avatar`), `pagination { page, limit, totalItems,
+totalPages }`.
 
 ## Файли
 
@@ -146,6 +212,72 @@ Query-параметри:
 
 Типи запитів/відповідей — `CreateUploadUrlRequest`, `CreateUploadUrlResponse`,
 `FileDto`, `DownloadUrlResponse` у `@vexa/shared`.
+
+## Кабінет автора (конструктор курсу)
+
+Усі маршрути під префіксом `/api/author`. Весь роутер вимагає Bearer-токен
+**і** роль `AUTHOR`. **Роль `ADMIN` сюди не пускається.** Без токена — `401`;
+з роллю `STUDENT` або `ADMIN` — `403`.
+
+    POST   /api/author/courses
+    GET    /api/author/courses            ?status=DRAFT|MODERATION|PUBLISHED|REJECTED|UNPUBLISHED
+    GET    /api/author/courses/:id
+    PATCH  /api/author/courses/:id
+    DELETE /api/author/courses/:id
+    POST   /api/author/courses/:id/modules
+    PATCH  /api/author/modules/:id
+    DELETE /api/author/modules/:id
+    POST   /api/author/modules/:id/lessons
+    PATCH  /api/author/lessons/:id
+    DELETE /api/author/lessons/:id
+    PATCH  /api/author/courses/:id/reorder
+    POST   /api/author/courses/:id/submit
+
+### Курс
+
+Поля: `type`, `title`, `categoryId`, `shortDescription`, `description`,
+`outcomes[]`, `language`, `grade`, `priceAmount`, `currency`, `coverFileId`.
+
+- На створенні (`POST /courses`) обов'язкові лише `type`, `title`,
+  `categoryId` — решта опціональна.
+- На оновленні (`PATCH /courses/:id`) додатково приймається `slug`, тіло не
+  може бути порожнім (щонайменше одне поле).
+- `priceAmount` — цілі копійки, integer, `min 0`.
+- `currency` — рівно 3 символи, сервер приводить до верхнього регістру.
+- `grade` — `1..11` або `null`.
+- Схеми `.strict()` — **зайве поле в тілі повертає `400`, а не ігнорується**.
+  Критично для форм: не надсилати нічого, чого немає у списку вище.
+
+### Модуль і урок
+
+Модуль (`.../modules`): `title`, `sortOrder`.
+
+Урок (`.../lessons`): `type`, `title`, `sortOrder`, `isFreePreview`,
+`textContent`, `videoFileId`, `durationSec`, `fileIds[]`.
+
+**`type: "QUIZ"` зараз відхиляється валідацією** — дозволені лише `VIDEO`,
+`TEXT`, `FILE`. Конструктор тестів — окрема задача (#59).
+
+### Порядок (`reorder`)
+
+`PATCH /api/author/courses/:id/reorder` приймає обидва списки одночасно,
+кожен з дефолтом `[]`:
+
+    { "modules": [
+        { "id": "uuid", "sortOrder": 0,
+          "lessons": [ { "id": "uuid", "sortOrder": 0 } ] }
+      ],
+      "lessons": [ { "id": "uuid", "sortOrder": 1 } ] }
+
+- Вкладений `modules[].lessons[]` — порядок уроків усередині модуля.
+- Плоский `lessons[]` — перенесення уроку між модулями (drag & drop).
+- Дублікат `id` у межах одного запиту → `400`.
+
+### Подача на модерацію
+
+`POST /api/author/courses/:id/submit` — переводить курс `draft → moderation`.
+Повний життєвий цикл статусів: `draft → moderation → published / rejected →
+unpublished`.
 
 ## Маршрути фронтенду
 
