@@ -6,13 +6,19 @@
 #
 # GitHub excludes the PR author from its own reviewer list. That is why every
 # path has at least two owners — otherwise an owner's PR gets no reviewer and
-# hangs forever. The only exception is /.github/, see the note at the bottom.
+# hangs forever. The global fallback is the sole exception, so avoid putting
+# files under it that a single owner would need to change alone.
 
 # Global fallback — Team Lead reviews everything by default
 *                       @terekh373
 
 # Backend: Team Lead + backend dev
 /apps/api/              @terekh373 @suberbobbr
+
+# Documentation: SRS, git workflow, and the API contract the web app is
+# written against. Same owners as the backend — the contract and the code
+# that implements it change together.
+/docs/                  @terekh373 @suberbobbr
 
 # Database contract: schema, migrations, seed.
 /apps/api/prisma/       @terekh373 @suberbobbr
