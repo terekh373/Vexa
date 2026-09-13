@@ -47,15 +47,11 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async ({ email, password }) => {
-    const { data } = await loginUser(email, password);
-    setStoredTokens(data.tokens);
-
     try {
-      // Read the canonical current-user projection from /auth/me as required by
-      // the frontend API contract rather than relying only on the login payload.
-      const currentUserResponse = await getCurrentUser();
-      setUser(currentUserResponse.data);
-      return currentUserResponse.data;
+      const { data } = await loginUser(email, password);
+      setStoredTokens(data.tokens);
+      setUser(data.user);
+      return data.user;
     } catch (error) {
       clearStoredTokens();
       setUser(null);
