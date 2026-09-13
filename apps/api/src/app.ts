@@ -15,8 +15,6 @@ import { healthRouter } from './modules/health/health.routes.js';
 import { authRouter } from './modules/auth/auth.routes.js';
 import { courseRouter } from './modules/courses/course.routes.js';
 import { authorRouter } from './modules/author/author.routes.js';
-import { categoriesRouter } from './modules/categories/categories.routes.js';
-import { filesRouter } from './modules/files/files.routes.js';
 function parseOrigins(value: string): string[] {
   return value
     .split(',')
@@ -53,8 +51,6 @@ export function createApp(): Express {
   app.use('/api/auth', authRouter);
   app.use('/api/author', authorRouter);
   app.use('/api/courses', courseRouter);
-  app.use('/api/categories', categoriesRouter);
-  app.use('/api/files', filesRouter);
   app.use('/api', healthRouter);
   // 404 fallback. Express 5 rejects the old `app.all('*')` form — a bare
   // app.use() after all routes is the supported equivalent.
