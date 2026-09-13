@@ -13,6 +13,7 @@ import LoginPage from './pages/login/LoginPage.jsx';
 import RegisterPage from './pages/register/RegisterPage.jsx';
 import VerifyEmailPage from './pages/verify-email/VerifyEmailPage.jsx';
 import NotFound from './pages/not-found/NotFound.jsx';
+import ComingSoon from './pages/stubs/ComingSoon.jsx';
 
 function App() {
   return (
@@ -28,17 +29,17 @@ function App() {
         <Route path={routePatterns.verifyEmail} element={<VerifyEmailPage />} />
 
         <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
-          <Route path={routePatterns.learning} element={<NotFound />} />
-          <Route path={routePatterns.orders} element={<NotFound />} />
-          <Route path={routePatterns.settings} element={<NotFound />} />
+          <Route path={routePatterns.learning} element={<ComingSoon title="Моє навчання" />} />
+          <Route path={routePatterns.orders} element={<ComingSoon title="Замовлення" />} />
+          <Route path={routePatterns.settings} element={<ComingSoon title="Налаштування" />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['AUTHOR']} />}>
-          <Route path={routePatterns.authorArea} element={<NotFound />} />
+          <Route path={routePatterns.authorArea} element={<ComingSoon title="Кабінет автора" />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-          <Route path={routePatterns.adminArea} element={<NotFound />} />
+          <Route path={routePatterns.adminArea} element={<ComingSoon title="Адмін-панель" />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />
