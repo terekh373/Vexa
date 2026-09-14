@@ -13,8 +13,13 @@ export const getCourse = async (idOrSlug) => {
   }
 };
 
-export const getCourses = async () => {
-  const { data } = await apiClient.get('/courses');
+export const getCourses = async (params = {}) => {
+  const { data } = await apiClient.get('/courses', { params });
+  return data;
+};
+
+export const getCategories = async () => {
+  const { data } = await apiClient.get('/categories');
   return data;
 };
 
