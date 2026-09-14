@@ -114,6 +114,41 @@ const fullCourseSelect = {
               },
             },
           },
+          quiz: {
+            select: {
+              id: true,
+              lessonId: true,
+              title: true,
+              passScore: true,
+              timeLimitSec: true,
+              attemptsAllowed: true,
+              createdAt: true,
+              updatedAt: true,
+              questions: {
+                orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+                select: {
+                  id: true,
+                  type: true,
+                  text: true,
+                  points: true,
+                  sortOrder: true,
+                  createdAt: true,
+                  updatedAt: true,
+                  options: {
+                    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+                    select: {
+                      id: true,
+                      text: true,
+                      isCorrect: true,
+                      sortOrder: true,
+                      createdAt: true,
+                      updatedAt: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -555,6 +590,12 @@ export async function updateAuthorLesson(userId: string, lessonId: string, input
         files: { select: { id: true, fileId: true, sortOrder: true }, orderBy: { sortOrder: 'asc' } },
       },
     });
+
+    if (input.type !== undefined && input.type !== 'QUIZ' && lesson.type === 'QUIZ') {
+      await tx.quiz.deleteMany({ where: { lessonId } });
+    } else if (input.title !== undefined && resultingType === 'QUIZ') {
+      await tx.quiz.updateMany({ where: { lessonId }, data: { title: input.title } });
+    }
 
     await recalculateCourseCounters(tx, lesson.module.courseId);
     return updated;

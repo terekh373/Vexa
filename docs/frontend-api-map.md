@@ -230,6 +230,12 @@ totalPages }`.
     POST   /api/author/modules/:id/lessons
     PATCH  /api/author/lessons/:id
     DELETE /api/author/lessons/:id
+    POST   /api/author/lessons/:id/quiz
+    PATCH  /api/author/quizzes/:id
+    DELETE /api/author/quizzes/:id
+    POST   /api/author/quizzes/:id/questions
+    PATCH  /api/author/questions/:id
+    DELETE /api/author/questions/:id
     PATCH  /api/author/courses/:id/reorder
     POST   /api/author/courses/:id/submit
 
@@ -255,8 +261,20 @@ totalPages }`.
 Урок (`.../lessons`): `type`, `title`, `sortOrder`, `isFreePreview`,
 `textContent`, `videoFileId`, `durationSec`, `fileIds[]`.
 
-**`type: "QUIZ"` зараз відхиляється валідацією** — дозволені лише `VIDEO`,
-`TEXT`, `FILE`. Конструктор тестів — окрема задача (#59).
+`type: "QUIZ"` дозволений. Для такого уроку тест створюється окремим `POST /api/author/lessons/:id/quiz`.
+
+### Тести (`QUIZ`)
+
+Усі маршрути нижче доступні лише ролі `AUTHOR` і перевіряють, що урок/тест/питання належить курсу поточного автора. Чужий ресурс повертає `403`.
+
+- `POST /api/author/lessons/:id/quiz` — створити тест для `QUIZ`-уроку. Тіло: `passScore` (`0..100`, default `60`), `attemptsAllowed` (`integer >= 1` або `null`).
+- `PATCH /api/author/quizzes/:id` — змінити `passScore` / `attemptsAllowed`.
+- `DELETE /api/author/quizzes/:id` — видалити тест разом із питаннями та варіантами.
+- `POST /api/author/quizzes/:id/questions` — створити питання. Тіло: `text`, `type` (`SINGLE` / `MULTIPLE`), `sortOrder`, `options[]`.
+- `PATCH /api/author/questions/:id` — змінити питання; якщо передано `options[]`, список варіантів замінюється повністю.
+- `DELETE /api/author/questions/:id` — видалити питання.
+
+Варіант відповіді: `{ text, isCorrect, sortOrder? }`. Потрібно щонайменше 2 варіанти і щонайменше 1 правильний; для `SINGLE` правильний варіант має бути рівно один. `isCorrect` є тільки в авторських відповідях API. Публічна відповідь курсу для доступного `QUIZ` містить питання й варіанти без `isCorrect`.
 
 ### Порядок (`reorder`)
 
