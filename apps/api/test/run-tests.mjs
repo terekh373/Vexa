@@ -67,7 +67,19 @@ function run(args) {
   }
 }
 
-// Recreate only the dedicated test database/schema. This never touches the
-// developer schema because of assertTestDatabase above.
-run(['exec', 'prisma', '--', 'db', 'push', '--force-reset', '--skip-generate']);
+// Recreate only the dedicated test database/schema by applying the real
+// migrations. The init migration enables pg_trgm before Prisma creates the
+// GIN trigram index, which `prisma db push --force-reset` cannot do because
+// db push does not execute migration SQL. This never touches the developer
+// database/schema because of assertTestDatabase above.
+run([
+  'exec',
+  'prisma',
+  '--',
+  'migrate',
+  'reset',
+  '--force',
+  '--skip-seed',
+  '--skip-generate',
+]);
 run(['exec', 'vitest', '--', 'run', '--config', 'vitest.config.ts']);
