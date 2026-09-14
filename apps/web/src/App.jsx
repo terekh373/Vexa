@@ -14,6 +14,7 @@ import RegisterPage from './pages/register/RegisterPage.jsx';
 import VerifyEmailPage from './pages/verify-email/VerifyEmailPage.jsx';
 import NotFound from './pages/not-found/NotFound.jsx';
 import ComingSoon from './pages/stubs/ComingSoon.jsx';
+import AuthorCourses from './pages/author-courses/AuthorCourses.jsx';
 
 function App() {
   return (
@@ -35,6 +36,9 @@ function App() {
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['AUTHOR']} />}>
+          <Route path={routePatterns.authorCourses} element={<AuthorCourses />} />
+          <Route path={routePatterns.authorCourseNew} element={<ComingSoon title="Конструктор курсу" />} />
+          <Route path={routePatterns.authorCourseEdit} element={<ComingSoon title="Редагування курсу" />} />
           <Route path={routePatterns.authorArea} element={<ComingSoon title="Кабінет автора" />} />
         </Route>
 
