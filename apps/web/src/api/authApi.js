@@ -1,16 +1,31 @@
-import axios from "axios";
-import { API } from './config.js';
+import apiClient from './client.js';
 
-export const registerUser = (email, password, fullName) => {
-   return axios.post(`${API}/auth/register`, 
-    { email, password,fullName, },
-    { headers: { 'Content-Type': 'application/json' }}
-   );
-};
-
-export const loginUser = (email, password) => {
-  return axios.post(`${API}/auth/login`, 
-    { email, password },
-    { headers: { 'Content-Type': 'application/json' }}
+export const registerUser = (email, password, fullName) =>
+  apiClient.post(
+    '/auth/register',
+    { email, password, fullName },
+    { skipAuthRefresh: true, skipAuthHeader: true },
   );
-};
+
+export const loginUser = (email, password) =>
+  apiClient.post(
+    '/auth/login',
+    { email, password },
+    { skipAuthRefresh: true, skipAuthHeader: true },
+  );
+
+export const getCurrentUser = () => apiClient.get('/auth/me');
+
+export const logoutUser = (refreshToken) =>
+  apiClient.post(
+    '/auth/logout',
+    { refreshToken },
+    { skipAuthRefresh: true, skipAuthHeader: true },
+  );
+
+export const verifyEmail = (token) =>
+  apiClient.get('/auth/verify-email', {
+    params: { token },
+    skipAuthRefresh: true,
+    skipAuthHeader: true,
+  });
