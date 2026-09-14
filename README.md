@@ -371,6 +371,7 @@ node --input-type=module -e "import {randomBytes} from 'node:crypto'; console.lo
 | `npm run lint` | ESLint для TypeScript-пакетів (api, shared, mobile) |
 | `npm run typecheck` | `tsc --build` для всіх TS-пакетів + окремо для `prisma/seed*.ts` |
 | `npm run build` | Зібрати всі воркспейси |
+| `npm run test` | Unit + integration тести авторизації. Потрібні запущені Postgres і Redis; використовується окрема схема `vexa_test` і Redis DB 15 |
 
 ### Воркспейси
 
@@ -386,7 +387,7 @@ node --input-type=module -e "import {randomBytes} from 'node:crypto'; console.lo
 > [!TIP]
 > **Перед відкриттям PR** прожени те саме, що прожене CI — інакше PR буде червоний:
 > ```cmd
-> npm run lint && npm run lint --workspace @vexa/web && npm run typecheck && npm run build
+> npm run lint && npm run lint --workspace @vexa/web && npm run typecheck && npm run test && npm run build
 > ```
 
 ## 👤 Демо-акаунти
