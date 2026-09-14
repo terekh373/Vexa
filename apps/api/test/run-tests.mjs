@@ -3,6 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const apiRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const repoRoot = resolve(apiRoot, '../..');
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
 const databaseUrl =
@@ -50,9 +51,9 @@ const testEnv = {
   S3_SIGNED_URL_TTL_SEC: process.env.S3_SIGNED_URL_TTL_SEC ?? '600',
 };
 
-function run(args) {
+function run(args, cwd = apiRoot) {
   const result = spawnSync(npmCommand, args, {
-    cwd: apiRoot,
+    cwd,
     env: testEnv,
     stdio: 'inherit',
   });
@@ -66,6 +67,12 @@ function run(args) {
     process.exit(result.status ?? 1);
   }
 }
+
+// @vexa/shared is a workspace package whose package.json points to dist/.
+// A fresh CI checkout has no dist directory yet, and GitHub Actions jobs do
+// not share the output of the separate build job. Build the shared package
+// here so integration tests can resolve imports such as auth schemas/routes.
+run(['run', 'build', '--workspace', '@vexa/shared'], repoRoot);
 
 // Recreate only the dedicated test database/schema by applying the real
 // migrations. The init migration enables pg_trgm before Prisma creates the
