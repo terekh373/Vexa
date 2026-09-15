@@ -307,6 +307,79 @@
   font-weight: 600;
 }
 
+.coverRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.coverPreview {
+  width: 160px;
+  height: 100px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1px solid var(--border-grey);
+}
+
+.coverPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 100px;
+  border: 1px dashed var(--border-grey);
+  border-radius: 12px;
+  color: var(--secondary-grey);
+  font-size: 13px;
+  text-align: center;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.coverControls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.hiddenFileInput {
+  display: none;
+}
+
+.progressBar {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--footer-bg-color);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--purple-color);
+  transition: width 0.2s ease;
+}
+
+.uploadError {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.retryButton {
+  border: 1px solid var(--purple-color);
+  background: transparent;
+  color: var(--purple-color);
+  border-radius: 8px;
+  padding: 4px 12px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
 @media (max-width: 540px) {
   .card {
     padding: 22px 18px;

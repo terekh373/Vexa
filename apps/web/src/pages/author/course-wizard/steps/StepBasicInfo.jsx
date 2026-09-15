@@ -1,4 +1,5 @@
 import styles from '../CourseWizard.module.css';
+import CoverField from './CoverField.jsx';
 
 const SHORT_DESCRIPTION_LIMIT = 400;
 const GRADES = Array.from({ length: 11 }, (_, index) => index + 1);
@@ -34,6 +35,11 @@ const StepBasicInfo = ({
   categoriesError,
   fieldErrors,
   readOnly,
+  coverName,
+  coverPreviewUrl,
+  coverUploadDisabled,
+  coverUploadDisabledHint,
+  onCoverUploaded,
 }) => {
   const handleField = (event) => {
     const { name, value } = event.target;
@@ -42,6 +48,14 @@ const StepBasicInfo = ({
 
   return (
     <div className={styles.form}>
+      <CoverField
+        coverName={coverName}
+        initialPreviewUrl={coverPreviewUrl}
+        disabled={coverUploadDisabled}
+        disabledHint={coverUploadDisabledHint}
+        onUploaded={onCoverUploaded}
+      />
+
       <label className={styles.field}>
         <span className={styles.label}>Тип</span>
         <select

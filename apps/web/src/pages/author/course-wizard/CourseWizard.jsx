@@ -9,6 +9,7 @@ import {
   updateAuthorCourse,
 } from '../../../services/authorCoursesService.js';
 import { getCategories } from '../../../services/categoriesService.js';
+import { getFileDownloadUrl } from '../../../services/filesService.js';
 
 import styles from './CourseWizard.module.css';
 import {
@@ -59,6 +60,10 @@ const CourseWizard = () => {
   const [submitError, setSubmitError] = useState('');
   const [submitMessage, setSubmitMessage] = useState('');
 
+  const [coverName, setCoverName] = useState('');
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState(null);
+  const [coverError, setCoverError] = useState('');
+
   // Last server-confirmed subset of fields, diffed against live form state so
   // autosave only ever sends what actually changed. Null until the course
   // record exists.
@@ -93,6 +98,17 @@ const CourseWizard = () => {
         setFormState(nextFormState);
         setCourseId(course.id);
         setIsReadOnly(nextFormState.status !== 'draft');
+
+        if (course.cover) {
+          setCoverName(course.cover.originalName);
+          getFileDownloadUrl(course.cover.id)
+            .then((downloadUrl) => {
+              if (active) setCoverPreviewUrl(downloadUrl);
+            })
+            .catch(() => {
+              // Preview is a convenience; the cover stays saved either way.
+            });
+        }
       })
       .catch((error) => {
         if (!active) return;
@@ -227,6 +243,18 @@ const CourseWizard = () => {
     }));
   };
 
+  const handleCoverUploaded = async (fileDto) => {
+    setCoverError('');
+    try {
+      // Cover is saved the moment it is confirmed, independent of the rest
+      // of the autosave diff — the PATCH carries only coverFileId.
+      await updateAuthorCourse(courseId, { coverFileId: fileDto.id });
+      setCoverName(fileDto.originalName);
+    } catch {
+      setCoverError('Не вдалося зберегти обкладинку. Спробуйте ще раз.');
+    }
+  };
+
   const handleSubmitForModeration = async () => {
     const ok = await persistChanges();
     if (!ok) return;
@@ -292,6 +320,7 @@ const CourseWizard = () => {
 
       <div className={styles.card}>
         {formError && <p className={styles.formError}>{formError}</p>}
+        {step === 1 && coverError && <p className={styles.formError}>{coverError}</p>}
 
         {step === 1 && (
           <StepBasicInfo
@@ -304,6 +333,11 @@ const CourseWizard = () => {
             categoriesError={categoriesError}
             fieldErrors={fieldErrors}
             readOnly={isReadOnly}
+            coverName={coverName}
+            coverPreviewUrl={coverPreviewUrl}
+            coverUploadDisabled={isReadOnly || !courseId}
+            coverUploadDisabledHint={!courseId ? 'Спочатку натисніть «Далі», щоб зберегти курс.' : ''}
+            onCoverUploaded={handleCoverUploaded}
           />
         )}
 
