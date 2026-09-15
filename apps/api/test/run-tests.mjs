@@ -4,11 +4,28 @@ import { fileURLToPath } from 'node:url';
 
 const apiRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = resolve(apiRoot, '../..');
-const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+/**
+ * npm's own CLI script, run through the current Node binary instead of the
+ * `npm` / `npm.cmd` shim. On Windows Node refuses to spawn `.cmd` files
+ * without a shell (CVE-2024-27980), and a shell would concatenate arguments
+ * unescaped. npm sets `npm_execpath` for every `npm run` script.
+ */
+const npmCli = process.env.npm_execpath;
 
+if (npmCli === undefined || npmCli.length === 0) {
+  console.error('Run the suite through npm: `npm run test`.');
+  process.exit(1);
+}
+
+/**
+ * A dedicated database rather than a schema inside the dev one: pg_trgm is
+ * installed once per database, into whichever schema created it first, and
+ * its `gin_trgm_ops` operator class is invisible from any other schema.
+ * Same layout as CI. Prisma creates the database if it does not exist.
+ */
 const databaseUrl =
   process.env.TEST_DATABASE_URL ??
-  'postgresql://vexa:vexa@localhost:5433/vexa?schema=vexa_test';
+  'postgresql://vexa:vexa@localhost:5433/vexa_test?schema=public';
 const redisUrl = process.env.TEST_REDIS_URL ?? 'redis://localhost:6379/15';
 
 /**
@@ -52,7 +69,7 @@ const testEnv = {
 };
 
 function run(args, cwd = apiRoot) {
-  const result = spawnSync(npmCommand, args, {
+  const result = spawnSync(process.execPath, [npmCli, ...args], {
     cwd,
     env: testEnv,
     stdio: 'inherit',
