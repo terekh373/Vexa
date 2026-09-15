@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 import { routes } from '@vexa/shared'
 
 const CourseCard = ({ card }) => (
-  <Link to={routes.course(card.id)} className={styles.card}>
+  <Link to={routes.course(card.slug || card.id)} className={styles.card}>
 
     {card.isNew && (
       <>
