@@ -1,4 +1,5 @@
 import styles from './Dropdown.module.css'
+import arrowDown from '../../../assets/icons/arrow-down.svg'
 
 const Dropdown = ({ label, options = [], value, onChange}) => {
   return (
@@ -8,6 +9,7 @@ const Dropdown = ({ label, options = [], value, onChange}) => {
       <select 
         id='dropdown'
         className={styles.select}
+        style={{ backgroundImage: `url(${arrowDown})` }}
         value={value}
         onChange={onChange}
       >
