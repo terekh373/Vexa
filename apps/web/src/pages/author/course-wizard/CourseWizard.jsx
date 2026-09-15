@@ -4,9 +4,15 @@ import { routes } from '@vexa/shared';
 
 import {
   createAuthorCourse,
+  createAuthorLesson,
+  createAuthorModule,
+  deleteAuthorLesson,
+  deleteAuthorModule,
   getAuthorCourse,
+  reorderAuthorCourse,
   submitAuthorCourse,
   updateAuthorCourse,
+  updateAuthorModule,
 } from '../../../services/authorCoursesService.js';
 import { getCategories } from '../../../services/categoriesService.js';
 import { getFileDownloadUrl } from '../../../services/filesService.js';
@@ -22,6 +28,7 @@ import {
 } from './courseFormState.js';
 import StepBasicInfo from './steps/StepBasicInfo.jsx';
 import StepContentPlaceholder from './steps/StepContentPlaceholder.jsx';
+import StepCurriculum from './steps/StepCurriculum.jsx';
 import StepPricing from './steps/StepPricing.jsx';
 import StepPublish from './steps/StepPublish.jsx';
 
@@ -64,6 +71,9 @@ const CourseWizard = () => {
   const [coverPreviewUrl, setCoverPreviewUrl] = useState(null);
   const [coverError, setCoverError] = useState('');
 
+  const [modules, setModules] = useState([]);
+  const [modulesError, setModulesError] = useState('');
+
   // Last server-confirmed subset of fields, diffed against live form state so
   // autosave only ever sends what actually changed. Null until the course
   // record exists.
@@ -98,6 +108,7 @@ const CourseWizard = () => {
         setFormState(nextFormState);
         setCourseId(course.id);
         setIsReadOnly(nextFormState.status !== 'draft');
+        setModules(course.modules ?? []);
 
         if (course.cover) {
           setCoverName(course.cover.originalName);
@@ -255,6 +266,77 @@ const CourseWizard = () => {
     }
   };
 
+  const refreshModules = async () => {
+    try {
+      const course = await getAuthorCourse(courseId);
+      setModules(course.modules ?? []);
+      setModulesError('');
+    } catch {
+      setModulesError('Не вдалося оновити структуру курсу.');
+    }
+  };
+
+  const handleCreateModule = async (title) => {
+    try {
+      await createAuthorModule(courseId, { title });
+      await refreshModules();
+    } catch {
+      setModulesError('Не вдалося створити модуль.');
+    }
+  };
+
+  const handleRenameModule = async (moduleId, title) => {
+    try {
+      await updateAuthorModule(moduleId, { title });
+      await refreshModules();
+    } catch {
+      setModulesError('Не вдалося перейменувати модуль.');
+    }
+  };
+
+  const handleDeleteModule = async (moduleId) => {
+    try {
+      await deleteAuthorModule(moduleId);
+      await refreshModules();
+    } catch {
+      setModulesError('Не вдалося видалити модуль.');
+    }
+  };
+
+  const handleCreateLesson = async (moduleId, title) => {
+    try {
+      await createAuthorLesson(moduleId, { type: 'TEXT', title });
+      await refreshModules();
+    } catch {
+      setModulesError('Не вдалося створити урок.');
+    }
+  };
+
+  const handleDeleteLesson = async (lessonId) => {
+    try {
+      await deleteAuthorLesson(lessonId);
+      await refreshModules();
+    } catch {
+      setModulesError('Не вдалося видалити урок.');
+    }
+  };
+
+  // Optimistic reorder: the caller has already computed the new module tree
+  // and the matching PATCH payload. Only a request failure rolls the order
+  // back — a successful response is not re-synced from the server so a
+  // same-session cross-module move (see reorderPayload.js) keeps showing
+  // where the user dropped it.
+  const handleReorder = async (nextModules, payload, previousModules) => {
+    setModules(nextModules);
+    setModulesError('');
+    try {
+      await reorderAuthorCourse(courseId, payload);
+    } catch {
+      setModules(previousModules);
+      setModulesError('Не вдалося зберегти порядок. Спробуйте ще раз.');
+    }
+  };
+
   const handleSubmitForModeration = async () => {
     const ok = await persistChanges();
     if (!ok) return;
@@ -341,7 +423,23 @@ const CourseWizard = () => {
           />
         )}
 
-        {(step === 2 || step === 3) && <StepContentPlaceholder />}
+        {step === 2 && (
+          <>
+            {modulesError && <p className={styles.formError}>{modulesError}</p>}
+            <StepCurriculum
+              modules={modules}
+              readOnly={isReadOnly}
+              onCreateModule={handleCreateModule}
+              onRenameModule={handleRenameModule}
+              onDeleteModule={handleDeleteModule}
+              onCreateLesson={handleCreateLesson}
+              onDeleteLesson={handleDeleteLesson}
+              onReorder={handleReorder}
+            />
+          </>
+        )}
+
+        {step === 3 && <StepContentPlaceholder />}
 
         {step === 4 && (
           <StepPricing
