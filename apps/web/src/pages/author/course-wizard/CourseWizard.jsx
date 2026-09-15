@@ -4,11 +4,19 @@ import { routes } from '@vexa/shared';
 
 import {
   createAuthorCourse,
+  createAuthorLesson,
+  createAuthorModule,
+  deleteAuthorLesson,
+  deleteAuthorModule,
   getAuthorCourse,
+  reorderAuthorCourse,
   submitAuthorCourse,
   updateAuthorCourse,
+  updateAuthorLesson,
+  updateAuthorModule,
 } from '../../../services/authorCoursesService.js';
 import { getCategories } from '../../../services/categoriesService.js';
+import { getFileDownloadUrl } from '../../../services/filesService.js';
 
 import styles from './CourseWizard.module.css';
 import {
@@ -20,7 +28,8 @@ import {
   toFormState,
 } from './courseFormState.js';
 import StepBasicInfo from './steps/StepBasicInfo.jsx';
-import StepContentPlaceholder from './steps/StepContentPlaceholder.jsx';
+import StepCurriculum from './steps/StepCurriculum.jsx';
+import StepLessonContent from './steps/StepLessonContent.jsx';
 import StepPricing from './steps/StepPricing.jsx';
 import StepPublish from './steps/StepPublish.jsx';
 
@@ -59,6 +68,13 @@ const CourseWizard = () => {
   const [submitError, setSubmitError] = useState('');
   const [submitMessage, setSubmitMessage] = useState('');
 
+  const [coverName, setCoverName] = useState('');
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState(null);
+  const [coverError, setCoverError] = useState('');
+
+  const [modules, setModules] = useState([]);
+  const [modulesError, setModulesError] = useState('');
+
   // Last server-confirmed subset of fields, diffed against live form state so
   // autosave only ever sends what actually changed. Null until the course
   // record exists.
@@ -93,6 +109,18 @@ const CourseWizard = () => {
         setFormState(nextFormState);
         setCourseId(course.id);
         setIsReadOnly(nextFormState.status !== 'draft');
+        setModules(course.modules ?? []);
+
+        if (course.cover) {
+          setCoverName(course.cover.originalName);
+          getFileDownloadUrl(course.cover.id)
+            .then((downloadUrl) => {
+              if (active) setCoverPreviewUrl(downloadUrl);
+            })
+            .catch(() => {
+              // Preview is a convenience; the cover stays saved either way.
+            });
+        }
       })
       .catch((error) => {
         if (!active) return;
@@ -227,6 +255,95 @@ const CourseWizard = () => {
     }));
   };
 
+  const handleCoverUploaded = async (fileDto) => {
+    setCoverError('');
+    try {
+      // Cover is saved the moment it is confirmed, independent of the rest
+      // of the autosave diff — the PATCH carries only coverFileId.
+      await updateAuthorCourse(courseId, { coverFileId: fileDto.id });
+      setCoverName(fileDto.originalName);
+    } catch {
+      setCoverError('Не вдалося зберегти обкладинку. Спробуйте ще раз.');
+    }
+  };
+
+  const refreshModules = async () => {
+    try {
+      const course = await getAuthorCourse(courseId);
+      setModules(course.modules ?? []);
+      setModulesError('');
+    } catch {
+      setModulesError('Не вдалося оновити структуру курсу.');
+    }
+  };
+
+  const handleCreateModule = async (title) => {
+    try {
+      await createAuthorModule(courseId, { title });
+      await refreshModules();
+    } catch {
+      setModulesError('Не вдалося створити модуль.');
+    }
+  };
+
+  const handleRenameModule = async (moduleId, title) => {
+    try {
+      await updateAuthorModule(moduleId, { title });
+      await refreshModules();
+    } catch {
+      setModulesError('Не вдалося перейменувати модуль.');
+    }
+  };
+
+  const handleDeleteModule = async (moduleId) => {
+    try {
+      await deleteAuthorModule(moduleId);
+      await refreshModules();
+    } catch {
+      setModulesError('Не вдалося видалити модуль.');
+    }
+  };
+
+  const handleCreateLesson = async (moduleId, title) => {
+    try {
+      await createAuthorLesson(moduleId, { type: 'TEXT', title });
+      await refreshModules();
+    } catch {
+      setModulesError('Не вдалося створити урок.');
+    }
+  };
+
+  const handleDeleteLesson = async (lessonId) => {
+    try {
+      await deleteAuthorLesson(lessonId);
+      await refreshModules();
+    } catch {
+      setModulesError('Не вдалося видалити урок.');
+    }
+  };
+
+  // Optimistic reorder: the caller has already computed the new module tree
+  // and the matching PATCH payload. Only a request failure rolls the order
+  // back — a successful response is not re-synced from the server so a
+  // same-session cross-module move (see reorderPayload.js) keeps showing
+  // where the user dropped it.
+  const handleReorder = async (nextModules, payload, previousModules) => {
+    setModules(nextModules);
+    setModulesError('');
+    try {
+      await reorderAuthorCourse(courseId, payload);
+    } catch {
+      setModules(previousModules);
+      setModulesError('Не вдалося зберегти порядок. Спробуйте ще раз.');
+    }
+  };
+
+  const handleUpdateLesson = async (lessonId, patch) => {
+    const updated = await updateAuthorLesson(lessonId, patch);
+    await refreshModules();
+    return updated;
+  };
+
   const handleSubmitForModeration = async () => {
     const ok = await persistChanges();
     if (!ok) return;
@@ -292,6 +409,7 @@ const CourseWizard = () => {
 
       <div className={styles.card}>
         {formError && <p className={styles.formError}>{formError}</p>}
+        {step === 1 && coverError && <p className={styles.formError}>{coverError}</p>}
 
         {step === 1 && (
           <StepBasicInfo
@@ -304,10 +422,36 @@ const CourseWizard = () => {
             categoriesError={categoriesError}
             fieldErrors={fieldErrors}
             readOnly={isReadOnly}
+            coverName={coverName}
+            coverPreviewUrl={coverPreviewUrl}
+            coverUploadDisabled={isReadOnly || !courseId}
+            coverUploadDisabledHint={!courseId ? 'Спочатку натисніть «Далі», щоб зберегти курс.' : ''}
+            onCoverUploaded={handleCoverUploaded}
           />
         )}
 
-        {(step === 2 || step === 3) && <StepContentPlaceholder />}
+        {step === 2 && (
+          <>
+            {modulesError && <p className={styles.formError}>{modulesError}</p>}
+            <StepCurriculum
+              modules={modules}
+              readOnly={isReadOnly}
+              onCreateModule={handleCreateModule}
+              onRenameModule={handleRenameModule}
+              onDeleteModule={handleDeleteModule}
+              onCreateLesson={handleCreateLesson}
+              onDeleteLesson={handleDeleteLesson}
+              onReorder={handleReorder}
+            />
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            {modulesError && <p className={styles.formError}>{modulesError}</p>}
+            <StepLessonContent modules={modules} readOnly={isReadOnly} onUpdateLesson={handleUpdateLesson} />
+          </>
+        )}
 
         {step === 4 && (
           <StepPricing
