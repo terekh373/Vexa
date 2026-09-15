@@ -488,6 +488,32 @@
   font-size: 13px;
 }
 
+.checkboxField {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--main-dark-color);
+}
+
+.attachmentList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.attachmentRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-grey);
+  border-radius: 10px;
+}
+
 @media (max-width: 540px) {
   .card {
     padding: 22px 18px;

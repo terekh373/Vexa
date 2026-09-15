@@ -39,6 +39,11 @@ export const createAuthorLesson = async (moduleId, payload) => {
   return data;
 };
 
+export const updateAuthorLesson = async (lessonId, patch) => {
+  const { data } = await apiClient.patch(`/author/lessons/${lessonId}`, patch);
+  return data;
+};
+
 export const deleteAuthorLesson = async (lessonId) => {
   await apiClient.delete(`/author/lessons/${lessonId}`);
 };

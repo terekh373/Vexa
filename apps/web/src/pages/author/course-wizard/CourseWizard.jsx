@@ -12,6 +12,7 @@ import {
   reorderAuthorCourse,
   submitAuthorCourse,
   updateAuthorCourse,
+  updateAuthorLesson,
   updateAuthorModule,
 } from '../../../services/authorCoursesService.js';
 import { getCategories } from '../../../services/categoriesService.js';
@@ -27,8 +28,8 @@ import {
   toFormState,
 } from './courseFormState.js';
 import StepBasicInfo from './steps/StepBasicInfo.jsx';
-import StepContentPlaceholder from './steps/StepContentPlaceholder.jsx';
 import StepCurriculum from './steps/StepCurriculum.jsx';
+import StepLessonContent from './steps/StepLessonContent.jsx';
 import StepPricing from './steps/StepPricing.jsx';
 import StepPublish from './steps/StepPublish.jsx';
 
@@ -337,6 +338,12 @@ const CourseWizard = () => {
     }
   };
 
+  const handleUpdateLesson = async (lessonId, patch) => {
+    const updated = await updateAuthorLesson(lessonId, patch);
+    await refreshModules();
+    return updated;
+  };
+
   const handleSubmitForModeration = async () => {
     const ok = await persistChanges();
     if (!ok) return;
@@ -439,7 +446,12 @@ const CourseWizard = () => {
           </>
         )}
 
-        {step === 3 && <StepContentPlaceholder />}
+        {step === 3 && (
+          <>
+            {modulesError && <p className={styles.formError}>{modulesError}</p>}
+            <StepLessonContent modules={modules} readOnly={isReadOnly} onUpdateLesson={handleUpdateLesson} />
+          </>
+        )}
 
         {step === 4 && (
           <StepPricing
