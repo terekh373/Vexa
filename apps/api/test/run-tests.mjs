@@ -17,9 +17,15 @@ if (npmCli === undefined || npmCli.length === 0) {
   process.exit(1);
 }
 
+/**
+ * A dedicated database rather than a schema inside the dev one: pg_trgm is
+ * installed once per database, into whichever schema created it first, and
+ * its `gin_trgm_ops` operator class is invisible from any other schema.
+ * Same layout as CI. Prisma creates the database if it does not exist.
+ */
 const databaseUrl =
   process.env.TEST_DATABASE_URL ??
-  'postgresql://vexa:vexa@localhost:5433/vexa?schema=vexa_test';
+  'postgresql://vexa:vexa@localhost:5433/vexa_test?schema=public';
 const redisUrl = process.env.TEST_REDIS_URL ?? 'redis://localhost:6379/15';
 
 /**
