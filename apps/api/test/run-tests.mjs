@@ -4,7 +4,18 @@ import { fileURLToPath } from 'node:url';
 
 const apiRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = resolve(apiRoot, '../..');
-const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+/**
+ * npm's own CLI script, run through the current Node binary instead of the
+ * `npm` / `npm.cmd` shim. On Windows Node refuses to spawn `.cmd` files
+ * without a shell (CVE-2024-27980), and a shell would concatenate arguments
+ * unescaped. npm sets `npm_execpath` for every `npm run` script.
+ */
+const npmCli = process.env.npm_execpath;
+
+if (npmCli === undefined || npmCli.length === 0) {
+  console.error('Run the suite through npm: `npm run test`.');
+  process.exit(1);
+}
 
 const databaseUrl =
   process.env.TEST_DATABASE_URL ??
@@ -52,7 +63,7 @@ const testEnv = {
 };
 
 function run(args, cwd = apiRoot) {
-  const result = spawnSync(npmCommand, args, {
+  const result = spawnSync(process.execPath, [npmCli, ...args], {
     cwd,
     env: testEnv,
     stdio: 'inherit',
