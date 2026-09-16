@@ -3,6 +3,12 @@ import { Router } from 'express';
 import { authenticate } from '../../middleware/authenticate.js';
 import { requireRoles } from '../../middleware/requireRoles.js';
 import {
+  createCategoryHandler,
+  deleteCategoryHandler,
+  listCategoriesHandler,
+  updateCategoryHandler,
+} from './admin.categories.controller.js';
+import {
   getCourseHandler,
   listCoursesHandler,
   moderateCourseHandler,
@@ -21,3 +27,8 @@ adminRouter.post('/courses/:id/unpublish', unpublishCourseHandler);
 
 adminRouter.patch('/users/:id/status', updateUserStatusHandler);
 adminRouter.patch('/users/:id/verify-author', verifyAuthorHandler);
+
+adminRouter.get('/categories', listCategoriesHandler);
+adminRouter.post('/categories', createCategoryHandler);
+adminRouter.patch('/categories/:id', updateCategoryHandler);
+adminRouter.delete('/categories/:id', deleteCategoryHandler);
