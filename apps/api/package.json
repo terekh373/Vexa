@@ -17,7 +17,8 @@
     "db:seed:catalog": "tsx prisma/seed-catalog.ts",
     "db:studio": "prisma studio",
     "db:validate": "prisma validate",
-    "db:dbml:check": "dbml2sql ../../docs/schema.dbml --postgres"
+    "db:dbml:check": "dbml2sql ../../docs/schema.dbml --postgres",
+    "test": "node test/run-tests.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -46,6 +47,9 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.20.1",
     "prisma": "^6.19.3",
-    "tsx": "^4.23.1"
+    "tsx": "^4.23.1",
+    "@types/supertest": "^7.2.1",
+    "supertest": "^7.2.2",
+    "vitest": "^4.1.6"
   }
 }

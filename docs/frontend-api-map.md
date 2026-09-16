@@ -230,6 +230,12 @@ totalPages }`.
     POST   /api/author/modules/:id/lessons
     PATCH  /api/author/lessons/:id
     DELETE /api/author/lessons/:id
+    POST   /api/author/lessons/:id/quiz
+    PATCH  /api/author/quizzes/:id
+    DELETE /api/author/quizzes/:id
+    POST   /api/author/quizzes/:id/questions
+    PATCH  /api/author/questions/:id
+    DELETE /api/author/questions/:id
     PATCH  /api/author/courses/:id/reorder
     POST   /api/author/courses/:id/submit
 
@@ -255,8 +261,20 @@ totalPages }`.
 Урок (`.../lessons`): `type`, `title`, `sortOrder`, `isFreePreview`,
 `textContent`, `videoFileId`, `durationSec`, `fileIds[]`.
 
-**`type: "QUIZ"` зараз відхиляється валідацією** — дозволені лише `VIDEO`,
-`TEXT`, `FILE`. Конструктор тестів — окрема задача (#59).
+`type: "QUIZ"` дозволений. Для такого уроку тест створюється окремим `POST /api/author/lessons/:id/quiz`.
+
+### Тести (`QUIZ`)
+
+Усі маршрути нижче доступні лише ролі `AUTHOR` і перевіряють, що урок/тест/питання належить курсу поточного автора. Чужий ресурс повертає `403`.
+
+- `POST /api/author/lessons/:id/quiz` — створити тест для `QUIZ`-уроку. Тіло: `passScore` (`0..100`, default `60`), `attemptsAllowed` (`integer >= 1` або `null`).
+- `PATCH /api/author/quizzes/:id` — змінити `passScore` / `attemptsAllowed`.
+- `DELETE /api/author/quizzes/:id` — видалити тест разом із питаннями та варіантами.
+- `POST /api/author/quizzes/:id/questions` — створити питання. Тіло: `text`, `type` (`SINGLE` / `MULTIPLE`), `sortOrder`, `options[]`.
+- `PATCH /api/author/questions/:id` — змінити питання; якщо передано `options[]`, список варіантів замінюється повністю.
+- `DELETE /api/author/questions/:id` — видалити питання.
+
+Варіант відповіді: `{ text, isCorrect, sortOrder? }`. Потрібно щонайменше 2 варіанти і щонайменше 1 правильний; для `SINGLE` правильний варіант має бути рівно один. `isCorrect` є тільки в авторських відповідях API. Публічна відповідь курсу для доступного `QUIZ` містить питання й варіанти без `isCorrect`.
 
 ### Порядок (`reorder`)
 
@@ -278,6 +296,256 @@ totalPages }`.
 `POST /api/author/courses/:id/submit` — переводить курс `draft → moderation`.
 Повний життєвий цикл статусів: `draft → moderation → published / rejected →
 unpublished`.
+
+## Адміністрування — модерація курсів
+
+Усі маршрути під префіксом `/api/admin`. Весь роутер вимагає Bearer-токен
+**і** роль `ADMIN`. Без токена — `401`; з роллю `STUDENT` або `AUTHOR` — `403`.
+
+    GET  /api/admin/courses               ?status=&page=&limit=
+    GET  /api/admin/courses/:id
+    POST /api/admin/courses/:id/moderate
+    POST /api/admin/courses/:id/unpublish
+
+Життєвий цикл статусів курсу: `draft → moderation → published / rejected →
+unpublished`. Модератор працює лише з переходами `moderation → published`,
+`moderation → rejected` і `published → unpublished`; повернення чернетки в
+роботу — задача автора (`POST /api/author/courses/:id/submit`), не адміна.
+
+### Черга на модерацію
+
+`GET /api/admin/courses`
+
+Query-параметри (`.strict()` — зайвий параметр повертає `400`):
+
+- `status` — будь-яке значення `CourseStatus` (`DRAFT`, `MODERATION`,
+  `PUBLISHED`, `REJECTED`, `UNPUBLISHED`). За замовчуванням `MODERATION`.
+- `page` — номер сторінки, від `1`. За замовчуванням `1`.
+- `limit` — елементів на сторінці, `1..50`. За замовчуванням `20`.
+
+Видалені курси (`deletedAt`) до вибірки не потрапляють. Сортування: для
+`status=MODERATION` — за `submittedAt` зростаючим (старіші заявки першими),
+для решти статусів — за `updatedAt` спадним; в обох випадках `id` як
+вторинний ключ для стабільної пагінації.
+
+Відповідь `200`:
+
+```json
+{
+  "items": [
+    {
+      "id": "uuid",
+      "slug": "matematyka-7-klas",
+      "title": "Математика, 7 клас",
+      "type": "COURSE",
+      "status": "MODERATION",
+      "priceAmount": 29900,
+      "currency": "UAH",
+      "lessonsCount": 12,
+      "durationSec": 7200,
+      "submittedAt": "2026-09-10T08:00:00.000Z",
+      "publishedAt": null,
+      "rejectionReason": null,
+      "createdAt": "2026-09-01T08:00:00.000Z",
+      "updatedAt": "2026-09-10T08:00:00.000Z",
+      "category": { "id": "uuid", "slug": "matematyka", "nameUk": "Математика" },
+      "author": { "id": "uuid", "fullName": "Оксана Петренко", "email": "author@example.com" }
+    }
+  ],
+  "page": 1,
+  "limit": 20,
+  "total": 1,
+  "totalPages": 1
+}
+```
+
+### Повний вміст курсу для перевірки
+
+`GET /api/admin/courses/:id`
+
+Повна форма курсу: модулі й уроки з `textContent`, метаданими відео та
+файлів — включно з уроками поза безкоштовним прев'ю (адмін бачить усе, на
+відміну від публічного `GET /api/courses/:idOrSlug`), плюс `author { id,
+fullName, email }` і `moderationHistory` — останні 20 записів журналу
+модерації по курсу, `createdAt` спадним:
+
+```json
+{
+  "id": "uuid",
+  "...": "решта полів курсу, як у fullCourseSelect автора",
+  "author": { "id": "uuid", "fullName": "Оксана Петренко", "email": "author@example.com" },
+  "moderationHistory": [
+    {
+      "id": "uuid",
+      "action": "SUBMITTED",
+      "fromStatus": "DRAFT",
+      "toStatus": "MODERATION",
+      "comment": null,
+      "createdAt": "2026-09-10T08:00:00.000Z",
+      "moderator": null
+    }
+  ]
+}
+```
+
+`moderator` — `{ id, fullName }` або `null` (наприклад, для запису
+`SUBMITTED`, який залишає автор, а не модератор). `404` — курс не існує або
+видалений.
+
+### Модерація (`moderate`)
+
+`POST /api/admin/courses/:id/moderate` — курс має бути в статусі
+`MODERATION`, інакше `409`. Тіло (`.strict()`, форма залежить від `action`):
+
+    { "action": "APPROVE", "comment": "Чудовий курс" }   // comment необов'язковий
+    { "action": "REJECT",  "comment": "Додайте опис уроків" } // comment обов'язковий
+
+`comment`, якщо є, після обрізання пробілів — `1..2000` символів; порожній
+рядок або відсутній `comment` при `REJECT` → `400`.
+
+- `APPROVE`: `moderation → published`. `publishedAt` не змінюється, якщо вже
+  був заповнений (курс публікується вперше), інакше ставиться поточний час.
+  `rejectionReason` скидається в `null`.
+- `REJECT`: `moderation → rejected`, `rejectionReason` = `comment`.
+
+Відповідь `200` — той самий об'єкт, що й у `GET /api/admin/courses/:id`,
+перечитаний після переходу. `404` — курс не існує; `409` — курс не в
+статусі `MODERATION` на момент запиту, або статус змінився паралельно (гонка
+двох модераторів).
+
+### Зняття з публікації (`unpublish`)
+
+`POST /api/admin/courses/:id/unpublish` — курс має бути в статусі
+`PUBLISHED`, інакше `409`. Тіло (`.strict()`):
+
+    { "comment": "Порушення авторських прав" }
+
+`comment` обов'язковий, після обрізання пробілів `1..2000` символів;
+відсутній або порожній → `400`. Перехід `published → unpublished`,
+`rejectionReason` = `comment`. Відповідь `200` — як у `moderate`.
+
+### Побічні ефекти переходу
+
+Кожен успішний перехід (`moderate` і `unpublish`) атомарно:
+
+1. Змінює статус курсу.
+2. Додає запис у журнал модерації (`moderationHistory` на сторінці курсу).
+3. Створює автору курсу сповіщення `type: "MODERATION"` з `payload:
+   { courseId, status }` — заголовок і текст українською:
+   - `APPROVE` → `Курс «<title>» опубліковано`, текст — `comment` або `null`;
+   - `REJECT` → `Курс «<title>» відхилено`, текст — `comment`;
+   - `unpublish` → `Курс «<title>» знято з публікації`, текст — `comment`.
+
+Листи не надсилаються — лише запис у `Notification`, показ на клієнті —
+задача сторінки сповіщень.
+
+## Адміністрування — користувачі та категорії
+
+Усі маршрути під префіксом `/api/admin`. Весь роутер вимагає Bearer-токен
+**і** роль `ADMIN`. Без токена — `401`; з роллю `STUDENT` або `AUTHOR` — `403`.
+
+    PATCH  /api/admin/users/:id/status
+    PATCH  /api/admin/users/:id/verify-author
+    GET    /api/admin/categories
+    POST   /api/admin/categories
+    PATCH  /api/admin/categories/:id
+    DELETE /api/admin/categories/:id
+
+### Блокування користувача
+
+`PATCH /api/admin/users/:id/status` — тіло (`.strict()`):
+
+    { "status": "ACTIVE" }   // або "BLOCKED"
+
+- `404` — користувача не існує або він видалений (`deletedAt` заповнений).
+- `409` — у користувача є роль `ADMIN` (включно з власним акаунтом
+  адміністратора, який робить запит) — адміна не можна заблокувати з
+  адмін-панелі.
+- Статус уже такий, як у запиті → `200` з поточними даними, без запису в базу.
+- `BLOCKED`: статус змінюється, після чого відкликаються всі сесії
+  користувача (усі refresh-токени в Redis і журнал у Postgres). Вже виданий
+  access-токен продовжує діяти до кінця свого терміну (`JWT_ACCESS_TTL`, за
+  замовчуванням 15 хвилин) — його неможливо відкликати достроково, а
+  оновити (`/api/auth/refresh`) вже не вийде.
+- `ACTIVE`: змінюється лише статус, сесії не чіпаються.
+
+Відповідь `200`:
+
+    { "id", "email", "fullName", "roles": ["STUDENT"], "status": "BLOCKED",
+      "updatedAt" }
+
+### Підтвердження автора
+
+`PATCH /api/admin/users/:id/verify-author` — тіло (`.strict()`):
+
+    { "isVerified": true }
+
+- `404` — користувача не існує/видалений, або в нього немає профілю автора
+  (`AuthorProfile`).
+- `true`: `isVerified = true`; `verifiedAt` не змінюється, якщо вже було
+  заповнене (повторне підтвердження), інакше ставиться поточний час.
+- `false`: `isVerified = false`, `verifiedAt = null`.
+
+Відповідь `200`:
+
+    { "userId", "displayName", "isVerified": true, "verifiedAt" }
+
+### Категорії каталогу
+
+Елемент відповіді у всіх чотирьох маршрутах:
+
+    { "id", "parentId", "slug", "nameUk", "nameEn", "iconKey",
+      "sortOrder", "isActive", "coursesCount", "childrenCount",
+      "createdAt", "updatedAt" }
+
+`coursesCount` і `childrenCount` — лічильники пов'язаних курсів і
+підкатегорій; курси рахуються включно з м'яко видаленими (вони все одно
+тримають зовнішній ключ на категорію). Дерево категорій — **максимум два
+рівні**: коренева категорія (`parentId: null`) і її прямі підкатегорії;
+підкатегорія не може мати власних підкатегорій.
+
+`GET /api/admin/categories` — плаский список усіх категорій, включно з
+неактивними (на відміну від публічного `GET /api/categories`, який віддає
+лише активні у вигляді дерева). Сортування: `sortOrder` зростаючим, потім
+`nameUk` зростаючим. Без пагінації. Відповідь `200`: `{ "items": [...] }`.
+
+`POST /api/admin/categories` → `201` з елементом. Тіло (`.strict()`):
+
+    { "slug": "fizyka", "nameUk": "Фізика", "nameEn": "Physics",
+      "iconKey": "atom", "parentId": null, "sortOrder": 4, "isActive": true }
+
+- `slug` — після обрізання пробілів `2..120` символів, лише малі латинські
+  літери, цифри й дефіси (`^[a-z0-9]+(?:-[a-z0-9]+)*$`).
+- `nameUk` — обов'язкове, `1..120` символів після обрізання.
+- `nameEn`, `iconKey` — необов'язкові, можуть бути `null`; `iconKey` —
+  `1..64` символів.
+- `parentId` — необов'язковий uuid або `null`.
+- `sortOrder` — ціле `0..10000`, за замовчуванням `0`.
+- `isActive` — булеве, за замовчуванням `true`.
+
+Помилки: `409` — слаг уже зайнятий; `400` з `error.details[0].field ===
+"parentId"` — батьківська категорія не знайдена, або в неї самої є свій
+`parentId` (це зробило б нову категорію третім рівнем вкладеності).
+
+`PATCH /api/admin/categories/:id` → `200` з елементом. Тіло — ті самі поля,
+усі необов'язкові, без значень за замовчуванням, `.strict()`; порожнє тіло →
+`400`. `404` — категорію не знайдено. Новий `slug`, зайнятий іншою
+категорією, → `409`. Якщо в тілі `parentId` не `null`:
+
+- дорівнює `id` категорії, що редагується, → `400`;
+- батьківську категорію не знайдено → `400`;
+- батьківська категорія сама не є кореневою → `400`;
+- у категорії, що редагується, вже є власні підкатегорії → `400`.
+
+Усі ці помилки — `error.details[0].field === "parentId"`.
+
+`DELETE /api/admin/categories/:id` → `204` без тіла. `404` — категорію не
+знайдено. `409` — `coursesCount > 0` (`"Category has courses"`) або
+`childrenCount > 0` (`"Category has subcategories"`).
+
+Кожен успішний запис (`POST`, `PATCH`, `DELETE`) одразу скидає кеш
+публічного дерева категорій — наступний `GET /api/categories` бачить зміну
+без затримки на TTL кешу.
 
 ## Маршрути фронтенду
 

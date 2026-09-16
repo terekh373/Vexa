@@ -1,19 +1,18 @@
-import { apiClient } from '../api/config.js';
+import apiClient from '../api/client.js';
 
 export const fetchCatalog = async (query = {}) => {
-  const response = await apiClient.get('/courses', {
+  const { data } = await apiClient.get('/courses', {
     params: query,
   });
 
-  return response.data;
+  return data;
 };
 
 export const getCourse = async (idOrSlug) => {
   try {
-    const response = await apiClient.get(`/courses/${idOrSlug}`);
-    return response.data;
-  }
-  catch (error) {
+    const { data } = await apiClient.get(`/courses/${idOrSlug}`);
+    return data;
+  } catch (error) {
     if (error.response?.status === 404) {
       return null;
     }
@@ -22,10 +21,15 @@ export const getCourse = async (idOrSlug) => {
   }
 };
 
+export const getCourses = async () => {
+  const { data } = await apiClient.get('/courses');
+  return data;
+};
+
 export const getCourseReviews = async (id, page = 1, limit = 10) => {
-  const response = await apiClient.get(`/courses/${id}/reviews`, {
+  const { data } = await apiClient.get(`/courses/${id}/reviews`, {
     params: { page, limit },
   });
 
-  return response.data;
+  return data;
 };
