@@ -43,6 +43,12 @@ const courseListSelect = {
   updatedAt: true,
 } satisfies Prisma.CourseSelect;
 
+const authorCourseListSelect = {
+  ...courseListSelect,
+  ratingAvg: true,
+  studentsCount: true,
+} satisfies Prisma.CourseSelect;
+
 const fullCourseSelect = {
   ...courseListSelect,
   description: true,
@@ -380,15 +386,20 @@ export async function createAuthorCourse(userId: string, input: CreateCourseInpu
 }
 
 export async function listAuthorCourses(userId: string, query: AuthorCourseListQuery) {
-  return prisma.course.findMany({
+  const courses = await prisma.course.findMany({
     where: {
       authorId: userId,
       deletedAt: null,
       ...(query.status === undefined ? {} : { status: query.status }),
     },
     orderBy: { updatedAt: 'desc' },
-    select: courseListSelect,
+    select: authorCourseListSelect,
   });
+
+  return courses.map(({ ratingAvg, ...course }) => ({
+    ...course,
+    ratingAvg: Number(ratingAvg),
+  }));
 }
 
 export async function getAuthorCourse(userId: string, courseId: string) {
