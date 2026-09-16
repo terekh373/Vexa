@@ -297,6 +297,148 @@ totalPages }`.
 Повний життєвий цикл статусів: `draft → moderation → published / rejected →
 unpublished`.
 
+## Адміністрування — модерація курсів
+
+Усі маршрути під префіксом `/api/admin`. Весь роутер вимагає Bearer-токен
+**і** роль `ADMIN`. Без токена — `401`; з роллю `STUDENT` або `AUTHOR` — `403`.
+
+    GET  /api/admin/courses               ?status=&page=&limit=
+    GET  /api/admin/courses/:id
+    POST /api/admin/courses/:id/moderate
+    POST /api/admin/courses/:id/unpublish
+
+Життєвий цикл статусів курсу: `draft → moderation → published / rejected →
+unpublished`. Модератор працює лише з переходами `moderation → published`,
+`moderation → rejected` і `published → unpublished`; повернення чернетки в
+роботу — задача автора (`POST /api/author/courses/:id/submit`), не адміна.
+
+### Черга на модерацію
+
+`GET /api/admin/courses`
+
+Query-параметри (`.strict()` — зайвий параметр повертає `400`):
+
+- `status` — будь-яке значення `CourseStatus` (`DRAFT`, `MODERATION`,
+  `PUBLISHED`, `REJECTED`, `UNPUBLISHED`). За замовчуванням `MODERATION`.
+- `page` — номер сторінки, від `1`. За замовчуванням `1`.
+- `limit` — елементів на сторінці, `1..50`. За замовчуванням `20`.
+
+Видалені курси (`deletedAt`) до вибірки не потрапляють. Сортування: для
+`status=MODERATION` — за `submittedAt` зростаючим (старіші заявки першими),
+для решти статусів — за `updatedAt` спадним; в обох випадках `id` як
+вторинний ключ для стабільної пагінації.
+
+Відповідь `200`:
+
+```json
+{
+  "items": [
+    {
+      "id": "uuid",
+      "slug": "matematyka-7-klas",
+      "title": "Математика, 7 клас",
+      "type": "COURSE",
+      "status": "MODERATION",
+      "priceAmount": 29900,
+      "currency": "UAH",
+      "lessonsCount": 12,
+      "durationSec": 7200,
+      "submittedAt": "2026-09-10T08:00:00.000Z",
+      "publishedAt": null,
+      "rejectionReason": null,
+      "createdAt": "2026-09-01T08:00:00.000Z",
+      "updatedAt": "2026-09-10T08:00:00.000Z",
+      "category": { "id": "uuid", "slug": "matematyka", "nameUk": "Математика" },
+      "author": { "id": "uuid", "fullName": "Оксана Петренко", "email": "author@example.com" }
+    }
+  ],
+  "page": 1,
+  "limit": 20,
+  "total": 1,
+  "totalPages": 1
+}
+```
+
+### Повний вміст курсу для перевірки
+
+`GET /api/admin/courses/:id`
+
+Повна форма курсу: модулі й уроки з `textContent`, метаданими відео та
+файлів — включно з уроками поза безкоштовним прев'ю (адмін бачить усе, на
+відміну від публічного `GET /api/courses/:idOrSlug`), плюс `author { id,
+fullName, email }` і `moderationHistory` — останні 20 записів журналу
+модерації по курсу, `createdAt` спадним:
+
+```json
+{
+  "id": "uuid",
+  "...": "решта полів курсу, як у fullCourseSelect автора",
+  "author": { "id": "uuid", "fullName": "Оксана Петренко", "email": "author@example.com" },
+  "moderationHistory": [
+    {
+      "id": "uuid",
+      "action": "SUBMITTED",
+      "fromStatus": "DRAFT",
+      "toStatus": "MODERATION",
+      "comment": null,
+      "createdAt": "2026-09-10T08:00:00.000Z",
+      "moderator": null
+    }
+  ]
+}
+```
+
+`moderator` — `{ id, fullName }` або `null` (наприклад, для запису
+`SUBMITTED`, який залишає автор, а не модератор). `404` — курс не існує або
+видалений.
+
+### Модерація (`moderate`)
+
+`POST /api/admin/courses/:id/moderate` — курс має бути в статусі
+`MODERATION`, інакше `409`. Тіло (`.strict()`, форма залежить від `action`):
+
+    { "action": "APPROVE", "comment": "Чудовий курс" }   // comment необов'язковий
+    { "action": "REJECT",  "comment": "Додайте опис уроків" } // comment обов'язковий
+
+`comment`, якщо є, після обрізання пробілів — `1..2000` символів; порожній
+рядок або відсутній `comment` при `REJECT` → `400`.
+
+- `APPROVE`: `moderation → published`. `publishedAt` не змінюється, якщо вже
+  був заповнений (курс публікується вперше), інакше ставиться поточний час.
+  `rejectionReason` скидається в `null`.
+- `REJECT`: `moderation → rejected`, `rejectionReason` = `comment`.
+
+Відповідь `200` — той самий об'єкт, що й у `GET /api/admin/courses/:id`,
+перечитаний після переходу. `404` — курс не існує; `409` — курс не в
+статусі `MODERATION` на момент запиту, або статус змінився паралельно (гонка
+двох модераторів).
+
+### Зняття з публікації (`unpublish`)
+
+`POST /api/admin/courses/:id/unpublish` — курс має бути в статусі
+`PUBLISHED`, інакше `409`. Тіло (`.strict()`):
+
+    { "comment": "Порушення авторських прав" }
+
+`comment` обов'язковий, після обрізання пробілів `1..2000` символів;
+відсутній або порожній → `400`. Перехід `published → unpublished`,
+`rejectionReason` = `comment`. Відповідь `200` — як у `moderate`.
+
+### Побічні ефекти переходу
+
+Кожен успішний перехід (`moderate` і `unpublish`) атомарно:
+
+1. Змінює статус курсу.
+2. Додає запис у журнал модерації (`moderationHistory` на сторінці курсу).
+3. Створює автору курсу сповіщення `type: "MODERATION"` з `payload:
+   { courseId, status }` — заголовок і текст українською:
+   - `APPROVE` → `Курс «<title>» опубліковано`, текст — `comment` або `null`;
+   - `REJECT` → `Курс «<title>» відхилено`, текст — `comment`;
+   - `unpublish` → `Курс «<title>» знято з публікації`, текст — `comment`.
+
+Листи не надсилаються — лише запис у `Notification`, показ на клієнті —
+задача сторінки сповіщень.
+
 ## Маршрути фронтенду
 
 | URL | Сторінка | Доступ |
