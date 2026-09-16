@@ -23,6 +23,7 @@ export const getAuthorCourses = async (status) => {
 
 export const deleteAuthorCourse = async (courseId) => {
   await apiClient.delete(`/author/courses/${courseId}`);
+};
 export const createAuthorCourse = async (payload) => {
   const { data } = await apiClient.post('/author/courses', payload);
   return data;
