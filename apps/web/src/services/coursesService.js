@@ -1,5 +1,13 @@
 import apiClient from '../api/client.js';
 
+export const fetchCatalog = async (query = {}) => {
+  const { data } = await apiClient.get('/courses', {
+    params: query,
+  });
+
+  return data;
+};
+
 export const getCourse = async (idOrSlug) => {
   try {
     const { data } = await apiClient.get(`/courses/${idOrSlug}`);

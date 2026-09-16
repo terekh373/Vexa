@@ -166,6 +166,8 @@ export const routePatterns = {
   orders: '/orders',
   settings: '/settings',
   authorDashboard: '/author',
+  authorCourses: '/author/courses',
+  authorCourseNew: '/author/courses/new',
   authorArea: '/author/*',
   adminDashboard: '/admin',
   adminArea: '/admin/*',

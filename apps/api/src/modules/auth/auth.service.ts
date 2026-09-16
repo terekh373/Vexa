@@ -178,7 +178,7 @@ async function handleRefreshMiss(userId: string, jti: string): Promise<void> {
 }
 
 /** Revokes every session of a user in both stores. */
-async function revokeAllSessions(userId: string): Promise<void> {
+export async function revokeAllSessions(userId: string): Promise<void> {
   await revokeAllUserRefreshTokens(userId);
   await revokeAllByUserId(userId);
 }

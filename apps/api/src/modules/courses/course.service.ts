@@ -153,6 +153,36 @@ const courseDetailsSelect = {
               },
             },
           },
+
+          quiz: {
+            select: {
+              id: true,
+              passScore: true,
+              attemptsAllowed: true,
+              questions: {
+                orderBy: {
+                  sortOrder: 'asc' as const,
+                },
+                select: {
+                  id: true,
+                  type: true,
+                  text: true,
+                  points: true,
+                  sortOrder: true,
+                  options: {
+                    orderBy: {
+                      sortOrder: 'asc' as const,
+                    },
+                    select: {
+                      id: true,
+                      text: true,
+                      sortOrder: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -353,6 +383,31 @@ export async function getCourseDetails(
                         attachment.file.sizeBytes.toString(),
                     }),
                   ),
+
+                  quiz: lesson.quiz
+                    ? {
+                        id: lesson.quiz.id,
+                        passScore: lesson.quiz.passScore,
+                        attemptsAllowed:
+                          lesson.quiz.attemptsAllowed,
+                        questions: lesson.quiz.questions.map(
+                          (question) => ({
+                            id: question.id,
+                            type: question.type,
+                            text: question.text,
+                            points: question.points,
+                            position: question.sortOrder,
+                            options: question.options.map(
+                              (option) => ({
+                                id: option.id,
+                                text: option.text,
+                                position: option.sortOrder,
+                              }),
+                            ),
+                          }),
+                        ),
+                      }
+                    : null,
                 },
               }
             : {}),

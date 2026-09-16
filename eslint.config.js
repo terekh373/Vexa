@@ -19,7 +19,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['apps/api/**/*.ts'],
+    files: ['apps/api/**/*.{ts,mjs}'],
     languageOptions: { globals: globals.node },
   },
   // Frontend — Browser

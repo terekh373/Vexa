@@ -129,3 +129,28 @@
   font-weight: 400;
   cursor: pointer;
 }
+.empty {
+  width: 100%;
+  min-height: 240px;
+  padding: 48px 24px;
+  border: 1px solid var(--border-grey);
+  border-radius: 16px;
+  text-align: center;
+  color: var(--main-dark-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.empty button {
+  border: 2px solid var(--purple-color);
+  border-radius: 12px;
+  padding: 10px 18px;
+  background: var(--main-bg-color);
+  color: var(--purple-color);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+}

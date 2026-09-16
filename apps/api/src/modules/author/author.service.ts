@@ -43,6 +43,12 @@ const courseListSelect = {
   updatedAt: true,
 } satisfies Prisma.CourseSelect;
 
+const authorCourseListSelect = {
+  ...courseListSelect,
+  ratingAvg: true,
+  studentsCount: true,
+} satisfies Prisma.CourseSelect;
+
 const fullCourseSelect = {
   ...courseListSelect,
   description: true,
@@ -110,6 +116,41 @@ const fullCourseSelect = {
                   originalName: true,
                   mimeType: true,
                   isReady: true,
+                },
+              },
+            },
+          },
+          quiz: {
+            select: {
+              id: true,
+              lessonId: true,
+              title: true,
+              passScore: true,
+              timeLimitSec: true,
+              attemptsAllowed: true,
+              createdAt: true,
+              updatedAt: true,
+              questions: {
+                orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+                select: {
+                  id: true,
+                  type: true,
+                  text: true,
+                  points: true,
+                  sortOrder: true,
+                  createdAt: true,
+                  updatedAt: true,
+                  options: {
+                    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+                    select: {
+                      id: true,
+                      text: true,
+                      isCorrect: true,
+                      sortOrder: true,
+                      createdAt: true,
+                      updatedAt: true,
+                    },
+                  },
                 },
               },
             },
@@ -345,15 +386,20 @@ export async function createAuthorCourse(userId: string, input: CreateCourseInpu
 }
 
 export async function listAuthorCourses(userId: string, query: AuthorCourseListQuery) {
-  return prisma.course.findMany({
+  const courses = await prisma.course.findMany({
     where: {
       authorId: userId,
       deletedAt: null,
       ...(query.status === undefined ? {} : { status: query.status }),
     },
     orderBy: { updatedAt: 'desc' },
-    select: courseListSelect,
+    select: authorCourseListSelect,
   });
+
+  return courses.map(({ ratingAvg, ...course }) => ({
+    ...course,
+    ratingAvg: Number(ratingAvg),
+  }));
 }
 
 export async function getAuthorCourse(userId: string, courseId: string) {
@@ -555,6 +601,12 @@ export async function updateAuthorLesson(userId: string, lessonId: string, input
         files: { select: { id: true, fileId: true, sortOrder: true }, orderBy: { sortOrder: 'asc' } },
       },
     });
+
+    if (input.type !== undefined && input.type !== 'QUIZ' && lesson.type === 'QUIZ') {
+      await tx.quiz.deleteMany({ where: { lessonId } });
+    } else if (input.title !== undefined && resultingType === 'QUIZ') {
+      await tx.quiz.updateMany({ where: { lessonId }, data: { title: input.title } });
+    }
 
     await recalculateCourseCounters(tx, lesson.module.courseId);
     return updated;

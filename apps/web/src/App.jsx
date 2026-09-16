@@ -1,5 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
-import { routePatterns } from '@vexa/shared';
+import { routePatterns, routes } from '@vexa/shared';
 
 import './App.css';
 import Layout from './components/layout/Layout.jsx';
@@ -14,6 +14,8 @@ import RegisterPage from './pages/register/RegisterPage.jsx';
 import VerifyEmailPage from './pages/verify-email/VerifyEmailPage.jsx';
 import NotFound from './pages/not-found/NotFound.jsx';
 import ComingSoon from './pages/stubs/ComingSoon.jsx';
+import AuthorCourses from './pages/author-courses/AuthorCourses.jsx';
+import CourseWizard from './pages/author/course-wizard/CourseWizard.jsx';
 
 function App() {
   return (
@@ -35,8 +37,11 @@ function App() {
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['AUTHOR']} />}>
-          <Route path={routePatterns.authorArea} element={<ComingSoon title="Кабінет автора" />} />
-        </Route>
+  <Route path={routePatterns.authorCourses} element={<AuthorCourses />} />
+  <Route path={routes.authorCourseNew()} element={<CourseWizard />} />
+  <Route path={routePatterns.authorCourseEdit} element={<CourseWizard />} />
+  <Route path={routePatterns.authorArea} element={<ComingSoon title="Кабінет автора" />} />
+</Route>
 
         <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
           <Route path={routePatterns.adminArea} element={<ComingSoon title="Адмін-панель" />} />
