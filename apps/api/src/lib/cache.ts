@@ -39,3 +39,12 @@ export async function getCached<T>(
 
   return value;
 }
+
+/** Drops a cache entry so the next read repopulates it from the loader. */
+export async function invalidateCached(key: string): Promise<void> {
+  try {
+    await redis.del(key);
+  } catch (error) {
+    logger.warn({ err: error, key }, 'Redis delete failed, cache entry may be stale until it expires');
+  }
+}
