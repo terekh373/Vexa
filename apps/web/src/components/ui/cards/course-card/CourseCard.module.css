@@ -9,6 +9,9 @@
 }
 .pricerow {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
 }
 
 .row {
@@ -17,10 +20,24 @@
 }
 
 .img {
-  width: fit-content;
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
   margin-bottom: 16px;
   border-radius: 16px;
+}
 
+.courseTitle {
+  margin: 0 0 8px;
+  color: var(--main-dark-color);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .description p {

@@ -40,7 +40,7 @@ const CourseCard = ({ card }) => {
       {card.isNew && (
         <>
           <div className={styles.new}>new</div>
-          <img src={badge} className={styles.badge} alt="badge icon" />
+          <img src={badge} className={styles.badge} alt='badge icon' />
         </>
       )}
 
@@ -52,13 +52,13 @@ const CourseCard = ({ card }) => {
 
       <div className={styles.description}>
         {card.title && <h3 className={styles.courseTitle}>{card.title}</h3>}
-        <p>{description}</p>
+        {description && <p>{description}</p>}
         <h4>{author}</h4>
       </div>
 
       <div className={styles.pricerow}>
         <div className={styles.row}>
-          <img src={star} alt="star icon" />
+          <img src={star} alt='star icon' />
           <p>
             <span>{Number(rating).toFixed(1)}</span>{' '}
             <span>({reviews})</span>

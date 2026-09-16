@@ -1,64 +1,131 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { routes } from '@vexa/shared';
 
 import styles from './Courses.module.css';
 import { Container } from '../../layout/container/Container';
 import { OpenMore } from '../../ui/openmore/OpenMore';
+import Button from '../../ui/buttons/Button.jsx';
 import CourseCard from '../../ui/cards/course-card/CourseCard.jsx';
-import { fetchCatalog } from '../../../services/coursesService.js';
+import CourseSkeleton from '../../ui/skeleton/CourseSkeleton.jsx';
+import { getCourses } from '../../../services/coursesService.js';
+
+const COURSE_LIMIT = 8;
+const SKELETONS = Array.from({ length: COURSE_LIMIT }, (_, index) => index);
+
+const CourseBlock = ({ title, courses, loading, error, onRetry, onOpenCatalog }) => (
+  <div className={styles.box}>
+    <OpenMore
+      title={title}
+      bttnTxt='Всі курси'
+      onClick={onOpenCatalog}
+    />
+
+    {loading && (
+      <ul className={styles.cardlist} aria-label={`${title}: завантаження`}>
+        {SKELETONS.map((item) => (
+          <li key={item}>
+            <CourseSkeleton />
+          </li>
+        ))}
+      </ul>
+    )}
+
+    {!loading && error && (
+      <div className={styles.stateBox} role='alert'>
+        <p>Не вдалося завантажити курси.</p>
+        <Button
+          title='Спробувати ще'
+          variant='secondary'
+          size='small'
+          onClick={onRetry}
+        />
+      </div>
+    )}
+
+    {!loading && !error && courses.length === 0 && (
+      <div className={styles.stateBox}>
+        <p>Курсів у цьому блоці поки немає.</p>
+      </div>
+    )}
+
+    {!loading && !error && courses.length > 0 && (
+      <ul className={styles.cardlist}>
+        {courses.map((course) => (
+          <li key={course.id}>
+            <CourseCard card={course} />
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+);
 
 const Courses = () => {
-  const [recommendedCourses, setRecommendedCourses] = useState([]);
+  const navigate = useNavigate();
   const [newCourses, setNewCourses] = useState([]);
+  const [topCourses, setTopCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [newCoursesError, setNewCoursesError] = useState(false);
+  const [topCoursesError, setTopCoursesError] = useState(false);
+
+  const loadCourses = useCallback(async () => {
+    setLoading(true);
+    setNewCoursesError(false);
+    setTopCoursesError(false);
+
+    const [newResult, topResult] = await Promise.allSettled([
+      getCourses({ sort: 'date', limit: COURSE_LIMIT }),
+      getCourses({ sort: 'rating', limit: COURSE_LIMIT }),
+    ]);
+
+    if (newResult.status === 'fulfilled') {
+      const items = Array.isArray(newResult.value?.items) ? newResult.value.items : [];
+      setNewCourses(items.map((course) => ({ ...course, isNew: true })));
+    } else {
+      setNewCourses([]);
+      setNewCoursesError(true);
+    }
+
+    if (topResult.status === 'fulfilled') {
+      const items = Array.isArray(topResult.value?.items) ? topResult.value.items : [];
+      setTopCourses(items);
+    } else {
+      setTopCourses([]);
+      setTopCoursesError(true);
+    }
+
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    loadCourses();
+  }, [loadCourses]);
 
-    Promise.all([
-      fetchCatalog({ sort: 'popularity', page: 1, limit: 5 }),
-      fetchCatalog({ sort: 'date', page: 1, limit: 5 }),
-    ])
-      .then(([recommended, newest]) => {
-        if (cancelled) return;
-
-        setRecommendedCourses(recommended.items || []);
-        setNewCourses(newest.items || []);
-      })
-      .catch(() => {
-        if (cancelled) return;
-
-        setRecommendedCourses([]);
-        setNewCourses([]);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const openCatalog = () => {
+    navigate(routes.catalog());
+  };
 
   return (
     <Container>
       <section className={styles.container}>
-        <div className={styles.box}>
-          <OpenMore title="Рекомендовані курси" bttnTxt="Всі категорії" />
-          <ul className={styles.cardlist}>
-            {recommendedCourses.map((card) => (
-              <li key={card.id}>
-                <CourseCard card={card} />
-              </li>
-            ))}
-          </ul>
-        </div>
+        <CourseBlock
+          title='Нові курси'
+          courses={newCourses}
+          loading={loading}
+          error={newCoursesError}
+          onRetry={loadCourses}
+          onOpenCatalog={openCatalog}
+        />
 
-        <div className={styles.box}>
-          <OpenMore title="Нові курси" bttnTxt="Всі категорії" />
-          <ul className={styles.cardlist}>
-            {newCourses.map((card) => (
-              <li key={card.id}>
-                <CourseCard card={card} />
-              </li>
-            ))}
-          </ul>
-        </div>
+        <CourseBlock
+          title='Топ за рейтингом'
+          courses={topCourses}
+          loading={loading}
+          error={topCoursesError}
+          onRetry={loadCourses}
+          onOpenCatalog={openCatalog}
+        />
       </section>
     </Container>
   );
