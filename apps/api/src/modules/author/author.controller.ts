@@ -2,12 +2,14 @@ import type { Request, RequestHandler, Response } from 'express';
 import { AppError } from '../../lib/errors.js';
 import {
   authorCourseListQuerySchema,
+  authorReviewReplySchema,
   courseIdParamsSchema,
   createCourseSchema,
   createLessonSchema,
   createModuleSchema,
   lessonIdParamsSchema,
   moduleIdParamsSchema,
+  reviewIdParamsSchema,
   reorderCourseSchema,
   updateCourseSchema,
   updateLessonSchema,
@@ -23,6 +25,7 @@ import {
   getAuthorCourse,
   listAuthorCourses,
   reorderAuthorCourse,
+  replyToCourseReview,
   submitAuthorCourse,
   updateAuthorCourse,
   updateAuthorLesson,
@@ -117,3 +120,11 @@ export const submitCourseHandler: RequestHandler = async (req: Request, res: Res
   const course = await submitAuthorCourse(userIdFrom(req), id);
   res.status(200).json(course);
 };
+
+export const replyToReviewHandler: RequestHandler = async (req: Request, res: Response) => {
+  const { id } = reviewIdParamsSchema.parse(req.params);
+  const input = authorReviewReplySchema.parse(req.body);
+  const review = await replyToCourseReview(userIdFrom(req), id, input);
+  res.status(200).json(review);
+};
+

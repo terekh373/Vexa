@@ -8,6 +8,7 @@ import { AppError } from '../../lib/errors.js';
 import { prisma } from '../../lib/prisma.js';
 import type {
   AuthorCourseListQuery,
+  AuthorReviewReplyInput,
   CreateCourseInput,
   CreateLessonInput,
   CreateModuleInput,
@@ -703,3 +704,40 @@ export async function submitAuthorCourse(userId: string, courseId: string) {
 
   return getAuthorCourse(userId, courseId);
 }
+
+export async function replyToCourseReview(
+  userId: string,
+  reviewId: string,
+  input: AuthorReviewReplyInput,
+) {
+  const review = await prisma.review.findFirst({
+    where: {
+      id: reviewId,
+      course: {
+        authorId: userId,
+        deletedAt: null,
+      },
+    },
+    select: { id: true },
+  });
+
+  if (review === null) {
+    throw AppError.notFound('Review not found');
+  }
+
+  const authorRepliedAt = new Date();
+
+  return prisma.review.update({
+    where: { id: review.id },
+    data: {
+      authorReply: input.text,
+      authorRepliedAt,
+    },
+    select: {
+      id: true,
+      authorReply: true,
+      authorRepliedAt: true,
+    },
+  });
+}
+

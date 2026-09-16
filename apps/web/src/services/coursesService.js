@@ -38,3 +38,13 @@ export const getCourseReviews = async (id, page = 1, limit = 10) => {
 
   return data;
 };
+
+export const createCourseReview = async (id, payload) => {
+  const { data } = await apiClient.post(`/courses/${id}/reviews`, payload);
+  return data;
+};
+
+export const updateMyCourseReview = async (id, payload) => {
+  const { data } = await apiClient.patch(`/courses/${id}/reviews/my`, payload);
+  return data;
+};

@@ -6,14 +6,18 @@ import { getCatalog } from './catalog.service.js';
 import { courseCatalogQuerySchema } from './catalog.validation.js';
 
 import {
+  createCourseReview,
   getCourseDetails,
   getCourseReviews,
+  updateMyCourseReview,
 } from './course.service.js';
 
 import {
   courseIdOrSlugParamsSchema,
   courseIdParamsSchema,
   courseReviewsQuerySchema,
+  createCourseReviewSchema,
+  updateCourseReviewSchema,
 } from './course.validation.js';
 
 export const catalogController: RequestHandler = async (
@@ -96,4 +100,44 @@ export const courseReviewsController: RequestHandler = async (
   }
 
   res.json(result);
+};
+
+export const createCourseReviewController: RequestHandler = async (
+  req,
+  res,
+) => {
+  const params = courseIdParamsSchema.parse(req.params);
+  const input = createCourseReviewSchema.parse(req.body);
+
+  if (req.auth === undefined) {
+    throw AppError.unauthorized('Authentication required');
+  }
+
+  const result = await createCourseReview(
+    params.id,
+    req.auth.userId,
+    input,
+  );
+
+  res.status(201).json(result);
+};
+
+export const updateMyCourseReviewController: RequestHandler = async (
+  req,
+  res,
+) => {
+  const params = courseIdParamsSchema.parse(req.params);
+  const input = updateCourseReviewSchema.parse(req.body);
+
+  if (req.auth === undefined) {
+    throw AppError.unauthorized('Authentication required');
+  }
+
+  const result = await updateMyCourseReview(
+    params.id,
+    req.auth.userId,
+    input,
+  );
+
+  res.status(200).json(result);
 };

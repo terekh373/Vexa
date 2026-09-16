@@ -24,6 +24,7 @@ import {
   updateCourseHandler,
   updateLessonHandler,
   updateModuleHandler,
+  replyToReviewHandler,
 } from './author.controller.js';
 
 export const authorRouter: Router = Router();
@@ -53,3 +54,5 @@ authorRouter.delete('/questions/:id', deleteQuestionHandler);
 
 authorRouter.patch('/courses/:id/reorder', reorderCourseHandler);
 authorRouter.post('/courses/:id/submit', submitCourseHandler);
+
+authorRouter.post('/reviews/:id/reply', replyToReviewHandler);
