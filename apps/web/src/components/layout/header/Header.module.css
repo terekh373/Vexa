@@ -42,10 +42,7 @@
   text-decoration: underline;
 }
 
-/* =========================================
-   СТИЛІ ДЛЯ ПРАВОГО БЛОКУ ТА АВТОРИЗАЦІЇ 
-   (Винесені з медіазапитів)
-   ========================================= */
+
 
 .actionButtons {
   display: flex;
@@ -56,11 +53,11 @@
 .authPrompt {
   display: flex;
   align-items: center;
-  gap: 8px; /* Відступ між текстом і кнопкою */
+  gap: 8px;
   font-size: 14px;
   color: #333;
   font-weight: 500;
-  user-select: none; /* Заборона виділення */
+  user-select: none;
 }
 
 .loginText {
@@ -77,11 +74,11 @@
   background-color: #F4F1FA;
 }
 
-/* =========================================
-   АДАПТИВНІСТЬ (МЕДІАЗАПИТИ)
-   ========================================= */
 
-/* 1440px */
+
+
+
+
 @media (max-width: 1440px) {
   .container {
     gap: 12px;
@@ -92,7 +89,7 @@
   }
 }
 
-/* 1200px */
+
 @media (max-width: 1200px) {
   .container {
     gap: 10px;
@@ -107,36 +104,36 @@
   }
 }
 
-/* 992px */
+
 @media (max-width: 992px) {
   .container {
     flex-wrap: wrap;
     row-gap: 12px;
   }
 
-  /* Logo */
+
   .container > :first-child {
     order: 1;
   }
 
-  /* Меню */
+
   .container > :nth-child(2) {
     order: 2;
   }
 
-  /* Search */
+  
   .container > :nth-child(3) {
     order: 3;
     flex: 1 1 100%;
   }
 
-  /* Кнопки */
+
   .container > :nth-child(4) {
     order: 1;
   }
 }
 
-/* 768px */
+
 @media (max-width: 768px) {
   .header {
     padding: 14px 0;
@@ -155,11 +152,13 @@
   }
 }
 
-/* 480px */
+
+
 @media (max-width: 480px) {
   .header {
     padding: 12px 0;
   }
+
 
   .container {
     flex-direction: column;
@@ -167,32 +166,32 @@
     gap: 12px;
   }
 
-  /* Logo */
+
   .container > :first-child {
     align-self: center;
   }
 
-  /* Навигация */
+
   .container > :nth-child(2) {
     order: 2;
     justify-content: center;
     overflow-x: auto;
   }
 
-  /* Search */
+
   .container > :nth-child(3) {
     order: 3;
     width: 100%;
   }
 
-  /* Кнопки */
+
   .container > :nth-child(4) {
     order: 4;
     justify-content: center;
   }
 }
 
-/* 320px */
+
 @media (max-width: 320px) {
   .header {
     padding: 10px 0;
@@ -220,4 +219,66 @@
     align-items: stretch;
     gap: 8px;
   }
+}
+
+
+.navAuth {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.activeLink {
+  font-size: 15px;
+  font-weight: 600;
+  color: #6236FF; 
+  text-decoration: none;
+}
+
+.userArea {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.notificationBtn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.profileDropdown {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding-left: 16px;
+  border-left: 1px solid #eef0f5;
+}
+
+.avatarMini {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111;
+  line-height: 1.2;
+}
+
+.userRole {
+  font-size: 11px;
+  color: #888;
+  text-transform: capitalize;
 }

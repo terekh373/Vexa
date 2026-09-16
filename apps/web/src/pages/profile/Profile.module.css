@@ -1,207 +1,590 @@
-.dashboardWrapper {
-    padding: 30px 0;
-    minHeight: 85vh;
-  }
-  
-  .welcomeTitle {
-    font-size: 32px;
-    font-weight: bold;
-    color: #111;
-    margin-bottom: 5px;
-  }
-  
-  .welcomeSubtitle {
-    font-size: 16px;
-    color: #555;
-    margin-bottom: 30px;
-  }
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 30px 40px;
+}
 
-  .gridContainer {
-    display: flex;
-    gap: 30px;
-    background-color: #F4F1FA;
-    padding: 40px;
-    border-radius: 30px;
-    align-items: flex-start;
-  }
-  
-  .leftColumn {
-    width: 300px;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-  }
-  
-  .rightColumn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-  }
-  
-  .profileCard {
-    background-color: #FFFFFF;
-    border-radius: 20px;
-    padding: 30px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    box-shadow: 0 5px 20px rgba(98, 54, 255, 0.03);
-  }
-  
-  .photoBox {
-    width: 110px;
-    height: 130px;
-    border: 2px solid #6236FF;
-    border-radius: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #6236FF;
-    font-weight: 500;
-    background: white;
-  }
-  
-  .infoBox {
-    width: 100%;
-    padding: 12px;
-    background: #F8F9FA;
-    border-radius: 12px;
-    text-align: center;
-    color: #333;
-    font-size: 15px;
-    font-weight: 500;
-  }
-  
-  .logoutBtn {
-    background-color: #6236FF;
-    color: white;
-    border: none;
-    width: 100%;
-    padding: 12px;
-    border-radius: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: opacity 0.2s;
-  }
-  
-  .logoutBtn:hover {
-    opacity: 0.9;
-  }
-  
-  .coursesCard {
-    background-color: #FFFFFF;
-    border-radius: 20px;
-    padding: 25px;
-    min-height: 220px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 5px 20px rgba(98, 54, 255, 0.03);
-  }
-  
-  .sectionTitle {
-    font-size: 18px;
-    font-weight: bold;
-    color: #222;
-    margin-bottom: 15px;
-  }
-  
-  .emptyCourses {
-    flex: 1;
-    border: 2px dashed #D5CEEE;
-    border-radius: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #777;
-    font-size: 15px;
-    background: #FAFAFC;
-  }
-  
-  .calendarCard {
-    background-color: #FFFFFF;
-    border-radius: 20px;
-    padding: 25px;
-    box-shadow: 0 5px 20px rgba(98, 54, 255, 0.03);
-  }
-  
-  .calendarHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-  
-  .calendarHeader h3 {
-    font-size: 18px;
-    margin: 0;
-  }
-  
-  .calendarNav {
-    color: #6236FF;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  
-  .daysGrid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-  }
-  
-  .dayCell {
-    background: #F8F9FA;
-    border-radius: 12px;
-    padding: 12px 5px;
-    text-align: center;
-  }
-  
-  .dayName {
-    font-size: 12px;
-    color: #777;
-    font-weight: bold;
-  }
-  
-  .dayDate {
-    font-size: 12px;
-    color: #222;
-    font-weight: bold;
-    margin-bottom: 8px;
-  }
-  
-  .daySubject {
-    font-size: 11px;
-    color: #aaa;
-    background: white;
-    padding: 4px;
-    border-radius: 6px;
-  }
-  
-  .bottomRow {
-    display: flex;
-    gap: 20px;
-  }
-  
-  .tasksCard {
-    flex: 1;
-    background-color: #FFFFFF;
-    border-radius: 20px;
-    padding: 25px;
-    box-shadow: 0 5px 20px rgba(98, 54, 255, 0.03);
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .emptyBox {
-    background: #F8F9FA;
-    border-radius: 15px;
-    padding: 25px;
-    text-align: center;
-    color: #777;
-    font-size: 14px;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+.header {
+  margin-bottom: 40px;
+  padding: 10px 0;
+}
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.avatarWrapper {
+  position: relative;
+  width: 72px;
+  height: 72px;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 14px rgba(98, 54, 255, 0.15);
+}
+
+.uploadBtn {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  background: #6236FF;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  border: 2px solid #fff;
+  transition: background 0.2s;
+}
+
+.uploadBtn:hover {
+  background: #5027D9;
+}
+
+.header h1 {
+  font-size: 38px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: #111;
+  line-height: 1.1;
+}
+
+.header p {
+  font-size: 18px;
+  color: #555;
+  margin: 0;
+}
+
+.logoutBtn {
+  padding: 12px 24px;
+  background: #FFF2F0;
+  color: #FF4D4F;
+  border: 1px solid #FFCCC7;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logoutBtn:hover {
+  background: #FF4D4F;
+  color: white;
+  border-color: #FF4D4F;
+}
+
+.heroActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.btnRemoveMain {
+  background: transparent;
+  border: none;
+  color: #FF4D4F;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0;
+  cursor: pointer;
+}
+
+.btnRemoveMain:hover {
+  text-decoration: underline;
+}
+
+.emptyHeroCard {
+  background: #f8f6ff;
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  border: 1px dashed #c0b3f8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  margin-bottom: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.emptyHeroCard h3 {
+  font-size: 22px;
+  color: #111;
+  margin: 0 0 10px 0;
+}
+
+.emptyHeroCard p {
+  font-size: 15px;
+  color: #666;
+  margin: 0 0 24px 0;
+}
+
+.btnPrimary {
+  background: #6236FF;
+  color: white;
+  padding: 14px 28px;
+  border-radius: 12px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btnPrimary:hover {
+  background: #5027D9;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.leftCol, .rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  min-width: 0;
+}
+
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid #eef0f5;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  width: 100%;
+  box-sizing: border-box; 
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.cardTop h3 {
+  font-size: 18px;
+  margin: 0;
+  color: #222;
+}
+
+.link {
+  font-size: 13px;
+  color: #6236FF;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.heroCard {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #e2dcfa;
+  box-shadow: 0 8px 24px rgba(98, 54, 255, 0.08);
+  margin-bottom: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.heroTop {
+  background: #6236FF;
+  color: #fff;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.heroTitle {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.heroBadge {
+  font-size: 12px;
+  background: rgba(255,255,255,0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.heroBottom {
+  padding: 24px;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.heroInfo {
+  flex: 1;
+}
+
+.teacherBox {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.teacherBox img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.lightText {
+  display: block;
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.teacherBox strong {
+  display: block;
+  font-size: 14px;
+  color: #222;
+}
+
+.progressBox {
+  margin-bottom: 20px;
+}
+
+.progressLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.percentText {
+  color: #6236FF;
+}
+
+.track {
+  width: 100%;
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  background: #6236FF;
+  transition: width 0.3s ease;
+}
+
+.btnContinue {
+  background: none;
+  border: none;
+  color: #6236FF;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.heroImgBox {
+  width: 200px;
+  height: 140px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.heroImgBox img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.coursesList {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.courseItem {
+  background: #fafafa;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.imgWrapper {
+  position: relative;
+  width: 100%;
+  height: 90px;
+}
+
+.imgWrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.removeBtn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+}
+
+.imgWrapper:hover .removeBtn {
+  opacity: 1;
+}
+
+.removeBtn:hover {
+  background: #ff4757;
+}
+
+.courseText {
+  padding: 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.courseText h4 {
+  font-size: 13px;
+  margin: 0 0 4px 0;
+  color: #222;
+}
+
+.courseText p {
+  font-size: 11px;
+  color: #888;
+  margin: 0 0 10px 0;
+}
+
+.miniTrack {
+  width: 100%;
+  height: 4px;
+  background: #eee;
+  border-radius: 2px;
+}
+
+.miniBar {
+  height: 100%;
+  background: #6236FF;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.emptyText {
+  grid-column: span 3;
+  text-align: center;
+  color: #888;
+  padding: 20px;
+}
+
+.calGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.calDay {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 10px 4px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 95px;
+}
+
+.today {
+  border: 1.5px solid #6236FF;
+  background: #faf9ff;
+}
+
+.calDay strong {
+  font-size: 13px;
+  color: #333;
+}
+
+.calDay span {
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 8px;
+}
+
+.calSlot {
+  background: #f4f3ff;
+  border-radius: 6px;
+  padding: 4px 2px;
+  font-size: 10px;
+  color: #6236FF;
+  font-weight: bold;
+  width: 100%;
+}
+
+.cardBottomLink {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+}
+
+.bottomSplit {
+  display: flex;
+  gap: 24px;
+}
+
+.bottomSplit .card {
+  flex: 1;
+}
+
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.taskItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.taskItem strong {
+  font-size: 13px;
+  display: block;
+  color: #222;
+}
+
+.taskItem p {
+  font-size: 11px;
+  color: #888;
+  margin: 2px 0 0 0;
+}
+
+.checkDone {
+  width: 20px;
+  height: 20px;
+  background: #6236FF;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.timeTag {
+  font-size: 13px;
+  font-weight: bold;
+  color: #6236FF;
+}
+
+.joinFlex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+}
+
+.joinBtn {
+  background: #6236FF;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.metaCount {
+  font-size: 12px;
+  color: #999;
+}
+
+.checkRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.checkRow input {
+  accent-color: #6236FF;
+  margin-top: 2px;
+}
+
+.checkRow div {
+  display: flex;
+  flex-direction: column;
+}
+
+.checkRow strong {
+  font-size: 13px;
+  color: #222;
+}
+
+.checkRow p {
+  font-size: 11px;
+  color: #888;
+  margin: 2px 0 0 0;
+}
+
+.settingsBtn {
+  padding: 12px 24px;
+  background: #f4f3ff;
+  color: #6236FF;
+  border: 1px solid #e2dcfa;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settingsBtn:hover {
+  background: #e2dcfa;
+}

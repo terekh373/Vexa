@@ -13,6 +13,8 @@ import VexaAI from './pages/vexa-ai/VexaAI.jsx';
 import LoginPage from './pages/login/LoginPage.jsx';
 import RegisterPage from './pages/register/RegisterPage.jsx';
 import RoleSelectionPage from './pages/role-selection/RoleSelectionPage.jsx';
+import EditProfile from "./pages/EditProfile/EditProfile.jsx";
+import Settings from "./pages/settings/Settings.jsx";
 
 import Profile from './pages/profile/Profile.jsx';
 import { AuthProvider } from './context/AuthContext.jsx'; 
@@ -33,6 +35,10 @@ function App() {
           <Route path='verify-email' element={<VerifyEmailPage />} />
           <Route path='role-selection' element={<RoleSelectionPage />} />
           <Route path='login' element={<LoginPage />} />
+          <Route path="catalog" element={<Catalog />} />
+          <Route path="courses" element={<Catalog />} /> 
+          <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />   
           
           <Route path='profile' element={
             <ProtectedRoute>
@@ -55,6 +61,12 @@ function App() {
           <Route path='author' element={
             <ProtectedRoute>
               <div style={{ padding: '40px', textAlign: 'center' }}>Кабінет автора (у розробці)</div>
+            </ProtectedRoute>
+          } />
+
+          <Route path='settings' element={
+            <ProtectedRoute>
+               <EditProfile />
             </ProtectedRoute>
           } />
 
