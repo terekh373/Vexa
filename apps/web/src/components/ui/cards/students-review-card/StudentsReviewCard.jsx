@@ -23,18 +23,31 @@ export const StudentsReviewCard = ({ card }) => {
   const review = card.text ?? card.review ?? '';
   const stars = card.rating ?? card.stars ?? 0;
   const reviewDate = formatDate(card.createdAt) || card.reviewDate || '';
+  const replyDate = formatDate(card.authorRepliedAt);
 
   return (
     <article className={styles.card}>
-      <div className={styles.row}>
-        {image ? (
-          <img src={image} alt={name} className={styles.avatar} />
-        ) : (
-          <div className={styles.avatarFallback} aria-hidden="true">
-            {name.charAt(0).toUpperCase()}
+      <div className={styles.content}>
+        <div className={styles.row}>
+          {image ? (
+            <img src={image} alt={name} className={styles.avatar} />
+          ) : (
+            <div className={styles.avatarFallback} aria-hidden="true">
+              {name.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <p>{review}</p>
+        </div>
+
+        {card.authorReply && (
+          <div className={styles.authorReply}>
+            <div className={styles.replyHeader}>
+              <strong>Відповідь автора</strong>
+              {replyDate && <span>{replyDate}</span>}
+            </div>
+            <p>{card.authorReply}</p>
           </div>
         )}
-        <p>{review}</p>
       </div>
 
       <div className={styles.box}>

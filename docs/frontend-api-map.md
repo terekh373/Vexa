@@ -124,6 +124,9 @@ Bearer-токеном додатково рахується `hasAccess` за `En
 - `studentsCount`, `lessonsCount`, `durationSec`, `publishedAt`.
 - `hasAccess` — куплено (`Enrollment`), автор курсу, або курс безкоштовний
   (`priceAmount === 0`).
+- `canReview` — `true` лише для авторизованого користувача з активним
+  `Enrollment`, який ще не залишав відгук на цей курс. Використовується для
+  показу форми створення відгуку.
 
 `modules[]`: `id`, `title`, `position`, `lessons[]`.
 
@@ -143,8 +146,20 @@ Bearer-токеном додатково рахується `hasAccess` за `En
 `GET /api/courses/:id/reviews` — **лише по UUID**, не по slug (`404` на
 slug). Query: `page` (за замовчуванням `1`), `limit` (за замовчуванням `10`,
 максимум `50`). Відповідь: `averageRating`, `reviewsCount`, масив `reviews`
-(з `author`, включно з `avatar`), `pagination { page, limit, totalItems,
-totalPages }`.
+(з `author`, включно з `avatar`, а також `authorReply` / `authorRepliedAt`),
+`pagination { page, limit, totalItems, totalPages }`.
+
+`POST /api/courses/:id/reviews` — Bearer. Створення відгуку для поточного
+користувача. Тіло: `{ "rating": 1..5, "text"?: "..." }`. Активний
+`Enrollment` на курс обов'язковий: без нього `403`. Один користувач може мати
+лише один відгук на курс; повторна спроба → `409`. Вставка відгуку і
+перерахунок `courses.ratingAvg` / `courses.reviewsCount` виконуються в одній
+транзакції. Відповідь `201`: `{ review, rating: { average, count } }`.
+
+`PATCH /api/courses/:id/reviews/my` — Bearer. Редагування власного відгуку.
+Тіло: будь-яке непорожнє підмноження `{ rating: 1..5, text?: string }`.
+Активний `Enrollment` так само обов'язковий. Відповідь `200` має ту саму форму
+`{ review, rating }`; денормалізований рейтинг курсу перераховується одразу.
 
 ## Файли
 
@@ -238,6 +253,15 @@ totalPages }`.
     DELETE /api/author/questions/:id
     PATCH  /api/author/courses/:id/reorder
     POST   /api/author/courses/:id/submit
+    POST   /api/author/reviews/:id/reply
+
+### Відповіді автора на відгуки
+
+`POST /api/author/reviews/:id/reply` — лише автор курсу, до якого належить
+відгук. Тіло: `{ "text": "Дякую за відгук!" }` (`1..4000` символів).
+Чужий або неіснуючий відгук повертає `404`. Відповідь `200`:
+`{ id, authorReply, authorRepliedAt }`. Повторний виклик замінює попередню
+відповідь і оновлює `authorRepliedAt`.
 
 ### Курс
 

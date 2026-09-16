@@ -27,7 +27,11 @@ import { OpenMore } from '../../components/ui/openmore/OpenMore.jsx';
 import LessonModule from '../../components/ui/module/LessonModule.jsx';
 import CoursePageSkeleton from '../../components/ui/skeleton/course-page/CoursePageSkeleton.jsx';
 
-import { getCourse, getCourseReviews } from '../../services/coursesService.js';
+import {
+  createCourseReview,
+  getCourse,
+  getCourseReviews,
+} from '../../services/coursesService.js';
 import NotFound from '../not-found/NotFound.jsx';
 
 const REVIEWS_PAGE_SIZE = 6;
@@ -96,6 +100,13 @@ const Course = () => {
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewsError, setReviewsError] = useState(false);
   const [isReviewsOpen, setIsReviewsOpen] = useState(false);
+  const [reviewsRefreshKey, setReviewsRefreshKey] = useState(0);
+
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewSubmitError, setReviewSubmitError] = useState('');
+  const [reviewSuccess, setReviewSuccess] = useState('');
 
   const [purchaseMessage, setPurchaseMessage] = useState('');
 
@@ -112,6 +123,10 @@ const Course = () => {
         setReviewsPage(1);
         setReviewsTotalPages(1);
         setReviewsError(false);
+        setReviewRating(0);
+        setReviewText('');
+        setReviewSubmitError('');
+        setReviewSuccess('');
 
         const data = await getCourse(idOrSlug);
 
@@ -174,7 +189,7 @@ const Course = () => {
     return () => {
       cancelled = true;
     };
-  }, [course?.id, isReviewsOpen, reviewsPage]);
+  }, [course?.id, isReviewsOpen, reviewsPage, reviewsRefreshKey]);
 
   if (loading) {
     return (
@@ -221,6 +236,58 @@ const Course = () => {
 
   const toggleReviews = () => {
     setIsReviewsOpen((prev) => !prev);
+  };
+
+  const handleReviewSubmit = async (event) => {
+    event.preventDefault();
+
+    if (reviewRating < 1 || reviewRating > 5) {
+      setReviewSubmitError('Оберіть оцінку від 1 до 5 зірок.');
+      return;
+    }
+
+    try {
+      setReviewSubmitting(true);
+      setReviewSubmitError('');
+      setReviewSuccess('');
+
+      const trimmedText = reviewText.trim();
+      const result = await createCourseReview(course.id, {
+        rating: reviewRating,
+        ...(trimmedText ? { text: trimmedText } : {}),
+      });
+
+      setCourse((current) => (
+        current
+          ? {
+              ...current,
+              canReview: false,
+              rating: {
+                average: result.rating?.average ?? current.rating?.average ?? 0,
+                count: result.rating?.count ?? current.rating?.count ?? 0,
+              },
+            }
+          : current
+      ));
+      setReviewRating(0);
+      setReviewText('');
+      setReviewSuccess('Дякуємо! Ваш відгук опубліковано.');
+      setReviewsPage(1);
+      setIsReviewsOpen(true);
+      setReviewsRefreshKey((value) => value + 1);
+    } catch (submitError) {
+      const status = submitError.response?.status;
+
+      if (status === 409) {
+        setReviewSubmitError('Ви вже залишили відгук на цей курс.');
+      } else if (status === 403) {
+        setReviewSubmitError('Відгук можуть залишати лише користувачі з доступом до курсу.');
+      } else {
+        setReviewSubmitError('Не вдалося надіслати відгук. Спробуйте ще раз.');
+      }
+    } finally {
+      setReviewSubmitting(false);
+    }
   };
 
   return (
@@ -461,6 +528,63 @@ const Course = () => {
             isOpen={isReviewsOpen}
             onClick={toggleReviews}
           />
+
+          {course.canReview && (
+            <form className={styles.reviewForm} onSubmit={handleReviewSubmit}>
+              <div className={styles.reviewFormHeader}>
+                <div>
+                  <h3>Залишити відгук</h3>
+                  <p>Оцініть курс від 1 до 5 зірок. Текст можна не додавати.</p>
+                </div>
+
+                <div className={styles.reviewStars} role="radiogroup" aria-label="Оцінка курсу">
+                  {[1, 2, 3, 4, 5].map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      className={value <= reviewRating ? styles.reviewStarActive : styles.reviewStar}
+                      onClick={() => {
+                        setReviewRating(value);
+                        setReviewSubmitError('');
+                      }}
+                      aria-label={`${value} з 5`}
+                      aria-pressed={reviewRating === value}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <textarea
+                className={styles.reviewTextarea}
+                value={reviewText}
+                onChange={(event) => setReviewText(event.target.value)}
+                maxLength={4000}
+                rows={4}
+                placeholder="Напишіть кілька слів про курс (необов’язково)"
+              />
+
+              <div className={styles.reviewFormFooter}>
+                <span>{reviewText.length}/4000</span>
+                <Button
+                  title={reviewSubmitting ? 'Надсилання...' : 'Опублікувати відгук'}
+                  type="submit"
+                  variant="primary"
+                  size="medium"
+                  disabled={reviewSubmitting}
+                />
+              </div>
+
+              {reviewSubmitError && (
+                <p className={styles.reviewFormError} role="alert">{reviewSubmitError}</p>
+              )}
+            </form>
+          )}
+
+          {reviewSuccess && (
+            <p className={styles.reviewSuccess} role="status">{reviewSuccess}</p>
+          )}
 
           {isReviewsOpen && (
             <>

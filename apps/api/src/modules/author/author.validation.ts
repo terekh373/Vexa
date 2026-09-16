@@ -8,6 +8,7 @@ const nullableUuid = uuid.nullable();
 export const courseIdParamsSchema = z.object({ id: uuid }).strict();
 export const moduleIdParamsSchema = z.object({ id: uuid }).strict();
 export const lessonIdParamsSchema = z.object({ id: uuid }).strict();
+export const reviewIdParamsSchema = z.object({ id: uuid }).strict();
 
 const courseWritableFields = {
   type: z.nativeEnum(ContentType),
@@ -162,6 +163,12 @@ export const reorderCourseSchema = z
     }
   });
 
+export const authorReviewReplySchema = z
+  .object({
+    text: z.string().trim().min(1).max(4000),
+  })
+  .strict();
+
 export type CreateCourseInput = z.infer<typeof createCourseSchema>;
 export type UpdateCourseInput = z.infer<typeof updateCourseSchema>;
 export type AuthorCourseListQuery = z.infer<typeof authorCourseListQuerySchema>;
@@ -170,3 +177,4 @@ export type UpdateModuleInput = z.infer<typeof updateModuleSchema>;
 export type CreateLessonInput = z.infer<typeof createLessonSchema>;
 export type UpdateLessonInput = z.infer<typeof updateLessonSchema>;
 export type ReorderCourseInput = z.infer<typeof reorderCourseSchema>;
+export type AuthorReviewReplyInput = z.infer<typeof authorReviewReplySchema>;
