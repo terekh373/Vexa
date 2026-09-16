@@ -70,9 +70,7 @@ export const updateModuleSchema = z
   .strict()
   .refine((value) => Object.keys(value).length > 0, { message: 'At least one field is required' });
 
-const authorLessonType = z
-  .nativeEnum(LessonType)
-  .refine((value) => value !== LessonType.QUIZ, { message: 'Only VIDEO, TEXT and FILE lessons are supported' });
+const authorLessonType = z.nativeEnum(LessonType);
 const lessonWritableFields = {
   type: authorLessonType,
   title,

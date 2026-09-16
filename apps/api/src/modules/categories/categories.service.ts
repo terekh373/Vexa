@@ -1,12 +1,12 @@
 /**
  * Builds the public category tree served at GET /api/categories.
  *
- * There is no admin CRUD for categories yet, so the cache TTL below is the
- * only invalidation mechanism: after `npm run db:seed` a new or changed
- * category shows up in the response within CACHE_TTL_SECONDS.
+ * The admin category CRUD calls `invalidateCategoryTree` after every write,
+ * so a change is visible immediately; CACHE_TTL_SECONDS is only a safety net
+ * for whatever bypasses that path (direct DB edits, `npm run db:seed`).
  */
 import type { CategoryNode, CategoryTreeResponse } from '@vexa/shared';
-import { getCached } from '../../lib/cache.js';
+import { getCached, invalidateCached } from '../../lib/cache.js';
 import { findActiveCategories, type CategoryRow } from './categories.repository.js';
 
 const CACHE_KEY = 'categories:tree:v1';
@@ -58,4 +58,9 @@ export async function getCategoryTree(): Promise<CategoryTreeResponse> {
   });
 
   return { items };
+}
+
+/** Called by admin category writes so the public tree reflects them at once. */
+export async function invalidateCategoryTree(): Promise<void> {
+  await invalidateCached(CACHE_KEY);
 }

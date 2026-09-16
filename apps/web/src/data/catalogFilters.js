@@ -1,108 +1,81 @@
 export const categories = [
   {
-    value: 'programming',
-    label: 'Програмування',
-    count: 12,
+    value: 'shkilni-predmety',
+    label: 'Шкільні предмети',
   },
   {
-    value: 'design',
-    label: 'Дизайн',
-    count: 8,
+    value: 'anhliiska-mova',
+    label: 'Англійська мова',
   },
   {
-    value: 'marketing',
-    label: 'Маркетинг',
-    count: 5,
+    value: 'matematyka',
+    label: 'Математика',
   },
-]
+  {
+    value: 'pidhotovka-nmt',
+    label: 'Підготовка до НМТ',
+  },
+  {
+    value: 'sport-i-zdorovia',
+    label: 'Спорт і здоров’я',
+  },
+];
 
-export const levels = [
-  {
-    value: 'beginner',
-    label: 'Початківець',
-    count: 10,
-  },
-  {
-    value: 'intermediate',
-    label: 'Середній',
-    count: 7,
-  },
-  {
-    value: 'advanced',
-    label: 'Просунутий',
-    count: 3,
-  },
-]
+export const grades = Array.from({ length: 11 }, (_, index) => ({
+  value: String(index + 1),
+  label: `${index + 1} клас`,
+}));
 
 export const languages = [
   {
     value: 'uk',
     label: 'Українська',
-    count: 15,
   },
   {
     value: 'en',
     label: 'English',
-    count: 5,
   },
-]
+];
 
-export const formats = [
+export const contentTypes = [
   {
-    value: 'videocurse',
-    label: 'Відеокурс',
-    count: 10,
+    value: 'course',
+    label: 'Курс',
   },
   {
-    value: 'text-matherials',
-    label: 'Текстові матеріали / завдання',
-    count: 7,
+    value: 'material',
+    label: 'Матеріал',
   },
-  {
-    value: 'webinars',
-    label: 'Вебінари',
-    count: 52,
-  },
-]
+];
 
-export const ratings = [
-  {
-    value: '5',
-    count: 95,
-  },
-  {
-    value: '4',
-    count: 125,
-  },
-  {
-    value: '3',
-    count: 87,
-  },
-  {
-    value: '2',
-    count: 24,
-  },
-  {
-    value: '1',
-    count: 8,
-  },
-]
+export const ratings = [5, 4, 3, 2, 1].map((rating) => ({
+  value: String(rating),
+  label: `${rating}+`,
+}));
 
 export const sortOptions = [
   {
-    value: 'rating-desc',
+    value: 'relevance',
+    label: 'За релевантністю',
+  },
+  {
+    value: 'popularity',
     label: 'Популярні',
   },
   {
-    value: 'price-asc',
+    value: 'rating',
+    label: 'За рейтингом',
+  },
+  {
+    value: 'date',
+    label: 'Нові спочатку',
+  },
+  {
+    value: 'price_asc',
     label: 'Від дешевих',
   },
   {
-    value: 'price-desc',
+    value: 'price_desc',
     label: 'Від дорогих',
   },
-  {
-    value: 'reviews-desc',
-    label: 'За кількістю відгуків',
-  },
-]
+];

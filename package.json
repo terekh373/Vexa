@@ -22,7 +22,8 @@
     "db:reset": "npm run db:reset --workspace @vexa/api",
     "db:studio": "npm run db:studio --workspace @vexa/api",
     "dev:api": "npm run dev --workspace @vexa/api",
-    "dev:web": "npm run dev --workspace @vexa/web"
+    "dev:web": "npm run dev --workspace @vexa/web",
+    "test": "npm run test --workspace @vexa/api"
   },
   "devDependencies": {
     "@eslint/js": "^9.12.0",
