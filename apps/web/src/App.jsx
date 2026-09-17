@@ -15,6 +15,11 @@ import VerifyEmailPage from './pages/verify-email/VerifyEmailPage.jsx';
 import NotFound from './pages/not-found/NotFound.jsx';
 import ComingSoon from './pages/stubs/ComingSoon.jsx';
 import CourseWizard from './pages/author/course-wizard/CourseWizard.jsx';
+import CheckoutSuccess from './pages/checkout-success/CheckoutSuccess.jsx';
+import { ForVeterans } from './pages/footer/for-veterans-page/ForVeterans.jsx';
+import { Questions } from './pages/footer/faq/Questions.jsx';
+import Blog from './pages/footer/blog/Blog.jsx';
+import About from './pages/footer/about/About.jsx'
 
 function App() {
   return (
@@ -28,11 +33,17 @@ function App() {
         <Route path={routePatterns.login} element={<LoginPage />} />
         <Route path={routePatterns.register} element={<RegisterPage />} />
         <Route path={routePatterns.verifyEmail} element={<VerifyEmailPage />} />
+        {/* сделать роутинг */}
+        <Route path="/veterans" element={<ForVeterans />} />
+        <Route path="/faq" element={<Questions />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/about" element={<About />} />
 
         <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
           <Route path={routePatterns.learning} element={<ComingSoon title="Моє навчання" />} />
           <Route path={routePatterns.orders} element={<ComingSoon title="Замовлення" />} />
           <Route path={routePatterns.settings} element={<ComingSoon title="Налаштування" />} />
+          <Route path={routePatterns.checkoutSuccess} element={<CheckoutSuccess />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['AUTHOR']} />}>

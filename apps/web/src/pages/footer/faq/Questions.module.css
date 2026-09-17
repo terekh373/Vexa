@@ -1,0 +1,72 @@
+.titleBox {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 80px;
+  margin-bottom: 42px;
+}
+
+.titleInfo {
+  width: 100%;
+}
+
+.titleInfo h1 {
+  color: var(--main-dark-color);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 48px;
+  margin-bottom: 16px;
+}
+
+.titleInfo p {
+  color: var(--main-dark-color);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 30px;
+  margin-bottom: 64px;
+}
+
+.titleBox img {
+  width: 50%;
+}
+
+.box .title {
+  color: var(--main-dark-color);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 48px;
+  margin-bottom: 32px;
+}
+
+.featuresList {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+.featuresList li {
+  border: 1px solid var(--border-grey);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  /* align-items: flex-start; */
+  align-items: center;
+  flex: 1;
+}
+
+.featuresList li img {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 20px;
+  /* align-self: center; */
+}
+
+.featuresList li p {
+  color: var(--main-dark-color);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 28px;
+}

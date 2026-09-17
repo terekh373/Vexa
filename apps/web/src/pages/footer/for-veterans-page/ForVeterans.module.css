@@ -1,0 +1,82 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 80px;
+  margin-bottom: 64px;
+}
+
+.titleBoxInfo {
+  width: 50%;
+}
+
+.titleBoxInfo h2 {
+  color: var(--main-dark-color);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 48px;
+  margin-bottom: 16px;
+}
+
+.titleBoxInfo p {
+  color: var(--main-dark-color);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 30px;
+  margin-bottom: 64px;
+}
+
+.titleBoxImg {
+  width: 50%;
+}
+
+.featuresBox {
+  margin-bottom: 64px;
+}
+
+.featuresBox h3 {
+  color: var(--main-dark-color);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 48px;
+  margin-bottom: 32px;
+}
+
+.card {
+  border: 1px solid var(--border-grey);
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.rowFeatures {
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card img {
+  width: 44px;
+  height: 44px;
+  align-self: center;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.card h3 {
+  color: var(--main-dark-color);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+  margin-bottom: 8px;
+}
+
+.card p {
+  color: var(--main-dark-color);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;  
+}
