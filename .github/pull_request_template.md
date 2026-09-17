@@ -17,7 +17,7 @@ Closes #
 
 ## Чеклист
 
-- [ ] CI зелений — `lint`, `lint-web`, `typecheck`, `build`
+- [ ] CI зелений — `lint`, `lint-web`, `typecheck`, `test`, `build`
 - [ ] Дифф прочитано своїми очима у вкладці Files changed
 - [ ] Немає `any`, закоментованого коду, `console.log` і відлагоджувальних заглушок
 - [ ] Вхідні дані валідуються zod на межі API
