@@ -1,0 +1,4 @@
+# Copies of the SRS with mangled file names, produced when an archive with
+# Cyrillic names is unpacked by a tool that does not understand UTF-8.
+# The real files live next to this one.
+/#U*
