@@ -721,9 +721,11 @@ model OrderItem {
   /// Title at purchase time — the course may be renamed later.
   titleSnapshot     String @map("title_snapshot") @db.VarChar(180)
   priceAmount       Int    @map("price_amount")
-  commissionRateBps Int    @map("commission_rate_bps")
-  commissionAmount  Int    @map("commission_amount")
-  authorAmount      Int    @map("author_amount")
+  /// Commission split is fixed when the payment is confirmed (webhook).
+  /// All three stay NULL while the order is PENDING.
+  commissionRateBps Int?   @map("commission_rate_bps")
+  commissionAmount  Int?   @map("commission_amount")
+  authorAmount      Int?   @map("author_amount")
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
