@@ -85,3 +85,17 @@ export const refreshSchema = z.object({
 });
 
 export type RefreshInput = z.infer<typeof refreshSchema>;
+
+/** Password-recovery request. The API always answers 204 for a valid email shape. */
+export const forgotPasswordSchema = z.object({
+  email: emailSchema,
+});
+
+/** Single-use reset token plus the same password policy used at registration. */
+export const resetPasswordSchema = z.object({
+  token: z.string().trim().min(1, 'Відсутній токен відновлення'),
+  password: passwordSchema,
+});
+
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
