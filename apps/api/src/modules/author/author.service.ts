@@ -2,6 +2,7 @@ import {
   CourseStatus,
   FileKind,
   ModerationAction,
+  ReviewStatus,
   type Prisma,
 } from '@prisma/client';
 import { AppError } from '../../lib/errors.js';
@@ -713,6 +714,7 @@ export async function replyToCourseReview(
   const review = await prisma.review.findFirst({
     where: {
       id: reviewId,
+      status: ReviewStatus.PUBLISHED,
       course: {
         authorId: userId,
         deletedAt: null,

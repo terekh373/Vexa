@@ -29,7 +29,7 @@ export const updateCourseReviewSchema = z
   })
   .strict()
   .refine((value) => Object.keys(value).length > 0, {
-    message: 'At least one field is required',
+    message: 'Потрібно вказати хоча б одне поле',
   });
 
 export type CreateCourseReviewInput = z.infer<typeof createCourseReviewSchema>;

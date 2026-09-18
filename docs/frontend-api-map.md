@@ -124,9 +124,11 @@ Bearer-токеном додатково рахується `hasAccess` за `En
 - `studentsCount`, `lessonsCount`, `durationSec`, `publishedAt`.
 - `hasAccess` — куплено (`Enrollment`), автор курсу, або курс безкоштовний
   (`priceAmount === 0`).
-- `canReview` — `true` лише для авторизованого користувача з активним
-  `Enrollment`, який ще не залишав відгук на цей курс. Використовується для
-  показу форми створення відгуку.
+- `canReview` — `true` лише для авторизованого користувача з роллю
+  `STUDENT` або `AUTHOR`, активним `Enrollment` із `source = PURCHASE` або
+  `FREE`, який ще не залишав відгук на цей курс. `ADMIN_GRANT` дає доступ до
+  контенту, але не право залишати відгук. Використовується для показу форми
+  створення відгуку.
 
 `modules[]`: `id`, `title`, `position`, `lessons[]`.
 
@@ -149,17 +151,22 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
 (з `author`, включно з `avatar`, а також `authorReply` / `authorRepliedAt`),
 `pagination { page, limit, totalItems, totalPages }`.
 
-`POST /api/courses/:id/reviews` — Bearer. Створення відгуку для поточного
-користувача. Тіло: `{ "rating": 1..5, "text"?: "..." }`. Активний
-`Enrollment` на курс обов'язковий: без нього `403`. Один користувач може мати
-лише один відгук на курс; повторна спроба → `409`. Вставка відгуку і
-перерахунок `courses.ratingAvg` / `courses.reviewsCount` виконуються в одній
-транзакції. Відповідь `201`: `{ review, rating: { average, count } }`.
+`POST /api/courses/:id/reviews` — Bearer, лише ролі `STUDENT` або `AUTHOR`.
+Створення відгуку для поточного користувача. Тіло:
+`{ "rating": 1..5, "text"?: "..." }`. Потрібен активний `Enrollment` саме з
+`source = PURCHASE` або `FREE`; `ADMIN_GRANT` не вважається покупкою і дає
+`403`. Один користувач може мати лише один відгук на курс; повторна спроба →
+`409`. Вставка відгуку та перерахунок `courses.ratingAvg` /
+`courses.reviewsCount` і `author_profiles.ratingAvg` /
+`author_profiles.reviewsCount` виконуються в одній транзакції. Відповідь
+`201`: `{ review, rating: { average, count } }`.
 
-`PATCH /api/courses/:id/reviews/my` — Bearer. Редагування власного відгуку.
-Тіло: будь-яке непорожнє підмноження `{ rating: 1..5, text?: string }`.
-Активний `Enrollment` так само обов'язковий. Відповідь `200` має ту саму форму
-`{ review, rating }`; денормалізований рейтинг курсу перераховується одразу.
+`PATCH /api/courses/:id/reviews/my` — Bearer, лише ролі `STUDENT` або `AUTHOR`.
+Редагування власного відгуку. Тіло: будь-яке непорожнє підмноження
+`{ rating: 1..5, text?: string }`. Так само потрібен активний `Enrollment` з
+`source = PURCHASE` або `FREE`; `ADMIN_GRANT` → `403`. Відповідь `200` має ту
+саму форму `{ review, rating }`; денормалізовані рейтинги курсу й автора
+перераховуються одразу.
 
 ## Файли
 
@@ -259,7 +266,8 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
 
 `POST /api/author/reviews/:id/reply` — лише автор курсу, до якого належить
 відгук. Тіло: `{ "text": "Дякую за відгук!" }` (`1..4000` символів).
-Чужий або неіснуючий відгук повертає `404`. Відповідь `200`:
+Відповісти можна лише на відгук зі статусом `PUBLISHED`. Чужий,
+неіснуючий або прихований відгук повертає `404`. Відповідь `200`:
 `{ id, authorReply, authorRepliedAt }`. Повторний виклик замінює попередню
 відповідь і оновлює `authorRepliedAt`.
 
