@@ -538,12 +538,53 @@ fullName, email }` і `moderationHistory` — останні 20 записів �
 Усі маршрути під префіксом `/api/admin`. Весь роутер вимагає Bearer-токен
 **і** роль `ADMIN`. Без токена — `401`; з роллю `STUDENT` або `AUTHOR` — `403`.
 
+    GET    /api/admin/users
     PATCH  /api/admin/users/:id/status
     PATCH  /api/admin/users/:id/verify-author
     GET    /api/admin/categories
     POST   /api/admin/categories
     PATCH  /api/admin/categories/:id
     DELETE /api/admin/categories/:id
+
+### Список користувачів
+
+`GET /api/admin/users` — пагінований список для адмін-панелі. М'яко видалені
+користувачі (`deletedAt != null`) не повертаються.
+
+Query-параметри:
+
+    q=<рядок>                // необов'язково: частина email або fullName, без урахування регістру
+    role=STUDENT|AUTHOR|ADMIN
+    status=ACTIVE|BLOCKED
+    page=1                   // за замовчуванням 1
+    limit=20                 // 1..50, за замовчуванням 20
+
+Сортування стабільне: новіші акаунти спочатку (`createdAt DESC`), потім `id`.
+
+Відповідь `200`:
+
+    {
+      "items": [
+        {
+          "id": "uuid",
+          "email": "author@example.com",
+          "fullName": "Олена Автор",
+          "roles": ["AUTHOR"],
+          "status": "ACTIVE",
+          "createdAt": "2026-09-20T10:00:00.000Z",
+          "displayName": "Олена Автор",
+          "isVerified": true
+        }
+      ],
+      "page": 1,
+      "limit": 20,
+      "total": 1,
+      "totalPages": 1
+    }
+
+`displayName` і `isVerified` додаються до елемента для акаунтів з роллю
+`AUTHOR`; якщо роль автора вже є, але профіль ще не створено, повертаються
+`displayName: null` та `isVerified: false`.
 
 ### Блокування користувача
 
