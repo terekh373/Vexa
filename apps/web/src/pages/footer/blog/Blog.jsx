@@ -6,7 +6,6 @@ import { Search } from '../../../components/ui/search/Search.jsx';
 import Breadcrumbs from '../../../components/ui/breadcrumbs/Breadcrumbs.jsx';
 
 import styles from './Blog.module.css';
-import img from '../../../assets/images/404.png'
 import img01 from '../../../assets/images/blog/img01.png'
 import img02 from '../../../assets/images/blog/img02.png'
 import img03 from '../../../assets/images/blog/img03.png'
