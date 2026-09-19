@@ -7,11 +7,13 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import {
+  forgotPasswordHandler,
   loginHandler,
   logoutAllHandler,
   logoutHandler,
   refreshHandler,
   registerHandler,
+  resetPasswordHandler,
   verifyEmailHandler,
   meHandler,
 } from './auth.controller.js';
@@ -38,6 +40,17 @@ const registrationLimiter = rateLimit({
   message: { error: { code: 'TOO_MANY_REQUESTS', message: 'Too many attempts, try again later' } },
 });
 
+// Password recovery is explicitly called out as a credential-sensitive flow
+// in SRS 20.1. Unlike login, forgot-password always answers successfully, so
+// skipSuccessfulRequests must stay disabled or the limiter would never count.
+const passwordRecoveryLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: { code: 'TOO_MANY_REQUESTS', message: 'Too many attempts, try again later' } },
+});
+
 /**
  * Refresh is a credential endpoint, but a legitimate client hits it every
  * 15 minutes across several tabs and devices — hence a far looser cap than
@@ -57,6 +70,8 @@ authRouter.post('/logout-all', logoutAllHandler);
 
 authRouter.post('/register', registrationLimiter, registerHandler);
 authRouter.post('/login', credentialsLimiter, loginHandler);
+authRouter.post('/forgot-password', passwordRecoveryLimiter, forgotPasswordHandler);
+authRouter.post('/reset-password', passwordRecoveryLimiter, resetPasswordHandler);
 authRouter.get('/verify-email', verifyEmailHandler);
 
 authRouter.get('/me', authenticate, meHandler);

@@ -54,3 +54,13 @@ export async function emailExists(email: string): Promise<boolean> {
 
   return found !== null;
 }
+
+/** Replaces the password only for an account that is still active (not soft-deleted). */
+export async function updatePasswordHash(userId: string, passwordHash: string): Promise<boolean> {
+  const result = await prisma.user.updateMany({
+    where: { id: userId, deletedAt: null },
+    data: { passwordHash },
+  });
+
+  return result.count === 1;
+}

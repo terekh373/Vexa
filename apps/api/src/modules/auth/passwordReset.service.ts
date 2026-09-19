@@ -1,0 +1,85 @@
+/**
+ * Password recovery (SRS 15.1 / issue #65).
+ *
+ * Reset tokens are short-lived, single-use secrets, so Redis is the right
+ * store: no persistent table or migration is needed. Email delivery is still
+ * a log-only stub, matching emailVerification.service.ts.
+ */
+import { randomBytes } from 'node:crypto';
+import { AppError } from '../../lib/errors.js';
+import { logger } from '../../lib/logger.js';
+import { redis } from '../../lib/redis.js';
+import { findActiveByEmail, updatePasswordHash } from './auth.repository.js';
+import { revokeAllSessions } from './auth.service.js';
+import { hashPassword } from './password.service.js';
+
+const TOKEN_TTL_SECONDS = 60 * 60;
+const MISSING_USER_SENTINEL = '__missing__';
+
+const passwordResetKey = (token: string): string => `password-reset:${token}`;
+
+function generatePasswordResetToken(): string {
+  return randomBytes(32).toString('base64url');
+}
+
+/**
+ * Creates a reset token without revealing whether the account exists.
+ *
+ * A Redis write is performed for both known and unknown addresses so the HTTP
+ * path stays structurally similar. The sentinel token is never delivered and
+ * would still be rejected if somehow presented.
+ */
+export async function requestPasswordReset(email: string): Promise<void> {
+  const user = await findActiveByEmail(email);
+  const token = generatePasswordResetToken();
+
+  await redis.set(
+    passwordResetKey(token),
+    user?.id ?? MISSING_USER_SENTINEL,
+    'EX',
+    TOKEN_TTL_SECONDS,
+  );
+
+  if (user !== null) {
+    sendPasswordResetEmail(user.email, token);
+  }
+}
+
+/** Placeholder until the notification/email provider is connected. */
+export function sendPasswordResetEmail(email: string, token: string): void {
+  logger.info(
+    { email, resetPasswordUrl: `/reset-password?token=${token}` },
+    'Password reset email (delivery stubbed)',
+  );
+}
+
+/** Atomically reads and deletes a reset token. */
+async function consumePasswordResetToken(token: string): Promise<string> {
+  const key = passwordResetKey(token);
+  const results = await redis.multi().get(key).del(key).exec();
+
+  if (results === null) {
+    throw AppError.notFound('Password reset token is invalid or expired');
+  }
+
+  const userId = results[0]?.[1];
+
+  if (typeof userId !== 'string' || userId === MISSING_USER_SENTINEL) {
+    throw AppError.notFound('Password reset token is invalid or expired');
+  }
+
+  return userId;
+}
+
+/** Changes the password and invalidates every refresh session for the user. */
+export async function resetPassword(token: string, password: string): Promise<void> {
+  const userId = await consumePasswordResetToken(token);
+  const passwordHash = await hashPassword(password);
+  const updated = await updatePasswordHash(userId, passwordHash);
+
+  if (!updated) {
+    throw AppError.notFound('Password reset token is invalid or expired');
+  }
+
+  await revokeAllSessions(userId);
+}

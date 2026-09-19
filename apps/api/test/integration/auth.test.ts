@@ -3,6 +3,7 @@ import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { createApp } from '../../src/app.js';
 import { prisma } from '../../src/lib/prisma.js';
 import { redis } from '../../src/lib/redis.js';
+import { register } from '../../src/modules/auth/auth.service.js';
 
 const app = createApp();
 
@@ -11,6 +12,15 @@ const registerBody = {
   password: 'StrongPass123',
   fullName: 'Test Student',
 };
+
+const testSessionContext = {
+  userAgent: 'integration-test',
+  ipAddress: '127.0.0.1',
+};
+
+async function registerDirectly() {
+  return register(registerBody, testSessionContext);
+}
 
 async function resetState(): Promise<void> {
   await prisma.refreshToken.deleteMany();
@@ -48,7 +58,7 @@ describe('auth integration', () => {
   });
 
   it('logs in with 200 and rejects a wrong password with 401', async () => {
-    await request(app).post('/api/auth/register').send(registerBody).expect(201);
+    await registerDirectly();
 
     const login = await request(app).post('/api/auth/login').send({
       email: registerBody.email,
@@ -68,9 +78,78 @@ describe('auth integration', () => {
     expect(wrongPassword.body.error.code).toBe('UNAUTHORIZED');
   });
 
+  it('forgot-password always answers 204 for valid email shapes', async () => {
+    await registerDirectly();
+
+    await request(app)
+      .post('/api/auth/forgot-password')
+      .send({ email: registerBody.email })
+      .expect(204);
+
+    await request(app)
+      .post('/api/auth/forgot-password')
+      .send({ email: 'missing@example.com' })
+      .expect(204);
+  });
+
+  it('resets the password once and revokes all existing refresh sessions', async () => {
+    const registered = await registerDirectly();
+    const firstRefreshToken = registered.tokens.refreshToken;
+
+    const secondSession = await request(app).post('/api/auth/login').send({
+      email: registerBody.email,
+      password: registerBody.password,
+    });
+    expect(secondSession.status).toBe(200);
+    const secondRefreshToken = secondSession.body.tokens.refreshToken as string;
+
+    await request(app)
+      .post('/api/auth/forgot-password')
+      .send({ email: registerBody.email })
+      .expect(204);
+
+    const resetKeys = await redis.keys('password-reset:*');
+    expect(resetKeys).toHaveLength(1);
+    const resetToken = resetKeys[0]!.slice('password-reset:'.length);
+    const newPassword = 'NewStrongPass456';
+
+    await request(app)
+      .post('/api/auth/reset-password')
+      .send({ token: resetToken, password: newPassword })
+      .expect(204);
+
+    const oldPasswordLogin = await request(app).post('/api/auth/login').send({
+      email: registerBody.email,
+      password: registerBody.password,
+    });
+    expect(oldPasswordLogin.status).toBe(401);
+
+    await request(app)
+      .post('/api/auth/refresh')
+      .send({ refreshToken: firstRefreshToken })
+      .expect(401);
+
+    await request(app)
+      .post('/api/auth/refresh')
+      .send({ refreshToken: secondRefreshToken })
+      .expect(401);
+
+    const newPasswordLogin = await request(app).post('/api/auth/login').send({
+      email: registerBody.email,
+      password: newPassword,
+    });
+    expect(newPasswordLogin.status).toBe(200);
+
+    const reused = await request(app)
+      .post('/api/auth/reset-password')
+      .send({ token: resetToken, password: 'AnotherPass789' });
+    expect(reused.status).toBe(404);
+    expect(reused.body.error.code).toBe('NOT_FOUND');
+  });
+
   it('rotates refresh tokens and old-token reuse revokes every user session', async () => {
-    const registered = await request(app).post('/api/auth/register').send(registerBody).expect(201);
-    const firstRefreshToken = registered.body.tokens.refreshToken as string;
+    const registered = await registerDirectly();
+    const firstRefreshToken = registered.tokens.refreshToken;
 
     // Open a second independent session. Reuse detection on the first session
     // must revoke this one too.
