@@ -21,15 +21,15 @@ export const ForVeterans = () => {
             <Button title='Дізнатися більше' variant='primary' />
           </div>
 
-          <img src={forVeteransImg} alt='veterans image' className={styles.titleBoxImg} />
+          <img src={forVeteransImg} alt='veterans image'  className={styles.rowImg} />
         </div>
 
         <div className={styles.featuresBox}>
           <h3>Можливості для ветеранів</h3>
 
           <div className={styles.rowFeatures}>
-            {list.map((item) => (
-              <div className={styles.card}>
+            {list.map((item, index) => (
+              <div className={styles.card} key={item.id ?? item.title ?? index}>
                 <img src={item.image} alt={item.imageAlt} />
                 <h3>{item.title}</h3>
                 <p>{item.subtitle}</p>
@@ -39,7 +39,7 @@ export const ForVeterans = () => {
         </div>
 
         <div className={styles.row}>
-          <img src={forVeteransImg02} alt='vateran image' />
+          <img src={forVeteransImg02} alt='vateran image' className={styles.rowImg} />
           <div className={styles.titleBoxInfo}>
             <h2>Разом створюємо краще майбутнє</h2>
             <p>Освіта. Розвиток. Можливості.</p>

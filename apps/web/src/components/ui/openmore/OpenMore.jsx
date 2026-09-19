@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 import styled from 'styled-components'
 import Button from '../../ui/buttons/Button'
 
@@ -39,15 +41,60 @@ const Title = styled.h3`
   }
 `
 
-export const OpenMore = ({ title, bttnTxt, size='large', type = 'navigate', isOpen = false, onClick }) => (
-    <Row>
-        <Title $size={size}>{title}</Title>
-        <Button 
-          title={bttnTxt} 
-          size='small' 
-          variant='link' 
-          icon={type === 'navigate' ? arrowRight : isOpen ? arrowUp : arrowDown } 
-          onClick={onClick}
+// export const OpenMore = ({ title, bttnTxt, size='large', type = 'navigate', isOpen = false, onClick }) => (
+//     <Row>
+//         <Title $size={size}>{title}</Title>
+//         <Button 
+//           title={bttnTxt} 
+//           size='small' 
+//           variant='link' 
+//           icon={type === 'navigate' ? arrowRight : isOpen ? arrowUp : arrowDown } 
+//           onClick={onClick}
+//         />
+//     </Row>
+// );
+
+export const OpenMore = ({
+  title,
+  bttnTxt,
+  size = 'large',
+  type = 'navigate',
+  isOpen = false,
+  onClick,
+  link,
+}) => (
+  <Row>
+    <Title $size={size}>{title}</Title>
+
+    {link ? (
+      <Link to={link}>
+        <Button
+          title={bttnTxt}
+          size="small"
+          variant="link"
+          icon={
+            type === 'navigate'
+              ? arrowRight
+              : isOpen
+                ? arrowUp
+                : arrowDown
+          }
         />
-    </Row>
-);
+      </Link>
+    ) : (
+      <Button
+        title={bttnTxt}
+        size="small"
+        variant="link"
+        icon={
+          type === 'navigate'
+            ? arrowRight
+            : isOpen
+              ? arrowUp
+              : arrowDown
+        }
+        onClick={onClick}
+      />
+    )}
+  </Row>
+)

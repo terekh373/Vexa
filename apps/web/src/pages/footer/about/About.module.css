@@ -1,7 +1,6 @@
 .about {
   padding-top: 24px;
   color: var(--main-dark-color);
-
 }
 
 .hero {
@@ -12,6 +11,7 @@
 }
 
 .heroContent {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -20,26 +20,29 @@
 .heroContent h1 {
   max-width: 700px;
   margin: 0 0 16px;
+  color: var(--main-dark-color);
   font-size: 40px;
   line-height: 48px;
   font-weight: 700;
-  color: var(--main-dark-color);
 }
 
 .heroContent > p {
   max-width: 700px;
+  margin: 0 0 48px;
+  color: var(--main-dark-color);
   font-size: 18px;
   line-height: 30px;
   font-weight: 400;
-  color: var(--main-dark-color);
-  margin: 0 0 48px;
 }
 
 .heroImage {
-  width: 100%;
-  height: 386px;
   display: block;
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  aspect-ratio: 16 / 10;
   object-fit: cover;
+  object-position: center;
   border-radius: 32px;
 }
 
@@ -52,6 +55,7 @@
 }
 
 .statistic {
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -64,16 +68,23 @@
   font-size: 21px;
 }
 
+.statisticIcon img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
 .statistic div {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
 .statistic span:first-of-type {
+  color: var(--main-dark-color);
   font-size: 20px;
   font-weight: 700;
-  color: var(--main-dark-color);
   white-space: nowrap;
 }
 
@@ -82,51 +93,49 @@
   color: var(--main-dark-color);
   font-size: 14px;
   white-space: nowrap;
-
 }
 
 .values {
-  margin-bottom: 38px;
   margin-top: 48px;
+  margin-bottom: 38px;
 }
 
 .values > h2,
 .groupTitle {
   margin: 0 0 32px;
+  color: var(--main-dark-color);
   font-size: 20px;
   line-height: 48px;
   font-weight: 700;
-  color: var(--main-dark-color);
 }
 
 .valuesGrid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 24px;
-
   grid-auto-rows: 1fr;
   align-items: stretch;
+  gap: 24px;
 }
 
 .valueCard {
   width: 100%;
-  height: 100%;
   min-width: 0;
+  height: 100%;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   padding: 24px;
   border: 1px solid var(--border-grey);
   border-radius: 16px;
   background-color: var(--white-color);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
 }
 
 .valueIcon {
+  align-self: center;
   width: 44px;
   height: 44px;
   margin-bottom: 20px;
-  align-self: center;
 }
 
 .valueCard h3 {
@@ -153,33 +162,37 @@
 }
 
 .teamImage {
-  width: 100%;
-  height: 400px;
   display: block;
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  aspect-ratio: 16 / 10;
   object-fit: cover;
+  object-position: center;
   border-radius: 32px;
 }
 
 .teamIntroContent {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
 .teamIntroContent h2 {
+  margin-bottom: 32px;
   color: var(--main-dark-color);
   font-size: 40px;
   line-height: 48px;
   font-weight: 700;
-  margin-bottom: 32px;
 }
 
 .teamIntroContent p {
+  margin-bottom: 48px;
   color: var(--main-dark-color);
   font-size: 20px;
   line-height: 28px;
   font-weight: 400;
-  margin-bottom: 48px;
 }
 
 .team {
@@ -188,39 +201,37 @@
 
 .teamGroup + .teamGroup {
   margin-top: 48px;
-  
 }
 
 .teamGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 36px;
   grid-auto-rows: 1fr;
   align-items: stretch;
+  gap: 36px;
 }
 
 .memberCard {
   width: 100%;
-  height: 100%;
   min-width: 0;
+  height: 100%;
   box-sizing: border-box;
-
   display: grid;
   grid-template-columns: minmax(120px, 48%) minmax(0, 1fr);
   align-items: stretch;
   overflow: hidden;
+  padding: 16px 16px 24px;
   border-radius: 16px;
   background-color: var(--footer-bg-color);
-
-  padding: 16px 16px 24px 16px;
 }
 
 .memberImage {
+  display: block;
   width: 100%;
   height: 100%;
   min-height: 260px;
-  display: block;
   object-fit: cover;
+  object-position: center;
   border-radius: 16px;
 }
 
@@ -247,9 +258,9 @@
 
 .memberContent h3 {
   margin: 12px 0;
+  color: var(--main-dark-color);
   font-size: 20px;
   line-height: 28px;
-  color: var(--main-dark-color);
   font-weight: 600;
 }
 
@@ -261,38 +272,41 @@
 }
 
 .callToAction {
+  overflow: hidden;
   background-color: var(--footer-bg-color);
 }
 
 .callToActionContent {
   min-height: 280px;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 598px);
   align-items: center;
-  justify-content: space-between;
-  gap: 200px;
+  gap: 64px;
 }
 
 .callToActionText {
-  width: min(100%, 650px);
+  width: 100%;
+  max-width: 650px;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
 .callToActionText h2 {
+  margin: 0 0 16px;
   color: var(--main-dark-color);
   font-size: 40px;
   line-height: 48px;
   font-weight: 600;
-  margin-bottom: 16px;
 }
 
 .callToActionText p {
+  margin: 0 0 24px;
   color: var(--main-dark-color);
   font-size: 18px;
   line-height: 30px;
   font-weight: 400;
-  margin-bottom: 24px;
 }
 
 .callToActionText button {
@@ -300,16 +314,174 @@
 }
 
 .booksImage {
-  width: 598px;
-  height: 320px;
   display: block;
+  width: 100%;
+  max-width: 598px;
+  min-width: 0;
+  height: auto;
+  justify-self: end;
   object-fit: contain;
 }
 
-/* Планшет */
+/* TABLET */
+@media (max-width: 1400px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) minmax(400px, 0.9fr);
+    gap: 48px;
+  }
+
+  .heroContent h1 {
+    font-size: 36px;
+    line-height: 44px;
+  }
+
+  .heroContent > p {
+    margin-bottom: 32px;
+    font-size: 16px;
+    line-height: 26px;
+  }
+
+  .statistics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .valuesGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .teamIntro {
+    gap: 48px;
+  }
+
+  .teamIntroContent h2 {
+    font-size: 36px;
+    line-height: 44px;
+  }
+
+  .teamIntroContent p {
+    margin-bottom: 32px;
+    font-size: 18px;
+    line-height: 26px;
+  }
+
+  .teamGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .memberCard {
+    grid-template-columns: minmax(180px, 42%) minmax(0, 1fr);
+  }
+
+  .callToActionContent {
+    grid-template-columns: minmax(0, 1fr) minmax(380px, 520px);
+    gap: 48px;
+  }
+
+  .booksImage {
+    max-width: 520px;
+  }
+}
+
 @media (max-width: 1200px) {
   .hero {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.9fr);
     gap: 40px;
+  }
+
+  .heroContent h1 {
+    font-size: 32px;
+    line-height: 40px;
+  }
+
+  .statistics {
+    gap: 20px;
+  }
+
+  .statistic span:first-of-type {
+    font-size: 18px;
+  }
+
+  .statistic span:last-child {
+    font-size: 13px;
+  }
+
+  .valueCard {
+    padding: 20px;
+  }
+
+  .valueCard h3 {
+    font-size: 18px;
+    line-height: 24px;
+  }
+
+  .valueCard p {
+    font-size: 14px;
+    line-height: 22px;
+  }
+
+  .teamIntro {
+    gap: 40px;
+  }
+
+  .teamIntroContent h2 {
+    font-size: 32px;
+    line-height: 40px;
+  }
+
+  .teamIntroContent p {
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  .memberCard {
+    grid-template-columns: minmax(160px, 42%) minmax(0, 1fr);
+  }
+
+  .callToActionContent {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
+    gap: 40px;
+    min-height: 260px;
+  }
+
+  .callToActionText h2 {
+    font-size: 32px;
+    line-height: 40px;
+  }
+
+  .callToActionText p {
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  .booksImage {
+    max-width: 460px;
+  }
+}
+
+@media (max-width: 960px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .heroImage {
+    grid-row: 1;
+    width: 100%;
+    max-height: 420px;
+    aspect-ratio: 16 / 9;
+  }
+
+  .heroContent {
+    grid-row: 2;
+    width: 100%;
+  }
+
+  .heroContent h1,
+  .heroContent > p {
+    max-width: 700px;
   }
 
   .statistics {
@@ -317,26 +489,7 @@
   }
 
   .valuesGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .teamGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 960px) {
-  .hero {
-    grid-template-columns: 1fr;
-  }
-
-  .heroImage {
-    grid-row: 1;
-    height: 390px;
-  }
-
-  .heroContent {
-    grid-row: 2;
   }
 
   .teamIntro {
@@ -345,22 +498,53 @@
   }
 
   .teamImage {
-    height: 400px;
+    max-height: 420px;
+    aspect-ratio: 16 / 9;
+  }
+
+  .teamGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .memberCard {
+    grid-template-columns: minmax(140px, 42%) minmax(0, 1fr);
+  }
+
+  .memberImage {
+    min-height: 240px;
+  }
+
+  .callToActionContent {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+    gap: 32px;
+    min-height: 240px;
+  }
+
+  .callToActionText h2 {
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  .callToActionText p {
+    margin-bottom: 20px;
+    font-size: 15px;
+    line-height: 22px;
+  }
+
+  .booksImage {
+    max-width: 360px;
   }
 }
 
-/* Телефон */
+/* MOBILE */
 @media (max-width: 640px) {
   .about {
     padding-top: 24px;
   }
 
-  /* Хлебные крошки на мобильном не показываем */
   .about nav:first-child {
     display: none;
   }
-
-  /* Hero */
 
   .hero {
     display: flex;
@@ -371,8 +555,8 @@
   }
 
   .heroContent {
-    width: 100%;
     order: 1;
+    width: 100%;
     align-items: stretch;
   }
 
@@ -398,20 +582,18 @@
   }
 
   .heroImage {
-    width: 100%;
-    height: 230px;
     order: 2;
+    width: 100%;
+    max-height: none;
+    height: auto;
+    aspect-ratio: 16 / 10;
     object-fit: cover;
-    border-radius: 0;
+    border-radius: 16px;
   }
-
-  /* На мобильном статистики нет в макете */
 
   .statistics {
     display: none;
   }
-
-  /* Наши ценности */
 
   .values {
     margin: 24px 0 32px;
@@ -419,24 +601,19 @@
 
   .values > h2 {
     margin: 0 0 20px;
-    text-align: center;
     font-size: 16px;
     line-height: 24px;
+    text-align: center;
   }
 
   .valuesGrid {
-    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-auto-rows: 1fr;
-    align-items: stretch;
     gap: 12px;
   }
 
   .valueCard {
-    width: 100%;
-    height: 100%;
     min-height: 205px;
-    box-sizing: border-box;
     padding: 16px 12px;
     border-radius: 10px;
   }
@@ -454,12 +631,9 @@
   }
 
   .valueCard p {
-    margin: 0;
     font-size: 10px;
     line-height: 14px;
   }
-
-  /* Наша команда */
 
   .teamIntro {
     display: block;
@@ -477,9 +651,9 @@
 
   .teamIntroContent h2 {
     margin: 0 0 12px;
-    text-align: center;
     font-size: 26px;
     line-height: 32px;
+    text-align: center;
   }
 
   .teamIntroContent p {
@@ -493,8 +667,6 @@
     padding: 10px 16px;
     font-size: 12px;
   }
-
-  /* Карточки команды */
 
   .team {
     padding-bottom: 32px;
@@ -512,19 +684,22 @@
 
   .teamGrid {
     grid-template-columns: 1fr;
-    grid-auto-rows: 1fr;
+    grid-auto-rows: auto;
     gap: 16px;
   }
 
   .memberCard {
-    grid-template-columns: 42% minmax(0, 1fr);
+    grid-template-columns: minmax(120px, 42%) minmax(0, 1fr);
     min-height: 240px;
     padding: 12px;
   }
 
   .memberImage {
+    width: 100%;
     height: 100%;
     min-height: 216px;
+    object-fit: cover;
+    object-position: center;
   }
 
   .memberContent {
@@ -548,18 +723,18 @@
     line-height: 15px;
   }
 
-  /* Нижний блок */
-
   .callToActionContent {
     min-height: auto;
+    display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 24px;
-    padding: 32px 0;
+    padding: 32px 0 0;
   }
 
   .callToActionText {
     width: 100%;
+    max-width: none;
     align-items: stretch;
   }
 
@@ -580,8 +755,60 @@
   }
 
   .booksImage {
-    width: 190px;
+    width: 100%;
+    max-width: 320px;
     height: auto;
     align-self: center;
+    justify-self: auto;
+    object-fit: contain;
+  }
+}
+
+@media (max-width: 400px) {
+  .heroContent h1 {
+    font-size: 26px;
+    line-height: 32px;
+  }
+
+  .valuesGrid {
+    gap: 10px;
+  }
+
+  .valueCard {
+    min-height: 190px;
+    padding: 14px 10px;
+  }
+
+  .memberCard {
+    grid-template-columns: minmax(110px, 40%) minmax(0, 1fr);
+    min-height: 220px;
+    padding: 10px;
+  }
+
+  .memberImage {
+    min-height: 200px;
+  }
+
+  .memberContent {
+    padding: 6px 8px;
+  }
+
+  .memberContent h3 {
+    font-size: 13px;
+    line-height: 17px;
+  }
+
+  .memberContent p {
+    font-size: 10px;
+    line-height: 14px;
+  }
+
+  .callToActionText h2 {
+    font-size: 24px;
+    line-height: 30px;
+  }
+
+  .booksImage {
+    max-width: 260px;
   }
 }

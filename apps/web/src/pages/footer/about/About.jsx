@@ -26,6 +26,11 @@ import i04 from '../../../assets/icons/about/i04.svg'
 import i05 from '../../../assets/icons/about/i05.svg'
 import i06 from '../../../assets/icons/about/i06.svg'
 
+import ic01 from '../../../assets/icons/about/ic01.svg'
+import ic02 from '../../../assets/icons/about/ic02.svg'
+import ic03 from '../../../assets/icons/about/ic03.svg'
+import ic04 from '../../../assets/icons/about/ic04.svg'
+
 const values = [
   {
     icon: i01,
@@ -193,7 +198,7 @@ const About = () => {
 
             <div className={styles.statistics}>
               <div className={styles.statistic}>
-                <span className={styles.statisticIcon}>♟</span>
+                <span className={styles.statisticIcon}><img src={ic01} alt='icon' /></span>
 
                 <div>
                   <span>5 000+</span>
@@ -202,7 +207,7 @@ const About = () => {
               </div>
 
               <div className={styles.statistic}>
-                <span className={styles.statisticIcon}>◆</span>
+                <span className={styles.statisticIcon}><img src={ic02} alt='icon' /></span>
 
                 <div>
                   <span>1 200+</span>
@@ -211,7 +216,7 @@ const About = () => {
               </div>
 
               <div className={styles.statistic}>
-                <span className={styles.statisticIcon}>♟</span>
+                <span className={styles.statisticIcon}><img src={ic03} alt='icon' /></span>
 
                 <div>
                   <span>350+</span>
@@ -220,8 +225,7 @@ const About = () => {
               </div>
 
               <div className={styles.statistic}>
-                <span className={styles.statisticIcon}>＄</span>
-
+                <span className={styles.statisticIcon}><img src={ic04} alt='icon' /> </span>
                 <div>
                   <span>₴2,5 млн+</span>
                   <span>виплат авторам</span>

@@ -20,7 +20,7 @@ export const Features = [
   },
   {
     id: 3,
-    title: 'Купси та навчання',
+    title: 'Курси та навчання',
     image: Hat,
     imageAlt: 'Hat icon',
   },

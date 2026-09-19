@@ -39,7 +39,7 @@ const List = styled.div`
 export const PopularCategories = () => (
   <Section>
     <Container>
-      <OpenMore title='Популярні категорії' bttnTxt='Всі категорії' />
+      <OpenMore title='Популярні категорії' bttnTxt='Всі категорії' link='/categories'/>
 
       <List>
         <Button title='Дизайн' size='small' variant='secondary-gray' />
