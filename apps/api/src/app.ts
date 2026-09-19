@@ -21,6 +21,7 @@ import { adminRouter } from './modules/admin/admin.routes.js';
 import { cartRouter } from './modules/cart/cart.routes.js';
 import { meOrdersRouter, ordersRouter } from './modules/orders/orders.routes.js';
 import { meRouter } from './modules/me/me.routes.js';
+import { supportRouter } from './modules/support/support.routes.js';
 function parseOrigins(value: string): string[] {
   return value
     .split(',')
@@ -64,6 +65,7 @@ export function createApp(): Express {
   app.use('/api/orders', ordersRouter);
   app.use('/api/me/orders', meOrdersRouter);
   app.use('/api/me', meRouter);
+  app.use('/api/support', supportRouter);
   app.use('/api', healthRouter);
   // 404 fallback. Express 5 rejects the old `app.all('*')` form — a bare
   // app.use() after all routes is the supported equivalent.

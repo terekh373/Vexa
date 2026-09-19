@@ -23,14 +23,22 @@ const apiFieldErrors = (error) =>
 const RegisterPage = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
-  const [values, setValues] = useState({ email: '', password: '', fullName: '' });
+  const [values, setValues] = useState({
+    email: '',
+    password: '',
+    fullName: '',
+    acceptTerms: false,
+  });
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const updateField = (event) => {
-    const { name, value } = event.target;
-    setValues((current) => ({ ...current, [name]: value }));
+    const { name, type, value, checked } = event.target;
+    setValues((current) => ({
+      ...current,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
     setErrors((current) => ({ ...current, [name]: undefined }));
     setFormError('');
   };
@@ -121,6 +129,29 @@ const RegisterPage = () => {
               <span className={styles.subtitle}>Мінімум 8 символів, щонайменше одна літера й одна цифра.</span>
             )}
           </label>
+
+          <label className={styles.termsRow}>
+            <input
+              className={styles.termsCheckbox}
+              type="checkbox"
+              name="acceptTerms"
+              checked={values.acceptTerms}
+              onChange={updateField}
+              aria-invalid={Boolean(errors.acceptTerms)}
+            />
+            <span className={styles.termsText}>
+              Я погоджуюся з{' '}
+              <Link className={styles.link} to={routes.offer()} target="_blank" rel="noreferrer">
+                публічною офертою
+              </Link>{' '}
+              та{' '}
+              <Link className={styles.link} to={routes.privacy()} target="_blank" rel="noreferrer">
+                політикою конфіденційності
+              </Link>
+              .
+            </span>
+          </label>
+          {errors.acceptTerms && <span className={styles.error}>{errors.acceptTerms}</span>}
 
           {formError && <p className={styles.formError}>{formError}</p>}
 

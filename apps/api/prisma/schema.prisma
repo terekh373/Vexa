@@ -175,6 +175,7 @@ model User {
   googleId     String?     @unique @map("google_id") @db.VarChar(64)
 
   emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz(6)
+  termsAcceptedAt DateTime? @map("terms_accepted_at") @db.Timestamptz(6)
   avatarFileId    String?   @map("avatar_file_id") @db.Uuid
 
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
