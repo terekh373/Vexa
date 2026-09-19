@@ -6,6 +6,7 @@
  * link goes to the log, per the issue scope.
  */
 import { randomBytes } from 'node:crypto';
+import { env } from '../../config/env.js';
 import { AppError } from '../../lib/errors.js';
 import { logger } from '../../lib/logger.js';
 import { redis } from '../../lib/redis.js';
@@ -32,8 +33,10 @@ export async function createVerificationToken(userId: string): Promise<string> {
  * notifications issue; the signature stays the same.
  */
 export function sendVerificationEmail(email: string, token: string): void {
+  const verificationUrl = `${env.WEB_APP_URL.replace(/\/$/, '')}/verify-email?token=${token}`;
+
   logger.info(
-    { email, verificationUrl: `/api/auth/verify-email?token=${token}` },
+    { email, verificationUrl },
     'Verification email (delivery stubbed)',
   );
 }

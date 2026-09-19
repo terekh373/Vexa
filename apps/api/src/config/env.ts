@@ -43,6 +43,9 @@ const envSchema = z.object({
   // Comma-separated list of allowed browser origins.
   CORS_ORIGINS: z.string().default('http://localhost:5173'),
 
+  // Public base URL of the web client, used for links that must open in the browser.
+  WEB_APP_URL: z.string().url('WEB_APP_URL must be a URL').default('http://localhost:5173'),
+
   // Object storage (Cloudflare R2 or any S3-compatible endpoint). Required:
   // the files module signs URLs at request time, and a missing key would only
   // surface as a 500 on the first upload instead of at startup.
