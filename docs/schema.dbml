@@ -469,16 +469,16 @@ Table order_items {
   author_id uuid [not null, ref: > users.id]
   title_snapshot varchar(180) [not null]
   price_amount integer [not null]
-  commission_rate_bps integer [not null]
-  commission_amount integer [not null]
-  author_amount integer [not null]
+  commission_rate_bps integer [note: 'NULL до підтвердження оплати']
+  commission_amount integer [note: 'NULL до підтвердження оплати']
+  author_amount integer [note: 'NULL до підтвердження оплати']
   created_at timestamptz [not null]
   updated_at timestamptz [not null]
 
   indexes {
     (order_id, course_id) [unique]
   }
-  note: 'Фінансовий снапшот: комісія й частка автора фіксуються в момент оплати. CHECK: commission_amount + author_amount = price_amount'
+  note: 'Фінансовий снапшот: комісія й частка автора фіксуються в момент оплати. CHECK: commission_amount + author_amount = price_amount. Сплит комісії або повністю заповнений, або повністю NULL (order_items_split_all_or_none)'
 }
 
 Table payments {

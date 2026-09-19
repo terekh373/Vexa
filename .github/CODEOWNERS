@@ -1,16 +1,15 @@
 # Vexa — review ownership.
 #
 # The LAST matching rule wins, so the global fallback must stay at the top:
-# every rule below it overrides it. Moving `*` to the bottom would make the
-# Team Lead the only reviewer for the whole repository.
+# every rule below it overrides it.
 #
-# GitHub excludes the PR author from its own reviewer list. That is why every
-# path has at least two owners — otherwise an owner's PR gets no reviewer and
-# hangs forever. The global fallback is the sole exception, so avoid putting
-# files under it that a single owner would need to change alone.
+# GitHub excludes the PR author from its own reviewer list, and code owner
+# review is required on develop and main. Every path therefore has at least
+# two owners — otherwise an owner's PR has no eligible reviewer and cannot be
+# merged.
 
-# Global fallback — Team Lead reviews everything by default
-*                       @terekh373
+# Global fallback: root configs, lockfile, compose file, README.
+*                       @terekh373 @suberbobbr
 
 # Backend: Team Lead + backend dev
 /apps/api/              @terekh373 @suberbobbr
@@ -27,12 +26,11 @@
 # Shared contract between backend and clients
 /packages/shared/       @terekh373 @suberbobbr
 
-# Frontend web + mobile. Four owners for the catch-up sprint: both frontend
-# devs are unavailable, and the Team Lead plus the backend dev are taking
-# their tasks. Any single approval satisfies the rule.
+# Frontend web + mobile. The frontend devs review each other; the Team Lead
+# and the backend dev stay owners because they ship web changes too.
+# Any single approval satisfies the rule.
 /apps/web/              @terekh373 @suberbobbr @devitfro @voer2
 /apps/mobile/           @terekh373 @suberbobbr @devitfro @voer2
 
-# Workflow configuration and this file itself. Two owners so a change here
-# can never deadlock: GitHub excludes the PR author from its own reviewers.
+# Workflow configuration and this file itself.
 /.github/               @terekh373 @suberbobbr

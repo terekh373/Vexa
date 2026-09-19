@@ -14,6 +14,7 @@ import RegisterPage from './pages/register/RegisterPage.jsx';
 import VerifyEmailPage from './pages/verify-email/VerifyEmailPage.jsx';
 import NotFound from './pages/not-found/NotFound.jsx';
 import ComingSoon from './pages/stubs/ComingSoon.jsx';
+import AuthorCourses from './pages/author-courses/AuthorCourses.jsx';
 import CourseWizard from './pages/author/course-wizard/CourseWizard.jsx';
 import CheckoutSuccess from './pages/checkout-success/CheckoutSuccess.jsx';
 import { ForVeterans } from './pages/footer/for-veterans-page/ForVeterans.jsx';
@@ -56,10 +57,11 @@ function App() {
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['AUTHOR']} />}>
-          <Route path={routes.authorCourseNew()} element={<CourseWizard />} />
-          <Route path={routePatterns.authorCourseEdit} element={<CourseWizard />} />
-          <Route path={routePatterns.authorArea} element={<ComingSoon title="Кабінет автора" />} />
-        </Route>
+  <Route path={routePatterns.authorCourses} element={<AuthorCourses />} />
+  <Route path={routes.authorCourseNew()} element={<CourseWizard />} />
+  <Route path={routePatterns.authorCourseEdit} element={<CourseWizard />} />
+  <Route path={routePatterns.authorArea} element={<ComingSoon title="Кабінет автора" />} />
+</Route>
 
         <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
           <Route path={routePatterns.adminArea} element={<ComingSoon title="Адмін-панель" />} />

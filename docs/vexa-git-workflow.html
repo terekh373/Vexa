@@ -344,12 +344,12 @@ footer{
       <tr><td>Курсы API</td><td><code>GET /api/courses/:id</code>, <code>/:id/reviews</code>. Каталог — в работе, issue #3</td></tr>
       <tr><td>Веб</td><td>Layout, роутинг, каталог и страница курса на моках — переезжают на API в этом спринте</td></tr>
       <tr><td>Мобилка</td><td>Пустой каркас. Стартует после стабилизации веб-MVP (ТЗ 17)</td></tr>
-      <tr><td>CI</td><td>Четыре чека: <code>lint</code>, <code>lint-web</code>, <code>typecheck</code>, <code>build</code></td></tr>
+      <tr><td>CI</td><td>Пять чеков: <code>lint</code>, <code>lint-web</code>, <code>typecheck</code>, <code>test</code>, <code>build</code></td></tr>
     </tbody>
   </table>
 
   <div class="callout blue">
-    <p><b>Веб-клиент пишется на JavaScript, не на TypeScript.</b> Это решение тимлида, зафиксированное в «Змінах №1 до ТЗ». Бэкенд, <code>packages/shared</code> и мобилка остаются на TypeScript со строгой типизацией. Никто не начинает миграцию фронта по своей инициативе.</p>
+    <p><b>Веб-клиент пишется на JavaScript, не на TypeScript.</b> Это решение тимлида; актуальный текст ТЗ уже отражает его напрямую, без отдельного changelog-документа. Бэкенд, <code>packages/shared</code> и мобилка остаются на TypeScript со строгой типизацией. Никто не начинает миграцию фронта по своей инициативе.</p>
   </div>
 
   <p>Следствие важнее самого решения: раз на вебе нет типов, компилятор больше не ловит расхождения между клиентом и API. Эту работу теперь делает документ — см. раздел&nbsp;06.</p>
@@ -539,12 +539,13 @@ git rebase develop</pre>
 
     <li>
       <h3>Проверить локально то же, что проверит CI</h3>
-      <p>Четыре команды — по числу чеков. Красный CI на чужом PR отнимает время у всех, свой всегда дешевле починить до пуша.</p>
+      <p>Пять команд — по числу чеков. Красный CI на чужом PR отнимает время у всех, свой всегда дешевле починить до пуша.</p>
       <div class="cmd">
         <div class="cmd-head"><span>cmd</span><button class="copy">копировать</button></div>
 <pre>npm run lint
 npm run lint --workspace @vexa/web    <span class="c">:: oxlint, только фронт</span>
 npm run typecheck                     <span class="c">:: api, shared, mobile</span>
+npm run test                          <span class="c">:: api, нужен запущенный npm run db:up</span>
 npm run build</pre>
       </div>
       <p><code>typecheck</code> намеренно не покрывает <code>apps/web</code>: там нет TypeScript, и включение web в проект компилятора давало бы зелёный чек, ничего не проверяя. За фронт отвечает <code>lint-web</code>.</p>
@@ -553,7 +554,7 @@ npm run build</pre>
     <li>
       <h3>Открыть pull request</h3>
       <p>На GitHub появится плашка «Compare &amp; pull request», либо Pull requests → New. Проверьте направление: <b>base = <code>develop</code></b>, compare = ваша ветка. В <code>main</code> — никогда.</p>
-      <p>Заполняете шаблон, ставите <code>Closes #3</code>, назначаете ревьюера по CODEOWNERS. Дальше ждёте четыре зелёных чека и апрув.</p>
+      <p>Заполняете шаблон, ставите <code>Closes #3</code>, назначаете ревьюера по CODEOWNERS. Дальше ждёте пять зелёных чеков и апрув.</p>
     </li>
 
     <li>
@@ -676,7 +677,7 @@ test(api): cover commission calculation</pre>
 
   <h3>Автору: до того, как звать ревьюера</h3>
   <ul>
-    <li>CI зелёный — все четыре чека.</li>
+    <li>CI зелёный — все пять чеков.</li>
     <li>Дифф прочитан своими глазами во вкладке Files changed. Половина замечаний находится там же самостоятельно.</li>
     <li>Нет закомментированного кода, <code>console.log</code> и отладочных заглушек.</li>
     <li>PR делает одну вещь. «Заодно поправил ещё три файла» — отдельный PR.</li>
@@ -912,7 +913,7 @@ gh pr checks</pre>
       <ul>
         <li>Каждая задача — своя ветка от свежего <code>develop</code>.</li>
         <li>Пушим свою ветку минимум раз в день.</li>
-        <li>Прогоняем все четыре чека до открытия PR.</li>
+        <li>Прогоняем все пять чеков до открытия PR.</li>
         <li>Пишем <code>Closes #N</code> в описании PR.</li>
         <li>Ревьюим в течение рабочего дня.</li>
         <li>Обсуждение технических решений — в issue, не в личке.</li>

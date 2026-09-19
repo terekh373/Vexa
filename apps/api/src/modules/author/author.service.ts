@@ -2,12 +2,14 @@ import {
   CourseStatus,
   FileKind,
   ModerationAction,
+  ReviewStatus,
   type Prisma,
 } from '@prisma/client';
 import { AppError } from '../../lib/errors.js';
 import { prisma } from '../../lib/prisma.js';
 import type {
   AuthorCourseListQuery,
+  AuthorReviewReplyInput,
   CreateCourseInput,
   CreateLessonInput,
   CreateModuleInput,
@@ -41,6 +43,12 @@ const courseListSelect = {
   rejectionReason: true,
   createdAt: true,
   updatedAt: true,
+} satisfies Prisma.CourseSelect;
+
+const authorCourseListSelect = {
+  ...courseListSelect,
+  ratingAvg: true,
+  studentsCount: true,
 } satisfies Prisma.CourseSelect;
 
 const fullCourseSelect = {
@@ -380,15 +388,20 @@ export async function createAuthorCourse(userId: string, input: CreateCourseInpu
 }
 
 export async function listAuthorCourses(userId: string, query: AuthorCourseListQuery) {
-  return prisma.course.findMany({
+  const courses = await prisma.course.findMany({
     where: {
       authorId: userId,
       deletedAt: null,
       ...(query.status === undefined ? {} : { status: query.status }),
     },
     orderBy: { updatedAt: 'desc' },
-    select: courseListSelect,
+    select: authorCourseListSelect,
   });
+
+  return courses.map(({ ratingAvg, ...course }) => ({
+    ...course,
+    ratingAvg: Number(ratingAvg),
+  }));
 }
 
 export async function getAuthorCourse(userId: string, courseId: string) {
@@ -692,3 +705,41 @@ export async function submitAuthorCourse(userId: string, courseId: string) {
 
   return getAuthorCourse(userId, courseId);
 }
+
+export async function replyToCourseReview(
+  userId: string,
+  reviewId: string,
+  input: AuthorReviewReplyInput,
+) {
+  const review = await prisma.review.findFirst({
+    where: {
+      id: reviewId,
+      status: ReviewStatus.PUBLISHED,
+      course: {
+        authorId: userId,
+        deletedAt: null,
+      },
+    },
+    select: { id: true },
+  });
+
+  if (review === null) {
+    throw AppError.notFound('Review not found');
+  }
+
+  const authorRepliedAt = new Date();
+
+  return prisma.review.update({
+    where: { id: review.id },
+    data: {
+      authorReply: input.text,
+      authorRepliedAt,
+    },
+    select: {
+      id: true,
+      authorReply: true,
+      authorRepliedAt: true,
+    },
+  });
+}
+

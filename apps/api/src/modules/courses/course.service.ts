@@ -1,9 +1,30 @@
-import { CourseStatus, ReviewStatus } from '@prisma/client';
+import {
+  CourseStatus,
+  EnrollmentSource,
+  ReviewStatus,
+  UserRole,
+  type Prisma,
+} from '@prisma/client';
 
+import { AppError } from '../../lib/errors.js';
 import { prisma } from '../../lib/prisma.js';
+import type {
+  CreateCourseReviewInput,
+  UpdateCourseReviewInput,
+} from './course.validation.js';
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const REVIEW_ELIGIBLE_SOURCES: EnrollmentSource[] = [
+  EnrollmentSource.PURCHASE,
+  EnrollmentSource.FREE,
+];
+
+const REVIEW_ELIGIBLE_ROLES = new Set<UserRole>([
+  UserRole.STUDENT,
+  UserRole.AUTHOR,
+]);
 
 function extensionFromName(name: string): string | null {
   const lastDot = name.lastIndexOf('.');
@@ -23,6 +44,145 @@ function publicAssetUrl(storageKey: string): string | null {
   }
 
   return `${base}/${storageKey.replace(/^\//, '')}`;
+}
+
+const publicReviewSelect = {
+  id: true,
+  rating: true,
+  text: true,
+  authorReply: true,
+  authorRepliedAt: true,
+  createdAt: true,
+  user: {
+    select: {
+      id: true,
+      fullName: true,
+      avatar: {
+        select: {
+          id: true,
+          storageKey: true,
+          originalName: true,
+          mimeType: true,
+        },
+      },
+    },
+  },
+} satisfies Prisma.ReviewSelect;
+
+type PublicReviewRecord = Prisma.ReviewGetPayload<{
+  select: typeof publicReviewSelect;
+}>;
+
+function mapPublicReview(review: PublicReviewRecord) {
+  return {
+    id: review.id,
+    rating: review.rating,
+    text: review.text,
+    createdAt: review.createdAt,
+    authorReply: review.authorReply,
+    authorRepliedAt: review.authorRepliedAt,
+    author: {
+      id: review.user.id,
+      name: review.user.fullName,
+      avatar: review.user.avatar
+        ? {
+            id: review.user.avatar.id,
+            fileName: review.user.avatar.originalName,
+            mimeType: review.user.avatar.mimeType,
+            url: publicAssetUrl(review.user.avatar.storageKey),
+          }
+        : null,
+    },
+  };
+}
+
+type LockedCourseRow = {
+  id: string;
+  authorId: string;
+};
+
+async function lockCourseAndAuthorProfile(
+  tx: Prisma.TransactionClient,
+  courseId: string,
+): Promise<LockedCourseRow> {
+  const rows = await tx.$queryRaw<LockedCourseRow[]>`
+    SELECT id, author_id AS "authorId"
+    FROM courses
+    WHERE id = ${courseId}::uuid
+    FOR UPDATE
+  `;
+
+  const course = rows[0];
+
+  if (course === undefined) {
+    throw AppError.notFound('Course not found');
+  }
+
+  // Keep the lock order stable for every review write: course first,
+  // then the author's profile. This prevents two concurrent reviews from
+  // persisting stale denormalized counters.
+  await tx.$queryRaw`
+    SELECT id
+    FROM author_profiles
+    WHERE user_id = ${course.authorId}::uuid
+    FOR UPDATE
+  `;
+
+  return course;
+}
+
+async function recalculateReviewRatings(
+  tx: Prisma.TransactionClient,
+  courseId: string,
+  authorId: string,
+) {
+  const courseWhere = {
+    courseId,
+    status: ReviewStatus.PUBLISHED,
+  } as const;
+
+  const courseCount = await tx.review.count({ where: courseWhere });
+  const courseAggregate = await tx.review.aggregate({
+    where: courseWhere,
+    _avg: { rating: true },
+  });
+  const courseAverage = courseAggregate._avg.rating ?? 0;
+
+  await tx.course.update({
+    where: { id: courseId },
+    data: {
+      ratingAvg: courseAverage,
+      reviewsCount: courseCount,
+    },
+  });
+
+  const authorWhere = {
+    status: ReviewStatus.PUBLISHED,
+    course: {
+      authorId,
+      deletedAt: null,
+    },
+  } as const;
+
+  const authorCount = await tx.review.count({ where: authorWhere });
+  const authorAggregate = await tx.review.aggregate({
+    where: authorWhere,
+    _avg: { rating: true },
+  });
+  const authorAverage = authorAggregate._avg.rating ?? 0;
+
+  await tx.authorProfile.updateMany({
+    where: { userId: authorId },
+    data: {
+      ratingAvg: authorAverage,
+      reviewsCount: authorCount,
+    },
+  });
+
+  return {
+    average: Number(courseAverage),
+    count: courseCount,
+  };
 }
 
 const courseDetailsSelect = {
@@ -235,21 +395,47 @@ export async function getCourseDetails(
   let hasAccess =
     course.priceAmount === 0 ||
     currentUserId === course.authorId;
+  let canReview = false;
 
-  if (!hasAccess && currentUserId !== undefined) {
-    const enrollment = await prisma.enrollment.findFirst({
-      where: {
-        userId: currentUserId,
-        courseId: course.id,
-        revokedAt: null,
-      },
+  if (currentUserId !== undefined) {
+    const [currentUser, enrollment, existingReview] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: currentUserId },
+        select: { roles: true },
+      }),
+      prisma.enrollment.findFirst({
+        where: {
+          userId: currentUserId,
+          courseId: course.id,
+          revokedAt: null,
+        },
+        select: {
+          id: true,
+          source: true,
+        },
+      }),
+      prisma.review.findUnique({
+        where: {
+          courseId_userId: {
+            courseId: course.id,
+            userId: currentUserId,
+          },
+        },
+        select: { id: true },
+      }),
+    ]);
 
-      select: {
-        id: true,
-      },
-    });
+    const hasReviewRole =
+      currentUser?.roles.some((role) => REVIEW_ELIGIBLE_ROLES.has(role)) ?? false;
+    const hasReviewEnrollment =
+      enrollment !== null &&
+      REVIEW_ELIGIBLE_SOURCES.includes(enrollment.source);
 
-    hasAccess = enrollment !== null;
+    hasAccess = hasAccess || enrollment !== null;
+    canReview =
+      hasReviewRole &&
+      hasReviewEnrollment &&
+      existingReview === null;
   }
 
   return {
@@ -330,6 +516,7 @@ export async function getCourseDetails(
     durationSec: course.durationSec,
     publishedAt: course.publishedAt,
     hasAccess,
+    canReview,
 
     modules: course.modules.map((module) => ({
       id: module.id,
@@ -470,30 +657,7 @@ export async function getCourseReviews(
         skip: (page - 1) * limit,
         take: limit,
 
-        select: {
-          id: true,
-          rating: true,
-          text: true,
-          authorReply: true,
-          authorRepliedAt: true,
-          createdAt: true,
-
-          user: {
-            select: {
-              id: true,
-              fullName: true,
-
-              avatar: {
-                select: {
-                  id: true,
-                  storageKey: true,
-                  originalName: true,
-                  mimeType: true,
-                },
-              },
-            },
-          },
-        },
+        select: publicReviewSelect,
       }),
 
       prisma.review.count({
@@ -513,30 +677,7 @@ export async function getCourseReviews(
     averageRating: aggregate._avg.rating ?? 0,
     reviewsCount: count,
 
-    reviews: reviews.map((review) => ({
-      id: review.id,
-      rating: review.rating,
-      text: review.text,
-      createdAt: review.createdAt,
-      authorReply: review.authorReply,
-      authorRepliedAt: review.authorRepliedAt,
-
-      author: {
-        id: review.user.id,
-        name: review.user.fullName,
-
-        avatar: review.user.avatar
-          ? {
-              id: review.user.avatar.id,
-              fileName: review.user.avatar.originalName,
-              mimeType: review.user.avatar.mimeType,
-              url: publicAssetUrl(
-                review.user.avatar.storageKey,
-              ),
-            }
-          : null,
-      },
-    })),
+    reviews: reviews.map(mapPublicReview),
 
     pagination: {
       page,
@@ -546,3 +687,135 @@ export async function getCourseReviews(
     },
   };
 }
+
+export async function createCourseReview(
+  courseId: string,
+  userId: string,
+  input: CreateCourseReviewInput,
+) {
+  return prisma.$transaction(async (tx) => {
+    const lockedCourse = await lockCourseAndAuthorProfile(tx, courseId);
+
+    const course = await tx.course.findFirst({
+      where: {
+        id: courseId,
+        status: CourseStatus.PUBLISHED,
+        deletedAt: null,
+      },
+      select: { id: true },
+    });
+
+    if (course === null) {
+      throw AppError.notFound('Course not found');
+    }
+
+    const enrollment = await tx.enrollment.findFirst({
+      where: {
+        userId,
+        courseId,
+        revokedAt: null,
+        source: { in: REVIEW_ELIGIBLE_SOURCES },
+      },
+      select: { id: true },
+    });
+
+    if (enrollment === null) {
+      throw AppError.forbidden('Course enrollment is required to leave a review');
+    }
+
+    const existingReview = await tx.review.findUnique({
+      where: {
+        courseId_userId: { courseId, userId },
+      },
+      select: { id: true },
+    });
+
+    if (existingReview !== null) {
+      throw AppError.conflict('You have already reviewed this course');
+    }
+
+    const review = await tx.review.create({
+      data: {
+        courseId,
+        userId,
+        rating: input.rating,
+        text: input.text && input.text.length > 0 ? input.text : null,
+      },
+      select: publicReviewSelect,
+    });
+
+    const rating = await recalculateReviewRatings(tx, courseId, lockedCourse.authorId);
+
+    return {
+      review: mapPublicReview(review),
+      rating,
+    };
+  });
+}
+
+export async function updateMyCourseReview(
+  courseId: string,
+  userId: string,
+  input: UpdateCourseReviewInput,
+) {
+  return prisma.$transaction(async (tx) => {
+    const lockedCourse = await lockCourseAndAuthorProfile(tx, courseId);
+
+    const course = await tx.course.findFirst({
+      where: {
+        id: courseId,
+        status: CourseStatus.PUBLISHED,
+        deletedAt: null,
+      },
+      select: { id: true },
+    });
+
+    if (course === null) {
+      throw AppError.notFound('Course not found');
+    }
+
+    const enrollment = await tx.enrollment.findFirst({
+      where: {
+        userId,
+        courseId,
+        revokedAt: null,
+        source: { in: REVIEW_ELIGIBLE_SOURCES },
+      },
+      select: { id: true },
+    });
+
+    if (enrollment === null) {
+      throw AppError.forbidden('Course enrollment is required to edit a review');
+    }
+
+    const existingReview = await tx.review.findUnique({
+      where: {
+        courseId_userId: { courseId, userId },
+      },
+      select: { id: true },
+    });
+
+    if (existingReview === null) {
+      throw AppError.notFound('Review not found');
+    }
+
+    const review = await tx.review.update({
+      where: { id: existingReview.id },
+      data: {
+        ...(input.rating === undefined ? {} : { rating: input.rating }),
+        ...(input.text === undefined
+          ? {}
+          : { text: input.text.length > 0 ? input.text : null }),
+      },
+      select: publicReviewSelect,
+    });
+
+    const rating = await recalculateReviewRatings(tx, courseId, lockedCourse.authorId);
+
+    return {
+      review: mapPublicReview(review),
+      rating,
+    };
+  });
+}
+

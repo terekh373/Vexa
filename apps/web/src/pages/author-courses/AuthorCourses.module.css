@@ -1,0 +1,444 @@
+.page {
+  padding: 48px 0 72px;
+  color: var(--main-dark-color);
+}
+
+.headingRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--purple-color);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(32px, 4vw, 46px);
+  line-height: 1.1;
+}
+
+.subtitle {
+  max-width: 680px;
+  margin: 12px 0 0;
+  color: var(--secondary-grey);
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.primaryAction,
+.editButton,
+.retryButton,
+.cancelButton,
+.confirmDeleteButton,
+.deleteButton {
+  border-radius: 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.primaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  background: var(--purple-color);
+  color: var(--white-color);
+  text-decoration: none;
+}
+
+.primaryAction:hover {
+  background: var(--accessory-purple);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 16px 18px;
+  border: 1px solid var(--accessory-grey);
+  border-radius: 18px;
+  background: var(--white-color);
+}
+
+.filterLabel {
+  font-weight: 600;
+}
+
+.statusFilter {
+  min-width: 220px;
+  padding: 10px 38px 10px 12px;
+  border: 1px solid var(--border-grey);
+  border-radius: 12px;
+  background: var(--white-color);
+  color: var(--main-dark-color);
+  font: inherit;
+}
+
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+.stateCard {
+  display: flex;
+  min-height: 260px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 14px;
+  padding: 36px;
+  border: 1px solid var(--accessory-grey);
+  border-radius: 24px;
+  background: var(--footer-bg-color);
+}
+
+.stateCard h2,
+.stateCard p {
+  margin: 0;
+}
+
+.stateCard p {
+  color: var(--secondary-grey);
+}
+
+.retryButton {
+  padding: 11px 18px;
+  border: 0;
+  background: var(--purple-color);
+  color: var(--white-color);
+}
+
+.courseList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.courseCard {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: stretch;
+  padding: 20px;
+  border: 1px solid var(--accessory-grey);
+  border-radius: 22px;
+  background: var(--white-color);
+  box-shadow: 0 8px 24px rgba(24, 15, 56, 0.05);
+}
+
+.coverWrap {
+  width: 180px;
+  min-height: 120px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--footer-bg-color);
+}
+
+.cover {
+  width: 100%;
+  height: 100%;
+  min-height: 120px;
+  object-fit: cover;
+}
+
+.coverPlaceholder {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 120px;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  color: var(--secondary-grey);
+  text-align: center;
+}
+
+.courseMain {
+  min-width: 0;
+}
+
+.courseTopline {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.statusBadge,
+.courseType {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.courseType {
+  background: #f2f3f5;
+  color: #4b505b;
+}
+
+.statusDRAFT {
+  background: #eef0f3;
+  color: #4d5562;
+}
+
+.statusMODERATION {
+  background: #fff3cd;
+  color: #7a5700;
+}
+
+.statusPUBLISHED {
+  background: #dff6e7;
+  color: #176c3a;
+}
+
+.statusREJECTED {
+  background: #fde4e4;
+  color: #a12d2d;
+}
+
+.statusUNPUBLISHED {
+  background: #eee7ff;
+  color: #5530a8;
+}
+
+.courseTitle {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 22px;
+  line-height: 1.3;
+}
+
+.rejectionReason {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fff5f5;
+  color: #8b2929;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  margin: 20px 0 0;
+}
+
+.metrics div {
+  display: block;
+}
+
+.metrics dt {
+  margin-bottom: 4px;
+  color: var(--secondary-grey);
+  font-size: 13px;
+}
+
+.metrics dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  min-width: 150px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+}
+
+.editButton,
+.deleteButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 16px;
+  text-decoration: none;
+}
+
+.editButton {
+  border: 1px solid var(--purple-color);
+  background: var(--white-color);
+  color: var(--purple-color);
+}
+
+.editButton:not(:disabled):hover {
+  background: var(--footer-bg-color);
+}
+
+.deleteButton {
+  border: 1px solid #cf3b3b;
+  background: var(--white-color);
+  color: #b22f2f;
+}
+
+.deleteButton:not(:disabled):hover {
+  background: #fff2f2;
+}
+
+.editButton:disabled,
+.deleteButton:disabled {
+  border-color: var(--accessory-grey);
+  background: #f7f7f8;
+  color: var(--secondary-grey);
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.modalBackdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 12, 25, 0.55);
+}
+
+.modal {
+  width: min(100%, 480px);
+  padding: 28px;
+  border-radius: 22px;
+  background: var(--white-color);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.modal h2,
+.modal p {
+  margin: 0;
+}
+
+.modal p {
+  margin-top: 12px;
+  color: var(--secondary-grey);
+  line-height: 1.5;
+}
+
+.modalError {
+  color: #a12d2d !important;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.cancelButton,
+.confirmDeleteButton {
+  padding: 11px 18px;
+}
+
+.cancelButton {
+  border: 1px solid var(--border-grey);
+  background: var(--white-color);
+  color: var(--main-dark-color);
+}
+
+.confirmDeleteButton {
+  border: 1px solid #bd3131;
+  background: #bd3131;
+  color: var(--white-color);
+}
+
+.cancelButton:disabled,
+.confirmDeleteButton:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+@media (max-width: 900px) {
+  .skeletonGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .courseCard {
+    grid-template-columns: 140px minmax(0, 1fr);
+  }
+
+  .coverWrap {
+    width: 140px;
+  }
+
+  .actions {
+    grid-column: 1 / -1;
+    min-width: 0;
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 620px) {
+  .page {
+    padding-top: 32px;
+  }
+
+  .headingRow {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .statusFilter {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .skeletonGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .courseCard {
+    grid-template-columns: 1fr;
+  }
+
+  .coverWrap {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+
+  .actions {
+    grid-column: auto;
+    flex-direction: column;
+  }
+
+  .editButton,
+  .deleteButton {
+    width: 100%;
+  }
+
+  .modalActions {
+    flex-direction: column-reverse;
+  }
+
+  .cancelButton,
+  .confirmDeleteButton {
+    width: 100%;
+  }
+}

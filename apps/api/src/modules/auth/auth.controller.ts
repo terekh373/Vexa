@@ -4,10 +4,17 @@
  */
 import type { Request, RequestHandler, Response } from 'express';
 import { consumeVerificationToken } from './emailVerification.service.js';
-import { loginSchema, refreshSchema, registerSchema } from '@vexa/shared';
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  refreshSchema,
+  registerSchema,
+  resetPasswordSchema,
+} from '@vexa/shared';
 import { login, logout, logoutAll, refresh, register, type SessionContext } from './auth.service.js';
 import { findActiveById } from './auth.repository.js';
 import { AppError } from '../../lib/errors.js';
+import { requestPasswordReset, resetPassword } from './passwordReset.service.js';
 
 /** Express 5 forwards a rejected promise to the error middleware on its own. */
 
@@ -41,6 +48,21 @@ export const verifyEmailHandler: RequestHandler = async (req: Request, res: Resp
   await consumeVerificationToken(token);
 
   res.status(200).json({ status: 'verified' });
+};
+
+export const forgotPasswordHandler: RequestHandler = async (req: Request, res: Response) => {
+  const input = forgotPasswordSchema.parse(req.body);
+  await requestPasswordReset(input.email);
+
+  // Deliberately identical for existing and unknown accounts.
+  res.status(204).send();
+};
+
+export const resetPasswordHandler: RequestHandler = async (req: Request, res: Response) => {
+  const input = resetPasswordSchema.parse(req.body);
+  await resetPassword(input.token, input.password);
+
+  res.status(204).send();
 };
 
 export const refreshHandler: RequestHandler = async (req: Request, res: Response) => {
