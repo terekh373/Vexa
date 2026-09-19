@@ -1,0 +1,128 @@
+.module {
+  border: 1px solid var(--border-grey);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.moduleTitle {
+  color: var(--main-dark-color);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.moduleHeader {
+  width: 100%;
+  min-height: 54px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: none;
+  background: var(--main-bg-color);
+  cursor: pointer;
+  text-align: left;
+}
+
+.moduleHeader:hover {
+  background: var(--footer-bg-color);
+}
+
+.moduleRight {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.moduleRight span {
+  display: block;
+  color: var(--secondary-grey);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--purple-color) !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+  transition: transform 0.2s ease;
+}
+
+.arrowOpen {
+  transform: rotate(180deg);
+}
+
+.moduleLessons {
+  border-top: 1px solid var(--border-grey);
+}
+
+.lesson {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  color: var(--main-dark-color);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 22px;
+}
+
+.lesson + .lesson {
+  border-top: 1px solid #ececf0;
+}
+
+.lesson > span:last-child {
+  color: var(--secondary-grey);
+  white-space: nowrap;
+}
+
+.lessonTitleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.previewBadge,
+.lockedBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.previewBadge {
+  background: var(--secondary-purple);
+  color: var(--purple-color);
+}
+
+.lockedBadge {
+  background: var(--accessory-grey);
+  color: var(--secondary-grey);
+}
+
+@media (max-width: 640px) {
+  .moduleHeader,
+  .lesson {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .moduleRight {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}

@@ -1,0 +1,231 @@
+.header {
+  width: 100%;
+  position: relative;
+  z-index: 20;
+  background: var(--main-bg-color);
+}
+
+.container {
+  width: 100%;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 22px 0;
+  position: relative;
+}
+
+.logo {
+  flex-shrink: 0;
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.link {
+  color: var(--main-dark-color);
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.link:hover {
+  color: var(--purple-color);
+}
+
+.link:active {
+  color: var(--adjuvant-purple);
+  text-decoration: underline;
+}
+
+.desktopSearch {
+  min-width: 0;
+  flex: 1;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.userMenuWrap {
+  position: relative;
+}
+
+.userMenuButton {
+  max-width: 190px;
+  padding: 10px 14px;
+  overflow: hidden;
+  border: 1px solid var(--border-grey);
+  border-radius: 14px;
+  background: var(--white-color);
+  color: var(--main-dark-color);
+  font: inherit;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.userMenuButton:hover {
+  border-color: var(--purple-color);
+}
+
+.userMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--accessory-grey);
+  border-radius: 14px;
+  background: var(--white-color);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+.userEmail {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--secondary-grey);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logoutButton {
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--footer-bg-color);
+  color: var(--purple-color);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.logoutButton:hover {
+  background: var(--secondary-purple);
+}
+
+.burger,
+.mobileMenu {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  .navigation,
+  .desktopSearch,
+  .actions {
+    display: none;
+  }
+
+  .container {
+    min-width: 0;
+    padding: 16px 0;
+  }
+
+  .burger {
+    width: 40px;
+    height: 40px;
+    margin-left: auto;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .burger span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: var(--main-dark-color);
+  }
+
+  .mobileMenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+    padding: 20px 24px;
+    z-index: 100;
+    border-top: 1px solid var(--accessory-grey);
+    background: var(--footer-bg-color);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .mobileSearch {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .mobileNavigation {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .mobileActions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  .mobileUser {
+    width: 100%;
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 540px) {
+  .container {
+    padding: 12px 0;
+  }
+
+  .burger {
+    width: 36px;
+    height: 36px;
+  }
+
+  .mobileMenu {
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .mobileNavigation {
+    gap: 12px;
+  }
+
+  .mobileNavigation .link {
+    font-size: 14px;
+  }
+
+  .mobileActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mobileActions button {
+    width: 100%;
+  }
+}

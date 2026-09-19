@@ -1,0 +1,46 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+
+  img {
+    border-radius: 8px;
+  }
+
+  p {
+    color: var(--main-dark-color);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 20px;
+  }
+}
+
+.author {
+  color: var(--main-dark-color);
+
+  h4 {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+    margin-bottom: 4px;
+  }
+
+  span {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 24px;
+  }
+}
+
+.box {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.starIcon {
+  width: 20px;
+  height: 20px;
+}
+

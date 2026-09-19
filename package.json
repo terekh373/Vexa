@@ -1,0 +1,35 @@
+{
+  "name": "vexa",
+  "type": "module",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --build && tsc --noEmit -p apps/api/prisma",
+    "build": "npm run build --workspaces --if-present",
+    "postinstall": "npm run db:generate --workspace @vexa/api",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:migrate": "npm run db:migrate --workspace @vexa/api",
+    "db:seed": "npm run db:seed --workspace @vexa/api",
+    "db:seed:catalog": "npm run db:seed:catalog --workspace @vexa/api",
+    "db:reset": "npm run db:reset --workspace @vexa/api",
+    "db:studio": "npm run db:studio --workspace @vexa/api",
+    "dev:api": "npm run dev --workspace @vexa/api",
+    "dev:web": "npm run dev --workspace @vexa/web",
+    "test": "npm run test --workspace @vexa/api"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.12.0",
+    "eslint": "^9.12.0",
+    "globals": "^17.9.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.8.0"
+  }
+}

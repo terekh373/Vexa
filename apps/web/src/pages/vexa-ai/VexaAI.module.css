@@ -1,0 +1,221 @@
+.pageWrapper {
+    padding-bottom: 80px;
+    font-family: sans-serif;
+    color: #111;
+  }
+  
+  .breadcrumbs {
+    font-size: 14px;
+    color: #777;
+    margin: 20px 0 40px 0;
+  }
+  .activeBreadcrumb {
+    color: #000;
+    font-weight: 500;
+  }
+  
+  .hero {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    margin-bottom: 80px;
+  }
+  
+  .heroTextContent {
+    flex: 1.2;
+  }
+  
+  .mainTitle {
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 20px;
+  }
+  
+  .heroSubtitle {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 30px;
+    max-width: 90%;
+  }
+  
+  .heroButtons {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .outlineBtn {
+    background: none;
+    border: 1px solid #6236FF;
+    color: #6236FF;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .outlineBtn:hover {
+    background-color: #f4f0ff;
+  }
+  
+  .heroNote {
+    font-size: 13px;
+    color: #777;
+  }
+  
+  .heroImageWrap {
+    flex: 1;
+    background-color: #f4f0ff;
+    border-radius: 30px;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .robotImage {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .section {
+    margin-bottom: 80px;
+  }
+  
+  .sectionTitle {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 30px;
+  }
+  
+  .grid6 {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 20px;
+  }
+  
+  .featureCard {
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    transition: box-shadow 0.2s;
+  }
+  
+  .featureCard:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  }
+  
+  .iconWrap {
+    font-size: 24px;
+    color: #6236FF;
+  }
+  
+  .featureCard h3, .audienceCard h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+  }
+  
+  .featureCard p, .audienceCard p {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+    margin: 0;
+  }
+  
+  .stepsContainer {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .stepCard {
+    background-color: #f4f0ff;
+    border-radius: 16px;
+    padding: 25px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-height: 200px;
+  }
+  
+  .stepHeader {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .stepNum {
+    background-color: #6236FF;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 13px;
+    font-weight: bold;
+  }
+  
+  .stepIcon {
+    font-size: 20px;
+  }
+  
+  .stepCard h3 {
+    font-size: 16px;
+    margin: 0;
+  }
+  
+  .stepCard p {
+    font-size: 13px;
+    color: #555;
+    margin: 0;
+  }
+  
+  .stepArrow {
+    color: #ccc;
+    font-size: 20px;
+  }
+  
+  .audienceCard {
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .audiencePhotoPlaceholder {
+    width: 100%;
+    height: 100px;
+    background-color: #e9e9e9;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #999;
+    font-size: 14px;
+  }
+  
+  @media (max-width: 1200px) {
+    .grid6 { grid-template-columns: repeat(3, 1fr); }
+    .stepsContainer { flex-wrap: wrap; }
+    .stepArrow { display: none; }
+  }
+  
+  @media (max-width: 768px) {
+    .hero { flex-direction: column; text-align: center; }
+    .heroButtons { justify-content: center; }
+    .grid6 { grid-template-columns: repeat(1, 1fr); }
+  }

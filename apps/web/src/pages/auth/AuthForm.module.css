@@ -1,0 +1,159 @@
+.page {
+  min-height: 68vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px 72px;
+  background: linear-gradient(180deg, var(--main-bg-color) 0%, var(--footer-bg-color) 100%);
+}
+
+.card {
+  width: min(100%, 480px);
+  padding: 32px;
+  border: 1px solid var(--accessory-grey);
+  border-radius: 24px;
+  background: var(--white-color);
+  box-shadow: 0 16px 45px rgba(36, 22, 79, 0.08);
+}
+
+.header {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.title {
+  margin: 0 0 8px;
+  font-size: clamp(28px, 4vw, 36px);
+  line-height: 1.15;
+  color: var(--main-dark-color);
+}
+
+.subtitle {
+  color: var(--secondary-grey);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 7px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--main-dark-color);
+}
+
+.input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-grey);
+  border-radius: 12px;
+  background: var(--white-color);
+  color: var(--main-dark-color);
+  font: inherit;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:focus {
+  border-color: var(--purple-color);
+  box-shadow: 0 0 0 3px rgba(94, 37, 254, 0.12);
+}
+
+.inputError {
+  border-color: #c62828;
+}
+
+.error {
+  margin: 0;
+  color: #b42318;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.formError,
+.success {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.formError {
+  background: #fff1f0;
+  color: #9f1c14;
+}
+
+.success {
+  background: #eefbf2;
+  color: #176b35;
+}
+
+.submit {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--purple-color);
+  color: var(--white-color);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.submit:hover:not(:disabled) {
+  background: var(--accessory-purple);
+}
+
+.submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.footer {
+  margin-top: 22px;
+  text-align: center;
+  color: var(--secondary-grey);
+  font-size: 14px;
+}
+
+.link {
+  color: var(--purple-color);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.statusBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+}
+
+@media (max-width: 540px) {
+  .page {
+    padding: 28px 14px 48px;
+  }
+
+  .card {
+    padding: 24px 18px;
+    border-radius: 18px;
+  }
+}
