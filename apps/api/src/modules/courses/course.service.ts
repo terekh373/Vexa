@@ -1,4 +1,10 @@
-import { CourseStatus, ReviewStatus, type Prisma } from '@prisma/client';
+import {
+  CourseStatus,
+  EnrollmentSource,
+  ReviewStatus,
+  UserRole,
+  type Prisma,
+} from '@prisma/client';
 
 import { AppError } from '../../lib/errors.js';
 import { prisma } from '../../lib/prisma.js';
@@ -9,6 +15,16 @@ import type {
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const REVIEW_ELIGIBLE_SOURCES: EnrollmentSource[] = [
+  EnrollmentSource.PURCHASE,
+  EnrollmentSource.FREE,
+];
+
+const REVIEW_ELIGIBLE_ROLES = new Set<UserRole>([
+  UserRole.STUDENT,
+  UserRole.AUTHOR,
+]);
 
 function extensionFromName(name: string): string | null {
   const lastDot = name.lastIndexOf('.');
@@ -80,33 +96,92 @@ function mapPublicReview(review: PublicReviewRecord) {
   };
 }
 
-async function recalculateCourseReviewRating(
+type LockedCourseRow = {
+  id: string;
+  authorId: string;
+};
+
+async function lockCourseAndAuthorProfile(
   tx: Prisma.TransactionClient,
   courseId: string,
+): Promise<LockedCourseRow> {
+  const rows = await tx.$queryRaw<LockedCourseRow[]>`
+    SELECT id, author_id AS "authorId"
+    FROM courses
+    WHERE id = ${courseId}::uuid
+    FOR UPDATE
+  `;
+
+  const course = rows[0];
+
+  if (course === undefined) {
+    throw AppError.notFound('Course not found');
+  }
+
+  // Keep the lock order stable for every review write: course first,
+  // then the author's profile. This prevents two concurrent reviews from
+  // persisting stale denormalized counters.
+  await tx.$queryRaw`
+    SELECT id
+    FROM author_profiles
+    WHERE user_id = ${course.authorId}::uuid
+    FOR UPDATE
+  `;
+
+  return course;
+}
+
+async function recalculateReviewRatings(
+  tx: Prisma.TransactionClient,
+  courseId: string,
+  authorId: string,
 ) {
-  const where = {
+  const courseWhere = {
     courseId,
     status: ReviewStatus.PUBLISHED,
   } as const;
 
-  const count = await tx.review.count({ where });
-  const aggregate = await tx.review.aggregate({
-    where,
+  const courseCount = await tx.review.count({ where: courseWhere });
+  const courseAggregate = await tx.review.aggregate({
+    where: courseWhere,
     _avg: { rating: true },
   });
-  const average = aggregate._avg.rating ?? 0;
+  const courseAverage = courseAggregate._avg.rating ?? 0;
 
   await tx.course.update({
     where: { id: courseId },
     data: {
-      ratingAvg: average,
-      reviewsCount: count,
+      ratingAvg: courseAverage,
+      reviewsCount: courseCount,
+    },
+  });
+
+  const authorWhere = {
+    status: ReviewStatus.PUBLISHED,
+    course: {
+      authorId,
+      deletedAt: null,
+    },
+  } as const;
+
+  const authorCount = await tx.review.count({ where: authorWhere });
+  const authorAggregate = await tx.review.aggregate({
+    where: authorWhere,
+    _avg: { rating: true },
+  });
+  const authorAverage = authorAggregate._avg.rating ?? 0;
+
+  await tx.authorProfile.updateMany({
+    where: { userId: authorId },
+    data: {
+      ratingAvg: authorAverage,
+      reviewsCount: authorCount,
     },
   });
 
   return {
-    average: Number(average),
-    count,
+    average: Number(courseAverage),
+    count: courseCount,
   };
 }
 
@@ -323,14 +398,21 @@ export async function getCourseDetails(
   let canReview = false;
 
   if (currentUserId !== undefined) {
-    const [enrollment, existingReview] = await Promise.all([
+    const [currentUser, enrollment, existingReview] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: currentUserId },
+        select: { roles: true },
+      }),
       prisma.enrollment.findFirst({
         where: {
           userId: currentUserId,
           courseId: course.id,
           revokedAt: null,
         },
-        select: { id: true },
+        select: {
+          id: true,
+          source: true,
+        },
       }),
       prisma.review.findUnique({
         where: {
@@ -343,8 +425,17 @@ export async function getCourseDetails(
       }),
     ]);
 
+    const hasReviewRole =
+      currentUser?.roles.some((role) => REVIEW_ELIGIBLE_ROLES.has(role)) ?? false;
+    const hasReviewEnrollment =
+      enrollment !== null &&
+      REVIEW_ELIGIBLE_SOURCES.includes(enrollment.source);
+
     hasAccess = hasAccess || enrollment !== null;
-    canReview = enrollment !== null && existingReview === null;
+    canReview =
+      hasReviewRole &&
+      hasReviewEnrollment &&
+      existingReview === null;
   }
 
   return {
@@ -603,6 +694,8 @@ export async function createCourseReview(
   input: CreateCourseReviewInput,
 ) {
   return prisma.$transaction(async (tx) => {
+    const lockedCourse = await lockCourseAndAuthorProfile(tx, courseId);
+
     const course = await tx.course.findFirst({
       where: {
         id: courseId,
@@ -621,6 +714,7 @@ export async function createCourseReview(
         userId,
         courseId,
         revokedAt: null,
+        source: { in: REVIEW_ELIGIBLE_SOURCES },
       },
       select: { id: true },
     });
@@ -650,7 +744,7 @@ export async function createCourseReview(
       select: publicReviewSelect,
     });
 
-    const rating = await recalculateCourseReviewRating(tx, courseId);
+    const rating = await recalculateReviewRatings(tx, courseId, lockedCourse.authorId);
 
     return {
       review: mapPublicReview(review),
@@ -665,6 +759,8 @@ export async function updateMyCourseReview(
   input: UpdateCourseReviewInput,
 ) {
   return prisma.$transaction(async (tx) => {
+    const lockedCourse = await lockCourseAndAuthorProfile(tx, courseId);
+
     const course = await tx.course.findFirst({
       where: {
         id: courseId,
@@ -683,6 +779,7 @@ export async function updateMyCourseReview(
         userId,
         courseId,
         revokedAt: null,
+        source: { in: REVIEW_ELIGIBLE_SOURCES },
       },
       select: { id: true },
     });
@@ -713,7 +810,7 @@ export async function updateMyCourseReview(
       select: publicReviewSelect,
     });
 
-    const rating = await recalculateCourseReviewRating(tx, courseId);
+    const rating = await recalculateReviewRatings(tx, courseId, lockedCourse.authorId);
 
     return {
       review: mapPublicReview(review),
