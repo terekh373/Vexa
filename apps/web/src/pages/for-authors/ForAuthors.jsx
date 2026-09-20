@@ -66,7 +66,7 @@ const ForAuthors = () => {
               </ul>
             </div>
 
-            <img src={Preview} alt='Preview image' />
+            <img src={Preview} alt="Preview image" className={styles.preview} />
           </div>
 
           <Title title='Чому варто стати автором VEXA' size='small' />

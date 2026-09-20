@@ -16,6 +16,13 @@ import NotFound from './pages/not-found/NotFound.jsx';
 import ComingSoon from './pages/stubs/ComingSoon.jsx';
 import AuthorCourses from './pages/author-courses/AuthorCourses.jsx';
 import CourseWizard from './pages/author/course-wizard/CourseWizard.jsx';
+import CheckoutSuccess from './pages/checkout-success/CheckoutSuccess.jsx';
+import { ForVeterans } from './pages/footer/for-veterans-page/ForVeterans.jsx';
+import { Questions } from './pages/footer/faq/Questions.jsx';
+import Blog from './pages/footer/blog/Blog.jsx';
+import About from './pages/footer/about/About.jsx';
+import Contacts from './pages/footer/contacts/Contacts.jsx';
+import Categories from './pages/categories/Categories.jsx';
 
 function App() {
   return (
@@ -29,11 +36,24 @@ function App() {
         <Route path={routePatterns.login} element={<LoginPage />} />
         <Route path={routePatterns.register} element={<RegisterPage />} />
         <Route path={routePatterns.verifyEmail} element={<VerifyEmailPage />} />
+        
+        {/* сделать роутинг */}
+        <Route path="/veterans" element={<ForVeterans />} />
+        <Route path="/faq" element={<Questions />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contacts" element={<Contacts />} />
+        <Route path="/categories" element={<Categories />} />
+        <Route path="/authors" element={<About />} />
+        <Route path="/ai" element={<VexaAI />} />
+        <Route path="/vacancies" element={<ComingSoon />} />
+        <Route path="/press" element={<ComingSoon />} />
 
         <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
           <Route path={routePatterns.learning} element={<ComingSoon title="Моє навчання" />} />
           <Route path={routePatterns.orders} element={<ComingSoon title="Замовлення" />} />
           <Route path={routePatterns.settings} element={<ComingSoon title="Налаштування" />} />
+          <Route path={routePatterns.checkoutSuccess} element={<CheckoutSuccess />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['AUTHOR']} />}>

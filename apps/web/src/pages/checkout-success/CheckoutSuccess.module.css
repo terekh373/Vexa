@@ -1,0 +1,166 @@
+.container {
+  width: 100%;
+  max-width: 678px;
+  margin: 32px auto;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* gap: 64px; */
+}
+
+.imgSccs {
+  margin-bottom: 16px;
+  width: 64px;
+  height: 64px;
+}
+
+.title {
+  color: var(--main-dark-color);
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 48px;
+  margin-bottom: 16px;
+}
+
+.subtitle {
+  color: var(--main-dark-color);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 27px;
+  margin-bottom: 4px;
+}
+
+.subtitle:last-of-type {
+  margin-bottom: 78px;
+}
+
+.purchaseCard {
+  display: flex;
+  padding: 16px;
+  border: 1px solid var(--border-grey);
+  border-radius: 16px;
+  margin-bottom: 48px;
+  gap: 32px;
+  align-items: stretch;
+}
+
+
+.img {
+  width: 276px;
+  height: 184px;
+  object-fit: cover;
+}
+
+.info {
+  width: 100%;
+}
+
+.info h2 {
+  color: var(--main-dark-color);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 27px;
+  margin-bottom: 10px;
+}
+
+.author {
+  color: var(--secondary-grey);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 27px;
+  margin-bottom: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.row span {
+  color: var(--secondary-grey);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 27px;
+  margin-bottom: 8px;  
+  display: block;
+}
+
+.bttns {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Tablet */
+@media (max-width: 960px) {
+  .container {
+    padding: 16px;
+  }
+
+  .imgSccs {
+    margin-bottom: 12px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .title {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+  }
+
+  .subtitle:last-of-type {
+    margin-bottom: 58px;
+  }
+
+  .purchaseCard {
+    padding: 16px;
+    margin-bottom: 38px;
+    gap: 32px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 540px) {
+  .container {
+    padding: 16px;
+  }
+
+  .imgSccs {
+    margin-bottom: 8px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .title {
+    font-size: 26px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+
+  .subtitle:last-of-type {
+    margin-bottom: 38px;
+  }
+
+  .purchaseCard {
+    padding: 16px;
+    margin-bottom: 28px;
+    gap: 16px;
+    flex-direction: column;
+    align-items: center;
+  }
+}
