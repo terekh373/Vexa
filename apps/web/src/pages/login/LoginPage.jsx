@@ -86,6 +86,12 @@ const LoginPage = () => {
           </p>
         )}
 
+        {location.state?.passwordReset && (
+          <p className={styles.success}>
+            Пароль успішно змінено. Тепер ви можете увійти з новим паролем.
+          </p>
+        )}
+
         <form className={styles.form} onSubmit={handleSubmit} noValidate>
           <label className={styles.field}>
             <span className={styles.label}>Email</span>
@@ -102,7 +108,17 @@ const LoginPage = () => {
           </label>
 
           <label className={styles.field}>
-            <span className={styles.label}>Пароль</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span className={styles.label}>Пароль</span>
+              <Link 
+                className={styles.link} 
+                to={routes.forgotPassword()}
+                style={{ fontSize: '13px', fontWeight: '400' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                Забули пароль?
+              </Link>
+            </div>
             <input
               className={`${styles.input} ${errors.password ? styles.inputError : ''}`}
               type="password"
