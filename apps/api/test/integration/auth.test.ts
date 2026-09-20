@@ -11,6 +11,7 @@ const registerBody = {
   email: 'student@example.com',
   password: 'StrongPass123',
   fullName: 'Test Student',
+  acceptTerms: true as const,
 };
 
 const testSessionContext = {

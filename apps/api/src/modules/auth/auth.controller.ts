@@ -3,12 +3,13 @@
  * No business rules here.
  */
 import type { Request, RequestHandler, Response } from 'express';
-import { consumeVerificationToken } from './emailVerification.service.js';
+import { consumeVerificationToken, requestVerificationResend } from './emailVerification.service.js';
 import {
   forgotPasswordSchema,
   loginSchema,
   refreshSchema,
   registerSchema,
+  resendVerificationSchema,
   resetPasswordSchema,
 } from '@vexa/shared';
 import { login, logout, logoutAll, refresh, register, type SessionContext } from './auth.service.js';
@@ -62,6 +63,14 @@ export const resetPasswordHandler: RequestHandler = async (req: Request, res: Re
   const input = resetPasswordSchema.parse(req.body);
   await resetPassword(input.token, input.password);
 
+  res.status(204).send();
+};
+
+export const resendVerificationHandler: RequestHandler = async (req: Request, res: Response) => {
+  const input = resendVerificationSchema.parse(req.body);
+  await requestVerificationResend(input.email);
+
+  // Deliberately identical for existing, verified and unknown accounts.
   res.status(204).send();
 };
 

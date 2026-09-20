@@ -46,6 +46,13 @@ const envSchema = z.object({
   // Public base URL of the web client, used for links that must open in the browser.
   WEB_APP_URL: z.string().url('WEB_APP_URL must be a URL').default('http://localhost:5173'),
 
+  // Brevo transactional email. The API key is intentionally optional so local
+  // development and tests keep the log-only transport. Production supplies it.
+  BREVO_API_KEY: z.string().min(1).optional(),
+  MAIL_FROM_EMAIL: z.string().email().default('noreply@example.com'),
+  MAIL_FROM_NAME: z.string().min(1).default('Vexa'),
+  SUPPORT_EMAIL: z.string().email().default('support@example.com'),
+
   // Object storage (Cloudflare R2 or any S3-compatible endpoint). Required:
   // the files module signs URLs at request time, and a missing key would only
   // surface as a 500 on the first upload instead of at startup.

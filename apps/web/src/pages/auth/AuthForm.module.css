@@ -82,6 +82,26 @@
   line-height: 1.35;
 }
 
+.termsRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--secondary-grey);
+}
+
+.termsCheckbox {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--purple-color);
+  flex: 0 0 auto;
+}
+
+.termsText {
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 .formError,
 .success {
   margin: 0;

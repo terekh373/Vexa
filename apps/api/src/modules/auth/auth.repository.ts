@@ -32,6 +32,7 @@ export async function createUser(input: CreateUserInput): Promise<User> {
       email: input.email,
       passwordHash: input.passwordHash,
       fullName: input.fullName,
+      termsAcceptedAt: new Date(),
       // roles defaults to [STUDENT] in the schema: one account, roles added
       // later without a second sign-up (SRS 15.1).
     },
