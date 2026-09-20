@@ -1,6 +1,17 @@
 import type { RequestHandler } from 'express';
-import { updateUserStatus, verifyAuthor } from './admin.users.service.js';
-import { updateUserStatusSchema, userIdParamsSchema, verifyAuthorSchema } from './admin.users.validation.js';
+import { listAdminUsers, updateUserStatus, verifyAuthor } from './admin.users.service.js';
+import {
+  adminUserListQuerySchema,
+  updateUserStatusSchema,
+  userIdParamsSchema,
+  verifyAuthorSchema,
+} from './admin.users.validation.js';
+
+export const listUsersHandler: RequestHandler = async (req, res) => {
+  const query = adminUserListQuerySchema.parse(req.query);
+  const result = await listAdminUsers(query);
+  res.status(200).json(result);
+};
 
 export const updateUserStatusHandler: RequestHandler = async (req, res) => {
   const { id } = userIdParamsSchema.parse(req.params);

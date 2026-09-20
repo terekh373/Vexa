@@ -2,12 +2,12 @@
  * Password recovery (SRS 15.1 / issue #65).
  *
  * Reset tokens are short-lived, single-use secrets, so Redis is the right
- * store: no persistent table or migration is needed. Email delivery is still
- * a log-only stub, matching emailVerification.service.ts.
+ * store. Email delivery is best-effort through the shared Brevo transport.
  */
 import { randomBytes } from 'node:crypto';
+import { env } from '../../config/env.js';
 import { AppError } from '../../lib/errors.js';
-import { logger } from '../../lib/logger.js';
+import { sendMail } from '../../lib/mailer.js';
 import { redis } from '../../lib/redis.js';
 import { findActiveByEmail, updatePasswordHash } from './auth.repository.js';
 import { revokeAllSessions } from './auth.service.js';
@@ -22,13 +22,6 @@ function generatePasswordResetToken(): string {
   return randomBytes(32).toString('base64url');
 }
 
-/**
- * Creates a reset token without revealing whether the account exists.
- *
- * A Redis write is performed for both known and unknown addresses so the HTTP
- * path stays structurally similar. The sentinel token is never delivered and
- * would still be rejected if somehow presented.
- */
 export async function requestPasswordReset(email: string): Promise<void> {
   const user = await findActiveByEmail(email);
   const token = generatePasswordResetToken();
@@ -45,12 +38,16 @@ export async function requestPasswordReset(email: string): Promise<void> {
   }
 }
 
-/** Placeholder until the notification/email provider is connected. */
+/** Keeps the existing `(email, token) => void` signature used by auth flows. */
 export function sendPasswordResetEmail(email: string, token: string): void {
-  logger.info(
-    { email, resetPasswordUrl: `/reset-password?token=${token}` },
-    'Password reset email (delivery stubbed)',
-  );
+  const resetPasswordUrl = `${env.WEB_APP_URL.replace(/\/$/, '')}/reset-password?token=${encodeURIComponent(token)}`;
+
+  void sendMail({
+    to: [{ email }],
+    subject: 'Vexa — відновлення пароля',
+    text: `Ви запросили зміну пароля у Vexa. Встановіть новий пароль за посиланням: ${resetPasswordUrl}\n\nПосилання дійсне 1 годину. Якщо це були не ви, проігноруйте лист.`,
+    html: `<p>Ви запросили зміну пароля у Vexa.</p><p><a href="${resetPasswordUrl}">Встановити новий пароль</a></p><p>Посилання дійсне 1 годину. Якщо це були не ви, проігноруйте лист.</p>`,
+  });
 }
 
 /** Atomically reads and deletes a reset token. */

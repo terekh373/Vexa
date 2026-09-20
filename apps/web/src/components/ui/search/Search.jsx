@@ -1,22 +1,22 @@
 import styled from 'styled-components';
-import searchIcon from '../../../assets/icons/search.svg'
+
+import searchIcon from '../../../assets/icons/search.svg';
 
 const SearchWrapper = styled.div`
   position: relative;
   width: 100%;
-  /* padding: 10px;  */
+  min-width: 0;
 
-  ${({ $size}) => {
-    if($size === 'medium') {
+  ${({ $size }) => {
+    if ($size === 'medium') {
       return `
-        width: 586px;
-        width: 586px;
+        max-width: 586px;
 
         input {
           padding: 10px 16px 10px 40px;
           font-size: 16px;
+          line-height: 24px;
         }
-  
       `;
     }
 
@@ -32,36 +32,62 @@ const SearchWrapper = styled.div`
       `;
     }
   }}
-  
+
   img {
     position: absolute;
-    left: 16px;
     top: 50%;
-    transform: translateY(-50%);
+    left: 16px;
     width: 18px;
     height: 18px;
-   }
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
 
   input {
+    display: block;
     width: 100%;
-    border: 1.5px solid #8A8F98;
-    background: var(--main-bg-color);
-    border-radius: 16px;
-    outline: none;
-    color: var(--main-dark-color);
-  }
-
-  @media (max-width: 992px) {
-    max-width: 100%;
     min-width: 0;
+    box-sizing: border-box;
+    border: 1.5px solid #8a8f98;
+    border-radius: 16px;
+    background: var(--main-bg-color);
+    color: var(--main-dark-color);
+    outline: none;
   }
 
-  @media (max-width: 480px) {
-    padding: 8px;
+  input:focus {
+    border-color: var(--purple-color);
+  }
+
+  /* TABLET */
+  @media (max-width: 1100px) {
+    width: 100%;
+    max-width: 100%;
 
     input {
+      width: 100%;
+      padding: 10px 14px 10px 40px;
+      font-size: 15px;
+      line-height: 22px;
+    }
+
+    img {
+      left: 14px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  /* MOBILE */
+  @media (max-width: 540px) {
+    width: 100%;
+    max-width: 100%;
+
+    input {
+      padding: 10px 14px 10px 38px;
       font-size: 14px;
-      padding: 9px 12px 9px 36px;
+      line-height: 20px;
+      border-radius: 12px;
     }
 
     img {
@@ -70,30 +96,45 @@ const SearchWrapper = styled.div`
       height: 16px;
     }
   }
-  
-  @media (max-width: 320px) {
-    padding: 6px;
 
+  @media (max-width: 360px) {
     input {
+      padding: 9px 12px 9px 36px;
       font-size: 14px;
-      padding: 8px 10px 8px 34px;
+      line-height: 20px;
     }
 
     img {
       left: 12px;
+      width: 16px;
+      height: 16px;
     }
   }
 `;
 
-export const Search = ({ size='medium', type='text', value, placeholder = 'Пошук курсів...', onKeyDown, onChange, required} ) => (
+export const Search = ({
+  size = 'medium',
+  type = 'text',
+  value,
+  placeholder = 'Пошук курсів...',
+  onKeyDown,
+  onChange,
+  required,
+}) => (
   <SearchWrapper $size={size}>
-    <img src={searchIcon} alt='search icon'/>
-    <input type={type}
-           placeholder={placeholder}
-           value={value}
-           onKeyDown={onKeyDown}
-           onChange={onChange}
-           required={required}
+    <img
+      src={searchIcon}
+      alt=""
+      aria-hidden="true"
+    />
+
+    <input
+      type={type}
+      placeholder={placeholder}
+      value={value}
+      onKeyDown={onKeyDown}
+      onChange={onChange}
+      required={required}
     />
   </SearchWrapper>
 );

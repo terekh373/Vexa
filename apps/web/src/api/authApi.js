@@ -1,9 +1,9 @@
 import apiClient from './client.js';
 
-export const registerUser = (email, password, fullName) =>
+export const registerUser = (email, password, fullName, acceptTerms) =>
   apiClient.post(
     '/auth/register',
-    { email, password, fullName },
+    { email, password, fullName, acceptTerms },
     { skipAuthRefresh: true, skipAuthHeader: true },
   );
 
