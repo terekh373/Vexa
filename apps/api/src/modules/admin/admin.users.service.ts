@@ -4,11 +4,16 @@ import { revokeAllSessions } from '../auth/auth.service.js';
 import {
   findAuthorProfileByUserId,
   findUserById,
+  listUsers,
   setAuthorVerification,
   setUserStatus,
   type AdminUserRow,
 } from './admin.users.repository.js';
-import type { UpdateUserStatusInput, VerifyAuthorInput } from './admin.users.validation.js';
+import type {
+  AdminUserListQuery,
+  UpdateUserStatusInput,
+  VerifyAuthorInput,
+} from './admin.users.validation.js';
 
 function toUserResponse(user: AdminUserRow) {
   return {
@@ -18,6 +23,31 @@ function toUserResponse(user: AdminUserRow) {
     roles: user.roles,
     status: user.status,
     updatedAt: user.updatedAt,
+  };
+}
+
+export async function listAdminUsers(query: AdminUserListQuery) {
+  const { items, total } = await listUsers(query);
+
+  return {
+    items: items.map((user) => ({
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      roles: user.roles,
+      status: user.status,
+      createdAt: user.createdAt,
+      ...(user.roles.includes(UserRole.AUTHOR)
+        ? {
+            displayName: user.authorProfile?.displayName ?? null,
+            isVerified: user.authorProfile?.isVerified ?? false,
+          }
+        : {}),
+    })),
+    page: query.page,
+    limit: query.limit,
+    total,
+    totalPages: Math.ceil(total / query.limit),
   };
 }
 
