@@ -12,6 +12,9 @@ import VexaAI from './pages/vexa-ai/VexaAI.jsx';
 import LoginPage from './pages/login/LoginPage.jsx';
 import RegisterPage from './pages/register/RegisterPage.jsx';
 import VerifyEmailPage from './pages/verify-email/VerifyEmailPage.jsx';
+import ForgotPasswordPage from './pages/forgot-password/ForgotPasswordPage.jsx';
+import ResetPasswordPage from './pages/reset-password/ResetPasswordPage.jsx';
+import Settings from './pages/settings/Settings.jsx';
 import NotFound from './pages/not-found/NotFound.jsx';
 import ComingSoon from './pages/stubs/ComingSoon.jsx';
 import AuthorCourses from './pages/author-courses/AuthorCourses.jsx';
@@ -29,19 +32,21 @@ function App() {
         <Route path={routePatterns.login} element={<LoginPage />} />
         <Route path={routePatterns.register} element={<RegisterPage />} />
         <Route path={routePatterns.verifyEmail} element={<VerifyEmailPage />} />
-
+        <Route path={routePatterns.forgotPassword} element={<ForgotPasswordPage />} />
+        <Route path={routePatterns.resetPassword} element={<ResetPasswordPage />} />
+         <Route path={routePatterns.settings} element={<Settings />} />
         <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
           <Route path={routePatterns.learning} element={<ComingSoon title="Моє навчання" />} />
           <Route path={routePatterns.orders} element={<ComingSoon title="Замовлення" />} />
-          <Route path={routePatterns.settings} element={<ComingSoon title="Налаштування" />} />
+ 
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['AUTHOR']} />}>
-  <Route path={routePatterns.authorCourses} element={<AuthorCourses />} />
-  <Route path={routes.authorCourseNew()} element={<CourseWizard />} />
-  <Route path={routePatterns.authorCourseEdit} element={<CourseWizard />} />
-  <Route path={routePatterns.authorArea} element={<ComingSoon title="Кабінет автора" />} />
-</Route>
+          <Route path={routePatterns.authorCourses} element={<AuthorCourses />} />
+          <Route path={routes.authorCourseNew()} element={<CourseWizard />} />
+          <Route path={routePatterns.authorCourseEdit} element={<CourseWizard />} />
+          <Route path={routePatterns.authorArea} element={<ComingSoon title="Кабінет автора" />} />
+        </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
           <Route path={routePatterns.adminArea} element={<ComingSoon title="Адмін-панель" />} />

@@ -29,3 +29,11 @@ export const verifyEmail = (token) =>
     skipAuthRefresh: true,
     skipAuthHeader: true,
   });
+
+export const forgotPasswordRequest = async (email) => {
+  return await apiClient.post('/api/auth/forgot-password', { email });
+};
+
+export const resetPasswordRequest = async (token, newPassword) => {
+  return await apiClient.post('/api/auth/reset-password', { token, newPassword });
+};

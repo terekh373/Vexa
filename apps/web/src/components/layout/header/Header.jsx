@@ -41,6 +41,8 @@ const Header = () => {
     </>
   );
 
+  const initials = (user?.fullName || user?.email || 'U').substring(0, 2).toUpperCase();
+
   const signedInActions = (
     <>
       <Button title="Мій простір" onClick={() => goTo(getSpaceRoute())} />
@@ -51,14 +53,36 @@ const Header = () => {
           onClick={() => setIsUserMenuOpen((open) => !open)}
           aria-expanded={isUserMenuOpen}
           aria-haspopup="menu"
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 8px', borderRadius: '24px', border: '1px solid #eef0f5', background: 'transparent', cursor: 'pointer' }}
         >
-          {user?.fullName || user?.email}
+          <img 
+            src={user?.avatarUrl || `https://ui-avatars.com/api/?name=${initials}&background=6236FF&color=fff&size=32`} 
+            alt="Avatar" 
+            style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
+          />
+          <span style={{ fontWeight: '500', fontSize: '14px', color: '#111' }}>
+            {user?.fullName || user?.email}
+          </span>
         </button>
 
         {isUserMenuOpen && (
           <div className={styles.userMenu} role="menu">
             <span className={styles.userEmail}>{user?.email}</span>
-            <button type="button" className={styles.logoutButton} onClick={handleLogout} role="menuitem">
+            <button 
+              type="button" 
+              className={styles.menuItemButton} 
+              onClick={() => goTo(routes.settings())} 
+              role="menuitem"
+              style={{ width: '100%', textAlign: 'left', padding: '10px 16px', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#111' }}
+            >
+              Налаштування
+            </button>
+            <button 
+              type="button" 
+              className={styles.logoutButton} 
+              onClick={handleLogout} 
+              role="menuitem"
+            >
               Вийти
             </button>
           </div>
@@ -123,7 +147,15 @@ const Header = () => {
                 <div className={styles.mobileActions}>
                   {user ? (
                     <>
-                      <span className={styles.mobileUser}>{user.fullName || user.email}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px', justifyContent: 'center' }}>
+                        <img 
+                          src={user?.avatarUrl || `https://ui-avatars.com/api/?name=${initials}&background=6236FF&color=fff&size=40`} 
+                          alt="Avatar" 
+                          style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                        />
+                        <span className={styles.mobileUser}>{user.fullName || user.email}</span>
+                      </div>
+                      <Button title="Налаштування" variant="secondary" onClick={() => goTo(routes.settings())} />
                       <Button title="Мій простір" onClick={() => goTo(getSpaceRoute())} />
                       <Button title="Вийти" variant="secondary" onClick={handleLogout} />
                     </>
