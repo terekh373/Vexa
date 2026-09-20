@@ -50,7 +50,7 @@ function App() {
         <Route path="/contacts" element={<Contacts />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/authors" element={<About />} />
-        <Route path="/ai" element={<VexaAi />} />
+        <Route path="/ai" element={<VexaAI />} />
         <Route path="/vacancies" element={<ComingSoon />} />
         <Route path="/press" element={<ComingSoon />} />
 
