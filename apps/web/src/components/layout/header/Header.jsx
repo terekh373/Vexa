@@ -14,7 +14,6 @@ import BellIcon from '../../../assets/icons/bell.svg';
 import NotificationModal from './notification-modal/NotificationModal.jsx';
 
 import { useAuth } from '../../../context/auth-context.js';
-import NotificationBell from '../../notifications/NotificationBell.jsx';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -176,8 +175,25 @@ const Header = () => {
 
   const signedInActions = (
     <>
+      {/* <button
+        type="button"
+        className={styles.notificationButton}
+        aria-label="Повідомлення"
+        onClick={() => setIsNotificationOpen(true)}
+      >
+        <img
+          src={BellIcon}
+          alt=""
+          aria-hidden="true"
+        />
+      </button>
+
+      <UserMenu
+        user={user}
+        onLogout={handleLogout}
+      /> */}
       <Button title="Мій простір" onClick={() => goTo(getSpaceRoute())} />
-      {/* <div className={styles.userMenuWrap}>
+      <div className={styles.userMenuWrap}>
         <button
           type="button"
           className={styles.userMenuButton}
@@ -218,24 +234,7 @@ const Header = () => {
             </button>
           </div>
         )}
-      </div> */}
-      <button
-        type="button"
-        className={styles.notificationButton}
-        aria-label="Повідомлення"
-        onClick={() => setIsNotificationOpen(true)}
-      >
-        <img
-          src={BellIcon}
-          alt=""
-          aria-hidden="true"
-        />
-      </button>
-
-      <UserMenu
-        user={user}
-        onLogout={handleLogout}
-      />
+      </div>
     </>
   );
 
@@ -260,12 +259,6 @@ const Header = () => {
               user ? signedInActions : guestActions
             )}
           </div>
-
-          {/* {!isLoading && user && (
-            <div className={styles.notificationSlot}>
-              <NotificationBell />
-            </div>
-          )} */}
 
           {/* Burger */}
           <button
@@ -302,18 +295,7 @@ const Header = () => {
                 <div className={styles.mobileActions}>
                   {user ? (
                     <>
-                      {/* <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px', justifyContent: 'center' }}>
-                        <img 
-                          src={user?.avatarUrl || `https://ui-avatars.com/api/?name=${initials}&background=6236FF&color=fff&size=40`} 
-                          alt="Avatar" 
-                          style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
-                        />
-                        <span className={styles.mobileUser}>{user.fullName || user.email}</span>
-                      </div>
-                      <Button title="Налаштування" variant="secondary" onClick={() => goTo(routes.settings())} />
-                      <Button title="Мій простір" onClick={() => goTo(getSpaceRoute())} />
-                      <Button title="Вийти" variant="secondary" onClick={handleLogout} /> */}
-                      <span className={styles.mobileUser}>
+                      {/* <span className={styles.mobileUser}>
                         {user.fullName || user.email}
                       </span>
 
@@ -326,7 +308,18 @@ const Header = () => {
                         title="Вийти"
                         variant="secondary"
                         onClick={handleLogout}
-                      />
+                      /> */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px', justifyContent: 'center' }}>
+                        <img 
+                          src={user?.avatarUrl || `https://ui-avatars.com/api/?name=${initials}&background=6236FF&color=fff&size=40`} 
+                          alt="Avatar" 
+                          style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                        />
+                        <span className={styles.mobileUser}>{user.fullName || user.email}</span>
+                      </div>
+                      <Button title="Налаштування" variant="secondary" onClick={() => goTo(routes.settings())} />
+                      <Button title="Мій простір" onClick={() => goTo(getSpaceRoute())} />
+                      <Button title="Вийти" variant="secondary" onClick={handleLogout} />
                     </>
                   ) : (
                     guestActions
