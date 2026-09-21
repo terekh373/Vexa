@@ -123,6 +123,54 @@
 refresh-флоу). Акаунт без локального пароля (`passwordHash = null`) → `409`.
 Ендпоінт має таке саме обмеження частоти, як `/api/auth/login`.
 
+## Сповіщення
+
+Усі маршрути вимагають Bearer-токен і працюють тільки зі сповіщеннями
+поточного користувача. Чуже `id` не розкриває існування запису й повертає
+`404`.
+
+    GET   /api/me/notifications?page=1&limit=20
+    PATCH /api/me/notifications/:id/read
+    PATCH /api/me/notifications/read-all
+
+`GET /api/me/notifications` — найновіші спочатку. `limit` за замовчуванням
+`20`, максимум `50`. Відповідь:
+
+```json
+{
+  "items": [
+    {
+      "id": "uuid",
+      "type": "PURCHASE | MODERATION | PAYOUT | REVIEW | ACCOUNT | SYSTEM",
+      "title": "Новий продаж: «Математика, 7 клас»",
+      "body": "... | null",
+      "payload": { "href": "/author/balance", "courseId": "uuid" },
+      "readAt": null,
+      "createdAt": "2026-09-22T10:00:00.000Z"
+    }
+  ],
+  "unreadCount": 3,
+  "page": 1,
+  "limit": 20,
+  "total": 12,
+  "totalPages": 1
+}
+```
+
+`payload` — дані для переходу з дзвіночка. Якщо є `payload.href`, клієнт
+переходить за ним; для старих moderation-подій клієнт також підтримує
+`courseId`.
+
+`PATCH /api/me/notifications/:id/read` → `204`. Повторна позначка власного
+сповіщення теж `204`; чуже або неіснуюче → `404`.
+
+`PATCH /api/me/notifications/read-all` →
+`{ "updatedCount": 4 }` — кількість сповіщень, які щойно стали прочитаними.
+
+Події створюються сервером: результат модерації та новий відгук уже
+підключені до відповідних транзакцій. Сервіс також має атомарні hooks для
+підтвердженої покупки та заявки на виплату; їх викликають платіжний webhook
+(#84) і `POST /api/author/payouts` (#106), коли ці флоу доступні в `develop`.
 
 ## Підтримка
 

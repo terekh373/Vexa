@@ -8,6 +8,7 @@ import {
 
 import { AppError } from '../../lib/errors.js';
 import { prisma } from '../../lib/prisma.js';
+import { notifyNewReview } from '../notifications/notifications.service.js';
 import type {
   CreateCourseReviewInput,
   UpdateCourseReviewInput,
@@ -702,7 +703,7 @@ export async function createCourseReview(
         status: CourseStatus.PUBLISHED,
         deletedAt: null,
       },
-      select: { id: true },
+      select: { id: true, title: true },
     });
 
     if (course === null) {
@@ -745,6 +746,19 @@ export async function createCourseReview(
     });
 
     const rating = await recalculateReviewRatings(tx, courseId, lockedCourse.authorId);
+
+    if (lockedCourse.authorId !== userId) {
+      await notifyNewReview(
+        {
+          authorId: lockedCourse.authorId,
+          courseId,
+          courseTitle: course.title,
+          reviewId: review.id,
+          rating: review.rating,
+        },
+        tx,
+      );
+    }
 
     return {
       review: mapPublicReview(review),

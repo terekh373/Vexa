@@ -2,6 +2,11 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { authenticate } from '../../middleware/authenticate.js';
 import { changePasswordHandler, updateMeHandler } from './me.controller.js';
+import {
+  listNotificationsHandler,
+  markAllNotificationsReadHandler,
+  markNotificationReadHandler,
+} from '../notifications/notifications.controller.js';
 
 export const meRouter: Router = Router();
 
@@ -22,3 +27,6 @@ const passwordChangeLimiter = rateLimit({
 meRouter.use(authenticate);
 meRouter.patch('/', updateMeHandler);
 meRouter.post('/password', passwordChangeLimiter, changePasswordHandler);
+meRouter.get('/notifications', listNotificationsHandler);
+meRouter.patch('/notifications/read-all', markAllNotificationsReadHandler);
+meRouter.patch('/notifications/:id/read', markNotificationReadHandler);

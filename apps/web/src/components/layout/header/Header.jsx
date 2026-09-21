@@ -8,6 +8,7 @@ import { Search } from '../../ui/search/Search.jsx';
 import Button from '../../ui/buttons/Button.jsx';
 import { Container } from '../container/Container.jsx';
 import { useAuth } from '../../../context/auth-context.js';
+import NotificationBell from '../../notifications/NotificationBell.jsx';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -112,6 +113,12 @@ const Header = () => {
           <div className={styles.actions}>
             {!isLoading && (user ? signedInActions : guestActions)}
           </div>
+
+          {!isLoading && user && (
+            <div className={styles.notificationSlot}>
+              <NotificationBell />
+            </div>
+          )}
 
           <button
             type="button"
