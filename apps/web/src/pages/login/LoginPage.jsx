@@ -38,6 +38,12 @@ const LoginPage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    //  navigate('/learning'); 
+    //  return; 
+   // ці рядки для перевірки фронту
+
+
     setFormError('');
 
     const parsed = loginSchema.safeParse(values);

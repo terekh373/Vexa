@@ -45,6 +45,10 @@ const RegisterPage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    
+    // navigate('/settings'); 
+    // return; 
+    // ці рядки для перевірки фронту
     setFormError('');
 
     const parsed = registerSchema.safeParse(values);

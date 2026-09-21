@@ -26,6 +26,7 @@ import Blog from './pages/footer/blog/Blog.jsx';
 import About from './pages/footer/about/About.jsx';
 import Contacts from './pages/footer/contacts/Contacts.jsx';
 import Categories from './pages/categories/Categories.jsx';
+import Profile from './pages/profile/Profile.jsx';
 
 function App() {
   return (
@@ -39,10 +40,9 @@ function App() {
         <Route path={routePatterns.login} element={<LoginPage />} />
         <Route path={routePatterns.register} element={<RegisterPage />} />
         <Route path={routePatterns.verifyEmail} element={<VerifyEmailPage />} />
-          <Route path={routePatterns.forgotPassword} element={<ForgotPasswordPage />} />
+        <Route path={routePatterns.forgotPassword} element={<ForgotPasswordPage />} />
         <Route path={routePatterns.resetPassword} element={<ResetPasswordPage />} />
 
-        {/* сделать роутинг */}
         <Route path="/veterans" element={<ForVeterans />} />
         <Route path="/faq" element={<Questions />} />
         <Route path="/blog" element={<Blog />} />
@@ -53,11 +53,12 @@ function App() {
         <Route path="/ai" element={<VexaAI />} />
         <Route path="/vacancies" element={<ComingSoon />} />
         <Route path="/press" element={<ComingSoon />} />
+        {/* перемістити роут профілю та налаштувань с зони студента для перевірки фронту */}
 
         <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
-          <Route path={routePatterns.learning} element={<ComingSoon title="Моє навчання" />} />
-          <Route path={routePatterns.orders} element={<ComingSoon title="Замовлення" />} />
+          <Route path={routePatterns.learning} element={<Profile />} />
           <Route path={routePatterns.settings} element={<Settings />} />
+          <Route path={routePatterns.orders} element={<ComingSoon title="Замовлення" />} />
           <Route path={routePatterns.checkoutSuccess} element={<CheckoutSuccess />} />
         </Route>
 
