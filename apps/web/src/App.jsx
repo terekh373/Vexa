@@ -39,6 +39,8 @@ import Checkout from './pages/checkout/Checkout.jsx';
 import Orders from './pages/orders/Orders.jsx';
 import OrderDetails from './pages/order-details/OrderDetails.jsx';
 import Learning from './pages/learning/Learning.jsx';
+import LearningPlayer from './pages/learning/player/LearningPlayer.jsx';
+import LearningMaterials from './pages/learning/learning-materials/LearningMaterials.jsx';
 
 function App() {
   return (
@@ -78,13 +80,15 @@ function App() {
           <Route path={routePatterns.settings} element={<Settings />} />
           <Route path={routePatterns.orders} element={<ComingSoon title="Замовлення" />} />
           <Route path={routePatterns.cart} element={<Cart />} />
-          {/* <Route path={routePatterns.learning} element={<ComingSoon title="Моє навчання" />} /> */}
           <Route path={routePatterns.settings} element={<ComingSoon title="Налаштування" />} />
           <Route path={routePatterns.checkoutSuccess} element={<CheckoutSuccess />} />
           <Route path={routePatterns.checkout} element={<Checkout />} />
           <Route path={routePatterns.orders} element={<Orders />} />
           <Route path={routePatterns.order} element={<OrderDetails />} />
           <Route path={routePatterns.learning} element={<Learning />} />
+          <Route path={routePatterns.player} element={<LearningPlayer />} />
+          <Route path={routePatterns.playerLesson} element={<LearningPlayer />} />
+          <Route path={routePatterns.learningMaterials} element={<LearningMaterials />} />
 
         </Route>
 

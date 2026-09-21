@@ -169,6 +169,7 @@ export const routePatterns = {
   resetPassword: '/reset-password',
   verifyEmail: '/verify-email',
   learning: '/learning',
+  learningMaterials: '/learning/materials',
   orders: '/orders',
   settings: '/settings',
   authorDashboard: '/author',
