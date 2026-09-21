@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { routePatterns, routes } from '@vexa/shared';
 
 import './App.css';
@@ -26,6 +26,11 @@ import Blog from './pages/footer/blog/Blog.jsx';
 import About from './pages/footer/about/About.jsx';
 import Contacts from './pages/footer/contacts/Contacts.jsx';
 import Categories from './pages/categories/Categories.jsx';
+import AdminLayout from './pages/admin/AdminLayout.jsx';
+import AdminModeration from './pages/admin/AdminModeration.jsx';
+import AdminModerationCourse from './pages/admin/AdminModerationCourse.jsx';
+import AdminUsers from './pages/admin/AdminUsers.jsx';
+import AdminCategories from './pages/admin/AdminCategories.jsx';
 
 function App() {
   return (
@@ -39,7 +44,7 @@ function App() {
         <Route path={routePatterns.login} element={<LoginPage />} />
         <Route path={routePatterns.register} element={<RegisterPage />} />
         <Route path={routePatterns.verifyEmail} element={<VerifyEmailPage />} />
-          <Route path={routePatterns.forgotPassword} element={<ForgotPasswordPage />} />
+        <Route path={routePatterns.forgotPassword} element={<ForgotPasswordPage />} />
         <Route path={routePatterns.resetPassword} element={<ResetPasswordPage />} />
 
         {/* сделать роутинг */}
@@ -69,7 +74,13 @@ function App() {
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-          <Route path={routePatterns.adminArea} element={<ComingSoon title="Адмін-панель" />} />
+          <Route path={routePatterns.adminDashboard} element={<Navigate to={routes.adminModeration()} replace />} />
+          <Route element={<AdminLayout />}>
+            <Route path={routePatterns.adminModeration} element={<AdminModeration />} />
+            <Route path={routePatterns.adminModerationCourse} element={<AdminModerationCourse />} />
+            <Route path={routePatterns.adminUsers} element={<AdminUsers />} />
+            <Route path={routePatterns.adminCategories} element={<AdminCategories />} />
+          </Route>
         </Route>
 
         <Route path="*" element={<NotFound />} />
