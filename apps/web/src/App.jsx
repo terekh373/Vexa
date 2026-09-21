@@ -40,9 +40,10 @@ function App() {
         <Route path={routePatterns.login} element={<LoginPage />} />
         <Route path={routePatterns.register} element={<RegisterPage />} />
         <Route path={routePatterns.verifyEmail} element={<VerifyEmailPage />} />
-        <Route path={routePatterns.forgotPassword} element={<ForgotPasswordPage />} />
+          <Route path={routePatterns.forgotPassword} element={<ForgotPasswordPage />} />
         <Route path={routePatterns.resetPassword} element={<ResetPasswordPage />} />
 
+        {/* сделать роутинг */}
         <Route path="/veterans" element={<ForVeterans />} />
         <Route path="/faq" element={<Questions />} />
         <Route path="/blog" element={<Blog />} />
