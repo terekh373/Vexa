@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+import { routes } from '@vexa/shared';
 import styled from 'styled-components';
 import authorAvatar from '../../assets/images/for-course-images/author-avatar.png';
 
@@ -10,6 +12,13 @@ const Card = styled.div`
   align-items: center;
   margin-bottom: 48px;
   box-sizing: border-box;
+  cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: ${({ $clickable }) => ($clickable ? 'var(--purple-color)' : 'var(--border-grey)')};
+    box-shadow: ${({ $clickable }) => ($clickable ? '0 8px 28px rgba(98, 54, 255, 0.08)' : 'none')};
+  }
 
   @media (max-width: 860px) {
     align-items: flex-start;
@@ -73,6 +82,14 @@ const Website = styled.a`
   }
 `;
 
+const ProfileHint = styled.span`
+  display: block;
+  margin-top: 10px;
+  color: var(--purple-color);
+  font-size: 13px;
+  font-weight: 600;
+`;
+
 const AuthorStats = styled.ul`
   display: flex;
   gap: 36px;
@@ -106,11 +123,31 @@ const AuthorStat = styled.li`
 `;
 
 export const CourseAuthorCard = ({ author = {} }) => {
+  const navigate = useNavigate();
   const avatarUrl = author.avatar?.url || authorAvatar;
   const rating = Number(author.rating ?? 0).toFixed(1);
+  const profilePath = author.id ? routes.authorProfile(author.id) : null;
+
+  const openProfile = () => {
+    if (profilePath) navigate(profilePath);
+  };
+
+  const handleKeyDown = (event) => {
+    if (!profilePath) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      navigate(profilePath);
+    }
+  };
 
   return (
-    <Card>
+    <Card
+      $clickable={Boolean(profilePath)}
+      role={profilePath ? 'link' : undefined}
+      tabIndex={profilePath ? 0 : undefined}
+      onClick={openProfile}
+      onKeyDown={handleKeyDown}
+    >
       <AuthorInfo>
         <AuthorAvatar src={avatarUrl} alt={author.name || 'Автор курсу'} />
         <div>
@@ -121,10 +158,17 @@ export const CourseAuthorCard = ({ author = {} }) => {
           {author.headline && <AuthorRole>{author.headline}</AuthorRole>}
           {author.bio && <Description>{author.bio}</Description>}
           {author.websiteUrl && (
-            <Website href={author.websiteUrl} target="_blank" rel="noreferrer">
+            <Website
+              href={author.websiteUrl}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(event) => event.stopPropagation()}
+              onKeyDown={(event) => event.stopPropagation()}
+            >
               Сайт автора
             </Website>
           )}
+          {profilePath && <ProfileHint>Переглянути профіль автора →</ProfileHint>}
         </div>
       </AuthorInfo>
 
