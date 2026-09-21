@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import styles from './Profile.module.css';
 import { useNavigate } from 'react-router-dom';
 import { routePatterns } from '@vexa/shared';
-import { useAuth } from '../../context/auth-context.js';
+import { useAuth } from '../../context/auth-context.js'; 
 
 const defaultCourses = [
   {
