@@ -63,9 +63,6 @@ function App() {
 
         <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
           <Route path={routePatterns.cart} element={<Cart />} />
-          {/* <Route path={routePatterns.settings} element={<ComingSoon title="Налаштування" />} /> */}
-          {/* <Route path={routePatterns.learning} element={<ComingSoon title="Моє навчання" />} /> */}
-          <Route path={routePatterns.orders} element={<ComingSoon title="Замовлення" />} />
           <Route path={routePatterns.settings} element={<Settings />} />
           <Route path={routePatterns.checkoutSuccess} element={<CheckoutSuccess />} />
           <Route path={routePatterns.checkout} element={<Checkout />} />

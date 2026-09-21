@@ -21,6 +21,7 @@ const Header = () => {
   const { user, isLoading, logout } = useAuth();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   const isAuthor = user?.roles?.includes('AUTHOR');
@@ -175,7 +176,8 @@ const Header = () => {
 
   const signedInActions = (
     <>
-      {/* <button
+
+      <button
         type="button"
         className={styles.notificationButton}
         aria-label="Повідомлення"
@@ -191,10 +193,11 @@ const Header = () => {
       <UserMenu
         user={user}
         onLogout={handleLogout}
-      /> */}
-      <Button title="Мій простір" onClick={() => goTo(getSpaceRoute())} />
+      />
+      
       <div className={styles.userMenuWrap}>
-        <button
+        {/* <Button title="Мій простір" onClick={() => goTo(getSpaceRoute())} /> */}
+        {/* <button
           type="button"
           className={styles.userMenuButton}
           onClick={() => setIsUserMenuOpen((open) => !open)}
@@ -210,7 +213,7 @@ const Header = () => {
           <span style={{ fontWeight: '500', fontSize: '14px', color: '#111' }}>
             {user?.fullName || user?.email}
           </span>
-        </button>
+        </button> */}
 
         {isUserMenuOpen && (
           <div className={styles.userMenu} role="menu">
