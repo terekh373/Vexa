@@ -1,6 +1,5 @@
 // import styles from './Footer.module.css';
 // import { Link } from 'react-router-dom';
-import { routes } from '@vexa/shared';
 // import { Container } from '../container/Container';
 // import facebook from '../../../assets/socialmedia/fb.svg';
 // import instagram from '../../../assets/socialmedia/inst.svg';
