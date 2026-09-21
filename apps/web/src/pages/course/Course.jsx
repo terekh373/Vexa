@@ -26,12 +26,15 @@ import { CourseAuthorCard } from './CourseAuthorCard.jsx';
 import { OpenMore } from '../../components/ui/openmore/OpenMore.jsx';
 import LessonModule from '../../components/ui/module/LessonModule.jsx';
 import CoursePageSkeleton from '../../components/ui/skeleton/course-page/CoursePageSkeleton.jsx';
+import { addToCart, getCart } from '../../services/cartService.js';
+import Toast from '../../components/ui/toast/Toast.jsx';
 
 import {
   createCourseReview,
   getCourse,
   getCourseReviews,
 } from '../../services/coursesService.js';
+
 import NotFound from '../not-found/NotFound.jsx';
 
 const REVIEWS_PAGE_SIZE = 6;
@@ -86,6 +89,7 @@ const formatFileSize = (sizeBytes) => {
   return `${value >= 10 || index === 0 ? value.toFixed(0) : value.toFixed(1)} ${units[index]}`;
 };
 
+///
 const Course = () => {
   const { idOrSlug } = useParams();
   const navigate = useNavigate();
@@ -93,6 +97,10 @@ const Course = () => {
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [isInCart, setIsInCart] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [toast, setToast] = useState(null);
 
   const [reviews, setReviews] = useState([]);
   const [reviewsPage, setReviewsPage] = useState(1);
@@ -108,8 +116,6 @@ const Course = () => {
   const [reviewSubmitError, setReviewSubmitError] = useState('');
   const [reviewSuccess, setReviewSuccess] = useState('');
 
-  const [purchaseMessage, setPurchaseMessage] = useState('');
-
   useEffect(() => {
     let cancelled = false;
 
@@ -118,7 +124,7 @@ const Course = () => {
         setLoading(true);
         setError(null);
         setCourse(null);
-        setPurchaseMessage('');
+        setIsInCart(false);
         setReviews([]);
         setReviewsPage(1);
         setReviewsTotalPages(1);
@@ -139,9 +145,13 @@ const Course = () => {
 
         setCourse(data);
       } catch {
-        if (!cancelled) setError('server-error');
+        if (!cancelled) {
+          setError('server-error');
+        }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
@@ -180,7 +190,9 @@ const Course = () => {
           setReviewsError(true);
         }
       } finally {
-        if (!cancelled) setReviewsLoading(false);
+        if (!cancelled) {
+          setReviewsLoading(false);
+        }
       }
     };
 
@@ -190,6 +202,41 @@ const Course = () => {
       cancelled = true;
     };
   }, [course?.id, isReviewsOpen, reviewsPage, reviewsRefreshKey]);
+
+  useEffect(() => {
+    if (!course?.id) return undefined;
+
+    if (course.hasAccess) {
+      setIsInCart(false);
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    const checkCart = async () => {
+      try {
+        const cart = await getCart();
+
+        if (cancelled) return;
+
+        const courseInCart = cart.items?.some(
+          (item) => item.courseId === course.id,
+        );
+
+        setIsInCart(Boolean(courseInCart));
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Не вдалося перевірити кошик:', error);
+        }
+      }
+    };
+
+    checkCart();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [course?.id, course?.hasAccess]);
 
   if (loading) {
     return (
@@ -201,7 +248,9 @@ const Course = () => {
     );
   }
 
-  if (error === 'not-found') return <NotFound />;
+  if (error === 'not-found') {
+    return <NotFound />;
+  }
 
   if (error === 'server-error') {
     return (
@@ -225,13 +274,65 @@ const Course = () => {
   const isMaterial = course.type === 'MATERIAL';
   const programLabel = isMaterial ? 'Матеріали' : 'Програма';
 
-  const handlePurchase = () => {
+  const handlePurchase = async () => {
     if (course.hasAccess) {
       navigate(routes.player(course.id));
       return;
     }
 
-    setPurchaseMessage('Кошик буде доступний у Sprint 4.');
+    if (isInCart) {
+      navigate(routes.cart());
+      return;
+    }
+
+    try {
+      setAddingToCart(true);
+
+      await addToCart(course.id);
+
+      setIsInCart(true);
+
+      setToast({
+        message: 'Курс додано в кошик',
+        type: 'success',
+      });
+    } catch (error) {
+      console.error('Не вдалося додати курс у кошик:', error);
+
+      setToast({
+        message: 'Не вдалося додати курс у кошик',
+        type: 'error',
+      });
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+
+  // toast for wishlist
+  // const handleAddToWishlist = async () => {
+  //   try {
+  //     await addToWishlist(course.id);
+
+  //     setToast({
+  //       message: 'Курс додано в обране',
+  //       type: 'success',
+  //     });
+  //   } catch (error) {
+  //     console.error('Не вдалося додати курс в обране:', error);
+
+  //     setToast({
+  //       message: 'Не вдалося додати курс в обране',
+  //       type: 'error',
+  //     });
+  //   }
+  // };
+
+  const getPurchaseButtonTitle = () => {
+    if (course.hasAccess) return 'Перейти до навчання';
+    if (addingToCart) return 'Додаємо...';
+    if (isInCart) return 'Вже в кошику';
+
+    return 'Додати в кошик';
   };
 
   const toggleReviews = () => {
@@ -252,6 +353,7 @@ const Course = () => {
       setReviewSuccess('');
 
       const trimmedText = reviewText.trim();
+
       const result = await createCourseReview(course.id, {
         rating: reviewRating,
         ...(trimmedText ? { text: trimmedText } : {}),
@@ -269,6 +371,7 @@ const Course = () => {
             }
           : current
       ));
+
       setReviewRating(0);
       setReviewText('');
       setReviewSuccess('Дякуємо! Ваш відгук опубліковано.');
@@ -281,9 +384,13 @@ const Course = () => {
       if (status === 409) {
         setReviewSubmitError('Ви вже залишили відгук на цей курс.');
       } else if (status === 403) {
-        setReviewSubmitError('Відгук можуть залишати лише користувачі з доступом до курсу.');
+        setReviewSubmitError(
+          'Відгук можуть залишати лише користувачі з доступом до курсу.',
+        );
       } else {
-        setReviewSubmitError('Не вдалося надіслати відгук. Спробуйте ще раз.');
+        setReviewSubmitError(
+          'Не вдалося надіслати відгук. Спробуйте ще раз.',
+        );
       }
     } finally {
       setReviewSubmitting(false);
@@ -293,6 +400,11 @@ const Course = () => {
   return (
     <Container>
       <main className={styles.container}>
+        <Toast
+          message={toast?.message}
+          type={toast?.type}
+          onClose={() => setToast(null)}
+        />
         <Breadcrumbs
           title="Головна"
           link={routes.home()}
@@ -353,9 +465,10 @@ const Course = () => {
 
             <div className={styles.courseRowBttn}>
               <Button
-                title={course.hasAccess ? 'Перейти до навчання' : 'Придбати курс'}
+                title={getPurchaseButtonTitle()}
                 variant="primary"
                 size="medium"
+                disabled={addingToCart}
                 onClick={handlePurchase}
               />
 
@@ -363,14 +476,15 @@ const Course = () => {
                 title="Додати в обране"
                 variant="secondary"
                 size="medium"
+                // onClick={handleAddToWishlist}
               />
             </div>
 
-            {purchaseMessage && (
+            {/* {purchaseMessage && (
               <p className={styles.purchaseMessage} role="status">
                 {purchaseMessage}
               </p>
-            )}
+            )} */}
 
             <ul className={styles.priorityList}>
               <li>

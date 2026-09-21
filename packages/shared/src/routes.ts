@@ -158,6 +158,8 @@ export const routePatterns = {
   vexaAi: '/vexa-ai',
   course: '/courses/:idOrSlug',
   category: '/categories/:slug',
+  cart: '/cart',
+  checkout: '/checkout',
   curriculumSubject: '/curriculum/:subjectSlug',
   curriculumGrade: '/curriculum/:subjectSlug/:grade',
   authorProfile: '/authors/:idOrSlug',

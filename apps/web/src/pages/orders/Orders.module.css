@@ -1,0 +1,237 @@
+.orders {
+  padding: 32px 0 80px;
+}
+
+.title {
+  margin: 32px 0;
+  color: var(--main-dark-color);
+  font-size: 40px;
+  line-height: 48px;
+  font-weight: 700;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.orderCard {
+  padding: 24px;
+  border: 1px solid #e7e7e7;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.orderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e7e7e7;
+}
+
+.orderNumber {
+  margin: 0 0 6px;
+  color: var(--main-dark-color);
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+}
+
+.date {
+  margin: 0;
+  color: #777;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.statusPENDING {
+  background: #fff4d6;
+  color: #9a6a00;
+}
+
+.statusPAID {
+  background: #e7f7ec;
+  color: #257942;
+}
+
+.statusFAILED {
+  background: #fdeaea;
+  color: #b42318;
+}
+
+.statusCANCELLED {
+  background: #eeeeee;
+  color: #666;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 0;
+  border-bottom: 1px solid #e7e7e7;
+}
+
+.itemInfo {
+  min-width: 0;
+}
+
+.courseTitle {
+  color: var(--main-dark-color);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.courseTitle:hover {
+  text-decoration: underline;
+}
+
+.itemPrice {
+  flex-shrink: 0;
+  color: var(--main-dark-color);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.orderFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding-top: 20px;
+}
+
+.total {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--main-dark-color);
+  font-size: 18px;
+  line-height: 26px;
+}
+
+.total strong {
+  font-size: 20px;
+}
+
+.detailsLink,
+.catalogLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border-radius: 8px;
+  background: var(--main-dark-color);
+  color: #fff;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.empty {
+  padding: 64px 24px;
+  border-radius: 16px;
+  background: #f8f8f8;
+  text-align: center;
+}
+
+.empty h2 {
+  margin: 0 0 12px;
+  color: var(--main-dark-color);
+  font-size: 24px;
+  line-height: 32px;
+}
+
+.empty p {
+  margin: 0 0 24px;
+  color: #666;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.message,
+.error {
+  padding: 40px 0;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.error {
+  color: #b42318;
+}
+
+@media (max-width: 960px) {
+  .orders {
+    padding: 28px 0 60px;
+  }
+
+  .title {
+    margin: 28px 0;
+    font-size: 32px;
+    line-height: 40px;
+  }
+}
+
+@media (max-width: 540px) {
+  .orders {
+    padding: 24px 0 40px;
+  }
+
+  .title {
+    margin: 24px 0;
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  .orderCard {
+    padding: 16px;
+  }
+
+  .orderHeader {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .item {
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .orderFooter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .total {
+    justify-content: space-between;
+  }
+
+  .detailsLink {
+    width: 100%;
+  }
+}

@@ -34,6 +34,11 @@ import AdminUsers from './pages/admin/AdminUsers.jsx';
 import AdminCategories from './pages/admin/AdminCategories.jsx';
 import BecomeAuthorPage from './pages/author/BecomeAuthorPage.jsx';
 import AuthorProfilePage from './pages/author/AuthorProfilePage.jsx';
+import Cart from './pages/cart/Cart.jsx';
+import Checkout from './pages/checkout/Checkout.jsx';
+import Orders from './pages/orders/Orders.jsx';
+import OrderDetails from './pages/order-details/OrderDetails.jsx';
+import Learning from './pages/learning/Learning.jsx';
 
 function App() {
   return (
@@ -72,7 +77,15 @@ function App() {
           <Route path={routePatterns.learning} element={<Profile />} />
           <Route path={routePatterns.settings} element={<Settings />} />
           <Route path={routePatterns.orders} element={<ComingSoon title="Замовлення" />} />
+          <Route path={routePatterns.cart} element={<Cart />} />
+          {/* <Route path={routePatterns.learning} element={<ComingSoon title="Моє навчання" />} /> */}
+          <Route path={routePatterns.settings} element={<ComingSoon title="Налаштування" />} />
           <Route path={routePatterns.checkoutSuccess} element={<CheckoutSuccess />} />
+          <Route path={routePatterns.checkout} element={<Checkout />} />
+          <Route path={routePatterns.orders} element={<Orders />} />
+          <Route path={routePatterns.order} element={<OrderDetails />} />
+          <Route path={routePatterns.learning} element={<Learning />} />
+
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['AUTHOR']} />}>
@@ -80,7 +93,12 @@ function App() {
           <Route path={routes.authorCourseNew()} element={<CourseWizard />} />
           <Route path={routePatterns.authorCourseEdit} element={<CourseWizard />} />
           <Route path={routePatterns.authorArea} element={<ComingSoon title="Кабінет автора" />} />
-        </Route>
+   
+          <Route path={routePatterns.authorCourses} element={<AuthorCourses />} />
+          <Route path={routes.authorCourseNew()} element={<CourseWizard />} />
+          <Route path={routePatterns.authorCourseEdit} element={<CourseWizard />} />
+          <Route path={routePatterns.authorArea} element={<ComingSoon title="Кабінет автора" />} />
+        </Route>  
 
         <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
           <Route path={routePatterns.adminDashboard} element={<Navigate to={routes.adminModeration()} replace />} />
