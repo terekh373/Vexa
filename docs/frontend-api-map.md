@@ -264,8 +264,11 @@ Query-параметри:
 
 ### Сторінка курсу
 
-`GET /api/courses/:idOrSlug` — доступний без токена (`optionalAuth`). З
-Bearer-токеном додатково рахується `hasAccess` за `Enrollment` користувача.
+`GET /api/courses/:idOrSlug` — доступний без токена (`optionalAuth`) для
+опублікованого курсу. З Bearer-токеном додатково рахується `hasAccess` за
+`Enrollment` користувача. Курс у статусі `UNPUBLISHED` повертається лише його
+автору або користувачу з активним `Enrollment`; для гостя та інших
+користувачів такий самий запит повертає `404`.
 
 Верхній рівень відповіді:
 
@@ -412,6 +415,7 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
     DELETE /api/author/questions/:id
     PATCH  /api/author/courses/:id/reorder
     POST   /api/author/courses/:id/submit
+    POST   /api/author/courses/:id/unpublish
     POST   /api/author/reviews/:id/reply
 
 ### Відповіді автора на відгуки
@@ -479,9 +483,19 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
 
 ### Подача на модерацію
 
-`POST /api/author/courses/:id/submit` — переводить курс `draft → moderation`.
-Повний життєвий цикл статусів: `draft → moderation → published / rejected →
-unpublished`.
+`POST /api/author/courses/:id/submit` — переводить `DRAFT`, `REJECTED` або
+`UNPUBLISHED` у `MODERATION`.
+
+`POST /api/author/courses/:id/unpublish` — лише власник курсу; переводить
+`PUBLISHED → UNPUBLISHED`, тіло не потрібне. У `moderation_log` створюється
+запис `action = UNPUBLISHED`, а `moderatorId` містить id автора. Повторний
+виклик для курсу не в `PUBLISHED` повертає `409`. Після зняття курс можна
+редагувати й повторно подати на модерацію; видалення як і раніше дозволене
+лише для `DRAFT` та `REJECTED`.
+
+Повний життєвий цикл статусів: `DRAFT → MODERATION → PUBLISHED / REJECTED →
+UNPUBLISHED → MODERATION`. Покупці з активним `Enrollment` не втрачають
+доступ до `UNPUBLISHED` курсу, але в каталозі він не показується.
 
 ## Адміністрування — модерація курсів
 

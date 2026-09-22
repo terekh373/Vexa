@@ -44,6 +44,11 @@ export const submitAuthorCourse = async (id) => {
   return data;
 };
 
+export const unpublishAuthorCourse = async (id) => {
+  const { data } = await apiClient.post(`/author/courses/${id}/unpublish`);
+  return data;
+};
+
 export const createAuthorModule = async (courseId, payload) => {
   const { data } = await apiClient.post(`/author/courses/${courseId}/modules`, payload);
   return data;

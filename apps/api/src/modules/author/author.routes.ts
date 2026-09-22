@@ -21,6 +21,7 @@ import {
   listCoursesHandler,
   reorderCourseHandler,
   submitCourseHandler,
+  unpublishCourseHandler,
   updateCourseHandler,
   updateLessonHandler,
   updateModuleHandler,
@@ -54,5 +55,6 @@ authorRouter.delete('/questions/:id', deleteQuestionHandler);
 
 authorRouter.patch('/courses/:id/reorder', reorderCourseHandler);
 authorRouter.post('/courses/:id/submit', submitCourseHandler);
+authorRouter.post('/courses/:id/unpublish', unpublishCourseHandler);
 
 authorRouter.post('/reviews/:id/reply', replyToReviewHandler);
