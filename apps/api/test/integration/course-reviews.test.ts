@@ -247,6 +247,17 @@ describe('course reviews integration', () => {
     expect(Number(authorProfile.ratingAvg)).toBe(5);
     expect(authorProfile.reviewsCount).toBe(1);
 
+    const notification = await prisma.notification.findFirst({
+      where: { userId: fixture.authorId, type: 'REVIEW' },
+      orderBy: { createdAt: 'desc' },
+    });
+    expect(notification).not.toBeNull();
+    expect(notification?.payload).toMatchObject({
+      href: '/author/reviews',
+      courseId: fixture.courseId,
+      reviewId: created.body.review.id,
+    });
+
     const catalog = await request(app).get('/api/courses?limit=50');
     expect(catalog.status).toBe(200);
     const catalogCourse = (catalog.body.items as Array<{
