@@ -20,6 +20,7 @@
 [Структура](#-структура-монорепо) •
 [Скрипти](#-npm-скрипти) •
 [Демо-акаунти](#-демо-акаунти) •
+[Деплой](#-деплой) •
 [Документація](#-документація) •
 [Проблеми](#-типові-проблеми)
 
@@ -39,7 +40,7 @@ git clone https://github.com/terekh373/Vexa.git C:\diploma\vexa
 cd C:\diploma\vexa
 npm install
 copy apps\api\.env.example apps\api\.env
-:: заповнити JWT_ACCESS_SECRET і JWT_REFRESH_SECRET — див. "Секрети"
+:: заповнити всі змінні в apps\api\.env — див. "Змінні оточення й секрети"
 npm run db:up
 npm run db:migrate
 npm run db:seed
@@ -222,10 +223,11 @@ copy apps\api\.env.example apps\api\.env
 </details>
 
 <details open>
-<summary><b>4. Заповнити секрети</b></summary>
+<summary><b>4. Заповнити <code>.env</code></b></summary>
 
-Відкрийте `apps\api\.env` і заповніть **тільки** `JWT_ACCESS_SECRET` і `JWT_REFRESH_SECRET`.
-Решта вже налаштована під локальний Docker. Як згенерувати — у розділі [Секрети](#-змінні-оточення-й-секрети).
+`apps\api\.env.example` — порожній шаблон: усі значення потрібно вписати самому, включно з локальними
+(`DATABASE_URL`, `S3_*` тощо — вони не секретні, але й не підставляються автоматично). Готові локальні
+значення для копіювання і спосіб згенерувати JWT-секрети — у розділі [Змінні оточення й секрети](#-змінні-оточення-й-секрети).
 </details>
 
 <details open>
@@ -325,32 +327,69 @@ npm run dev:web
 
 ## 🔐 Змінні оточення й секрети
 
-`.env` — у `.gitignore` і **ніколи не комітиться**. У репозиторії живе тільки `.env.example` з порожніми або локальними значеннями.
-Додали нову змінну в код — додайте її в `.env.example` порожньою в тому ж PR.
+`.env` — у `.gitignore` і **ніколи не комітиться**. У репозиторії живе тільки `.env.example` — шаблон
+з порожніми значеннями. Додали нову змінну в код — додайте її в `.env.example` порожньою в тому ж PR.
 
 На старті API валідує оточення (`apps/api/src/config/env.ts`, zod) і падає з переліком проблемних змінних,
-якщо чогось бракує. Це очікувана поведінка, а не баг.
+якщо чогось бракує. Це очікувана поведінка, а не баг: `.env.example` навмисно не містить значень
+за замовчуванням, щоб жодна змінна не могла лишитися незаповненою непомітно.
 
-### Що заповнювати вручну
+### JWT-секрети — згенерувати самому
 
-Тільки два JWT-секрети, кожен — **окреме** значення від 32 символів (HS256 використовує HMAC-SHA256, коротший ключ послаблює підпис).
-Виконати **двічі**, результати вставити в різні змінні:
+`JWT_ACCESS_SECRET` і `JWT_REFRESH_SECRET` — кожен **окреме** значення від 32 символів (HS256 використовує
+HMAC-SHA256, коротший ключ послаблює підпис). Виконати **двічі**, результати вставити в різні змінні:
 
 ```cmd
 node --input-type=module -e "import {randomBytes} from 'node:crypto'; console.log(randomBytes(48).toString('base64url'))"
 ```
 
-Той самий сніпет є коментарем у `.env.example`.
+### Решта — локальні значення для копіювання
 
-### Що не чіпати локально
+Не секрети, але й не підставляються автоматично: `.env.example` навмисно порожній для всіх змінних,
+щоб той самий файл описував і локальну розробку, і продакшн. Локально `apps\api\.env` заповнюється так:
 
-| Група | Стан за замовчуванням |
+```env
+NODE_ENV="development"
+PORT="3000"
+DATABASE_URL="postgresql://vexa:vexa@localhost:5433/vexa?schema=public"
+REDIS_URL="redis://localhost:6379"
+JWT_ACCESS_TTL="15m"
+JWT_REFRESH_TTL="30d"
+WEB_APP_URL="http://localhost:5173"
+CORS_ORIGINS="http://localhost:5173"
+BREVO_API_KEY=""
+MAIL_FROM_EMAIL="noreply@example.com"
+MAIL_FROM_NAME="Vexa"
+SUPPORT_EMAIL="support@example.com"
+PLATFORM_COMMISSION_BPS="1500"
+PAYOUT_MIN_AMOUNT="50000"
+REFUND_WINDOW_DAYS="14"
+S3_ENDPOINT="http://localhost:9000"
+S3_REGION="us-east-1"
+S3_BUCKET="vexa-dev"
+S3_ACCESS_KEY_ID="minioadmin"
+S3_SECRET_ACCESS_KEY="minioadmin"
+S3_SIGNED_URL_TTL_SEC="600"
+CF_STREAM_ACCOUNT_ID=""
+CF_STREAM_API_TOKEN=""
+PAYMENT_PROVIDER="LIQPAY"
+LIQPAY_PUBLIC_KEY="sandbox_"
+LIQPAY_PRIVATE_KEY="sandbox_"
+PAYMENT_WEBHOOK_URL="http://localhost:3000/api/payments/webhook"
+SEED_MODE="demo"
+ADMIN_EMAIL=""
+ADMIN_PASSWORD=""
+```
+
+| Група | Примітка |
 |---|---|
-| `DATABASE_URL`, `REDIS_URL` | вказують на Docker із `docker-compose.yml` |
+| `DATABASE_URL`, `REDIS_URL` | вказують на Docker із `docker-compose.yml`; порти мають збігатися з ним |
 | `S3_*` | локальний MinIO; бакет `vexa-dev` створюється автоматично |
 | `CORS_ORIGINS` | `http://localhost:5173` — Vite |
 | `PLATFORM_COMMISSION_BPS`, `PAYOUT_MIN_AMOUNT`, `REFUND_WINDOW_DAYS` | значення з ТЗ: 15 %, 500 грн, 14 днів. Гроші всюди — **цілі копійки** |
 | `CF_STREAM_*`, `LIQPAY_*` | порожні / `sandbox_`. Потрібні лише для задач з відео та оплатою; ключі видає тимлід |
+| `SEED_MODE` | `demo` локально; `production` — лише в продакшн-деплої, див. [Деплой](#-деплой) |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | не потрібні при `SEED_MODE=demo` — можна лишити порожніми |
 
 ## 📜 npm-скрипти
 
@@ -403,6 +442,70 @@ node --input-type=module -e "import {randomBytes} from 'node:crypto'; console.lo
 
 Усі id в сіді фіксовані (адмін — `10000000-0000-4000-8000-000000000001`), тож їх зручно підставляти
 в ручні SQL-запити й Prisma Studio.
+
+## 🐳 Деплой
+
+API пакується в Docker-образ (`apps/api/Dockerfile`) і розрахований на керовану платформу з базою
+й кешем як окремими managed-сервісами (Railway — ТЗ, розділ 9; підійде будь-яка платформа, що вміє
+Dockerfile і дає Postgres/Redis поруч).
+
+### Що піднімається
+
+| Сервіс | Де |
+|---|---|
+| API (контейнер із `apps/api/Dockerfile`) | Railway / інша платформа з Docker |
+| PostgreSQL | managed-інстанс платформи (не той самий контейнер, що API) |
+| Redis | managed-інстанс платформи |
+| Об'єктне сховище | Cloudflare R2 (той самий S3-сумісний код, що й з MinIO локально) |
+| Відео | Cloudflare Stream |
+| Веб | Vercel, окремо від API |
+
+### Змінні оточення
+
+Платформа задає їх у своєму дашборді (Railway → Variables), у контейнер `.env`-файл не потрапляє
+ніколи. Повний список і призначення кожної — `apps/api/.env.example`. Для продакшн-значень:
+
+- `DATABASE_URL`, `REDIS_URL` — рядки підключення від платформи, не з `docker-compose.yml`;
+- `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` — окремі від локальних, згенеровані тим самим сніпетом
+  із розділу [Змінні оточення й секрети](#-змінні-оточення-й-секрети);
+- `WEB_APP_URL`, `CORS_ORIGINS`, `PAYMENT_WEBHOOK_URL` — реальні домени, не `localhost`;
+- `NODE_ENV="production"`, `PORT` — платформа зазвичай підставляє власний `PORT` автоматично;
+- `SEED_MODE="production"`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` — тільки для одноразового сіду
+  (нижче), в постійних змінних контейнера тримати не обов'язково.
+
+### Міграції при старті
+
+`apps/api/docker-entrypoint.sh` — точка входу контейнера: спершу `prisma migrate deploy`
+(накатує вже наявні міграції, ніколи не створює нові), і лише після успіху — запуск сервера
+(`exec node dist/index.js`, щоб `node` був PID 1 і коректно отримував `SIGTERM` при редеплої).
+Якщо міграція впаде — контейнер зупиниться, не піднявшись наполовину.
+
+### Сід у продакшн-режимі
+
+Демо-контент (курси, уроки, відгуки, тестові користувачі) у продакшні не потрібен. Одноразово,
+з тим самим оточенням, що і в контейнері:
+
+```
+SEED_MODE=production ADMIN_EMAIL=<пошта адміна> ADMIN_PASSWORD=<пароль> npm run db:seed --workspace @vexa/api
+```
+
+Створює тільки довідники (категорії) і один акаунт адміністратора. Ідемпотентно — повторний
+запуск не плодить дублі.
+
+### Health-check
+
+- `/api/health/live` — liveness: нічого не запитує в БД чи Redis, просто підтверджує, що процес
+  живий (`{"status":"ok","uptime":...,"version":...}`). Саме цей шлях вказується платформі як
+  healthcheck path.
+- `/api/health` — readiness: перевіряє Postgres і Redis (`{"status":"ok","dependencies":{...}}`).
+  Для ручної діагностики стану залежностей, не для автоматичного healthcheck платформи.
+
+### Відкат
+
+- **Код** — редеплой попередньої успішної збірки засобами платформи (Railway зберігає історію
+  деплоїв).
+- **Міграція** — окремою новою міграцією, що скасовує зміну. Правити чи видаляти вже застосовану
+  міграцію в історії не можна: `prisma migrate deploy` вважає застосовані міграції незмінними.
 
 ## 📚 Документація
 
