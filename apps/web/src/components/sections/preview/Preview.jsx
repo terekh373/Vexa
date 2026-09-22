@@ -1,10 +1,8 @@
 import styles from './Preview.module.css'
-import {Container} from '../../layout/container/Container.jsx';
-import heroVisual from '../../../assets/images/hero-visual.png'
+
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@vexa/shared';
 
-import styles from './Preview.module.css';
 import { Container } from '../../layout/container/Container.jsx';
 import heroVisual from '../../../assets/images/hero-visual.png';
 import Button from '../../ui/buttons/Button.jsx';
