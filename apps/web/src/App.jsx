@@ -26,6 +26,7 @@ import Blog from './pages/footer/blog/Blog.jsx';
 import About from './pages/footer/about/About.jsx';
 import Contacts from './pages/footer/contacts/Contacts.jsx';
 import Categories from './pages/categories/Categories.jsx';
+import Profile from './pages/profile/Profile.jsx';
 import AdminLayout from './pages/admin/AdminLayout.jsx';
 import AdminModeration from './pages/admin/AdminModeration.jsx';
 import AdminModerationCourse from './pages/admin/AdminModerationCourse.jsx';
@@ -61,15 +62,16 @@ function App() {
         <Route path="/ai" element={<VexaAI />} />
         <Route path="/vacancies" element={<ComingSoon />} />
         <Route path="/press" element={<ComingSoon />} />
+        {/* перемістити роут профілю та налаштувань с зони студента для перевірки фронту */}
 
         <Route element={<ProtectedRoute />}>
           <Route path={routePatterns.becomeAuthor} element={<BecomeAuthorPage />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
-          <Route path={routePatterns.learning} element={<ComingSoon title="Моє навчання" />} />
-          <Route path={routePatterns.orders} element={<ComingSoon title="Замовлення" />} />
+          <Route path={routePatterns.learning} element={<Profile />} />
           <Route path={routePatterns.settings} element={<Settings />} />
+          <Route path={routePatterns.orders} element={<ComingSoon title="Замовлення" />} />
           <Route path={routePatterns.checkoutSuccess} element={<CheckoutSuccess />} />
         </Route>
 
