@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { routePatterns, routes } from '@vexa/shared';
 
 import './App.css';
@@ -27,6 +27,13 @@ import About from './pages/footer/about/About.jsx';
 import Contacts from './pages/footer/contacts/Contacts.jsx';
 import Categories from './pages/categories/Categories.jsx';
 import Profile from './pages/profile/Profile.jsx';
+import AdminLayout from './pages/admin/AdminLayout.jsx';
+import AdminModeration from './pages/admin/AdminModeration.jsx';
+import AdminModerationCourse from './pages/admin/AdminModerationCourse.jsx';
+import AdminUsers from './pages/admin/AdminUsers.jsx';
+import AdminCategories from './pages/admin/AdminCategories.jsx';
+import BecomeAuthorPage from './pages/author/BecomeAuthorPage.jsx';
+import AuthorProfilePage from './pages/author/AuthorProfilePage.jsx';
 
 function App() {
   return (
@@ -36,11 +43,12 @@ function App() {
         <Route path={routePatterns.catalog} element={<Catalog />} />
         <Route path={routePatterns.forAuthors} element={<ForAuthors />} />
         <Route path={routePatterns.course} element={<Course />} />
+        <Route path={routePatterns.authorProfile} element={<AuthorProfilePage />} />
         <Route path={routePatterns.vexaAi} element={<VexaAI />} />
         <Route path={routePatterns.login} element={<LoginPage />} />
         <Route path={routePatterns.register} element={<RegisterPage />} />
         <Route path={routePatterns.verifyEmail} element={<VerifyEmailPage />} />
-          <Route path={routePatterns.forgotPassword} element={<ForgotPasswordPage />} />
+        <Route path={routePatterns.forgotPassword} element={<ForgotPasswordPage />} />
         <Route path={routePatterns.resetPassword} element={<ResetPasswordPage />} />
 
         {/* сделать роутинг */}
@@ -55,6 +63,10 @@ function App() {
         <Route path="/vacancies" element={<ComingSoon />} />
         <Route path="/press" element={<ComingSoon />} />
         {/* перемістити роут профілю та налаштувань с зони студента для перевірки фронту */}
+
+        <Route element={<ProtectedRoute />}>
+          <Route path={routePatterns.becomeAuthor} element={<BecomeAuthorPage />} />
+        </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
           <Route path={routePatterns.learning} element={<Profile />} />
@@ -71,7 +83,13 @@ function App() {
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-          <Route path={routePatterns.adminArea} element={<ComingSoon title="Адмін-панель" />} />
+          <Route path={routePatterns.adminDashboard} element={<Navigate to={routes.adminModeration()} replace />} />
+          <Route element={<AdminLayout />}>
+            <Route path={routePatterns.adminModeration} element={<AdminModeration />} />
+            <Route path={routePatterns.adminModerationCourse} element={<AdminModerationCourse />} />
+            <Route path={routePatterns.adminUsers} element={<AdminUsers />} />
+            <Route path={routePatterns.adminCategories} element={<AdminCategories />} />
+          </Route>
         </Route>
 
         <Route path="*" element={<NotFound />} />

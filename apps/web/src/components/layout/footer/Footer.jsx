@@ -90,6 +90,7 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { routes } from '@vexa/shared';
 
 import styles from './Footer.module.css';
 
@@ -139,7 +140,7 @@ const footerColumns = [
     id: 'cooperation',
     title: 'Співпраця',
     links: [
-      { to: '/become-author', label: 'Стати автором' },
+      { to: routes.becomeAuthor(), label: 'Стати автором' },
       { to: '/partners', label: 'Для партнерів' },
       { to: '/brands', label: 'Для брендів' },
     ],

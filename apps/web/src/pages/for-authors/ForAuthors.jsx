@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+import { routes } from '@vexa/shared';
 import styles from './ForAuthors.module.css'
 import { Container } from '../../components/layout/container/Container.jsx'
 import Breadcrumbs from '../../components/ui/breadcrumbs/Breadcrumbs.jsx'
@@ -15,6 +17,8 @@ import library from '../../assets/icons/for-authors-icons/library.svg'
 import paid from '../../assets/icons/for-authors-icons/paid.svg'
 
 const ForAuthors = () => {
+  const navigate = useNavigate();
+
   return (
     <>
       <Container>
@@ -27,7 +31,7 @@ const ForAuthors = () => {
               <p>Створюйте курси, продавайте навчальні матеріали та знаходьте тисячі учнів на платформі VEXA.</p>
 
               <div className={styles.bttnRow}>
-                <Button title='Стати автором' variant='primary' size='medium'/>
+                <Button title='Стати автором' variant='primary' size='medium' onClick={() => navigate(routes.becomeAuthor())} />
                 <Button title='Дізнатися більше' variant='secondary' size='medium'/>
               </div>
 

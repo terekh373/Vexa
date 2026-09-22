@@ -123,6 +123,110 @@
 refresh-флоу). Акаунт без локального пароля (`passwordHash = null`) → `409`.
 Ендпоінт має таке саме обмеження частоти, як `/api/auth/login`.
 
+## Сповіщення
+
+Усі маршрути вимагають Bearer-токен і працюють тільки зі сповіщеннями
+поточного користувача. Чуже `id` не розкриває існування запису й повертає
+`404`.
+
+    GET   /api/me/notifications?page=1&limit=20
+    PATCH /api/me/notifications/:id/read
+    PATCH /api/me/notifications/read-all
+
+`GET /api/me/notifications` — найновіші спочатку. `limit` за замовчуванням
+`20`, максимум `50`. Відповідь:
+
+```json
+{
+  "items": [
+    {
+      "id": "uuid",
+      "type": "PURCHASE | MODERATION | PAYOUT | REVIEW | ACCOUNT | SYSTEM",
+      "title": "Новий продаж: «Математика, 7 клас»",
+      "body": "... | null",
+      "payload": { "href": "/author/balance", "courseId": "uuid" },
+      "readAt": null,
+      "createdAt": "2026-09-22T10:00:00.000Z"
+    }
+  ],
+  "unreadCount": 3,
+  "page": 1,
+  "limit": 20,
+  "total": 12,
+  "totalPages": 1
+}
+```
+
+`payload` — дані для переходу з дзвіночка. Якщо є `payload.href`, клієнт
+переходить за ним; для старих moderation-подій клієнт також підтримує
+`courseId`.
+
+`PATCH /api/me/notifications/:id/read` → `204`. Повторна позначка власного
+сповіщення теж `204`; чуже або неіснуюче → `404`.
+
+`PATCH /api/me/notifications/read-all` →
+`{ "updatedCount": 4 }` — кількість сповіщень, які щойно стали прочитаними.
+
+Події створюються сервером: результат модерації та новий відгук уже
+підключені до відповідних транзакцій. Сервіс також має атомарні hooks для
+підтвердженої покупки та заявки на виплату; їх викликають платіжний webhook
+(#84) і `POST /api/author/payouts` (#106), коли ці флоу доступні в `develop`.
+
+### Профіль автора
+
+`POST /api/me/author-profile` — активувати роль автора для поточного користувача.
+Bearer-токен обов'язковий, окрема реєстрація не потрібна.
+
+Тіло:
+
+    { "displayName": "Оксана Петренко",
+      "headline": "Викладач математики",
+      "bio": "8 років досвіду..." }
+
+`displayName` обов'язковий (2–160 символів), `headline` і `bio` необов'язкові.
+Порожні необов'язкові поля клієнт може передати як `null`. Сервер в одній
+транзакції створює `author_profiles` та додає `AUTHOR` до `users.roles`.
+Успіх → `201`:
+
+    { "user": { "id", "email", "fullName", "roles": ["STUDENT", "AUTHOR"],
+                "emailVerified", "locale" },
+      "tokens": { "accessToken", "refreshToken", "expiresIn" },
+      "authorProfile": {
+        "userId", "displayName", "headline", "bio", "isVerified",
+        "ratingAvg", "reviewsCount", "studentsCount"
+      } }
+
+Нову пару токенів треба **одразу замінити** в клієнті: роль `AUTHOR` записана
+в access-токені, тому старий access-токен її не знає. Повторна активація →
+`409`; заблокований користувач → `403`.
+
+`PATCH /api/me/author-profile` — редагування `displayName`, `headline`, `bio`.
+Потрібне хоча б одне поле. Успіх → `200`, відповідь — `authorProfile` у формі
+вище без `user` і `tokens`. Якщо профіль автора не існує → `404`.
+
+`GET /api/authors/:id` — публічна сторінка автора, токен не потрібен. Якщо
+профілю автора немає → `404`. Відповідь `200`:
+
+```json
+{
+  "id": "uuid",
+  "displayName": "Оксана Петренко",
+  "headline": "Викладач математики",
+  "bio": "...",
+  "avatar": { "id": "uuid", "fileName": "avatar.jpg", "mimeType": "image/jpeg", "url": "..." },
+  "isVerified": false,
+  "ratingAvg": 4.8,
+  "reviewsCount": 27,
+  "studentsCount": 340,
+  "courses": []
+}
+```
+
+`courses[]` має ту саму форму картки, що `GET /api/courses`: `cover`, `author`,
+`category`, `price`, `rating`, лічильники й `publishedAt`. Повертаються **лише**
+курси/матеріали зі статусом `PUBLISHED`; чернетки, модерація, відхилені та
+зняті з публікації у портфоліо не потрапляють.
+
 
 ## Підтримка
 
@@ -208,8 +312,11 @@ Query-параметри:
 
 ### Сторінка курсу
 
-`GET /api/courses/:idOrSlug` — доступний без токена (`optionalAuth`). З
-Bearer-токеном додатково рахується `hasAccess` за `Enrollment` користувача.
+`GET /api/courses/:idOrSlug` — доступний без токена (`optionalAuth`) для
+опублікованого курсу. З Bearer-токеном додатково рахується `hasAccess` за
+`Enrollment` користувача. Курс у статусі `UNPUBLISHED` повертається лише його
+автору або користувачу з активним `Enrollment`; для гостя та інших
+користувачів такий самий запит повертає `404`.
 
 Верхній рівень відповіді:
 
@@ -356,6 +463,7 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
     DELETE /api/author/questions/:id
     PATCH  /api/author/courses/:id/reorder
     POST   /api/author/courses/:id/submit
+    POST   /api/author/courses/:id/unpublish
     POST   /api/author/reviews/:id/reply
 
 ### Відповіді автора на відгуки
@@ -423,9 +531,19 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
 
 ### Подача на модерацію
 
-`POST /api/author/courses/:id/submit` — переводить курс `draft → moderation`.
-Повний життєвий цикл статусів: `draft → moderation → published / rejected →
-unpublished`.
+`POST /api/author/courses/:id/submit` — переводить `DRAFT`, `REJECTED` або
+`UNPUBLISHED` у `MODERATION`.
+
+`POST /api/author/courses/:id/unpublish` — лише власник курсу; переводить
+`PUBLISHED → UNPUBLISHED`, тіло не потрібне. У `moderation_log` створюється
+запис `action = UNPUBLISHED`, а `moderatorId` містить id автора. Повторний
+виклик для курсу не в `PUBLISHED` повертає `409`. Після зняття курс можна
+редагувати й повторно подати на модерацію; видалення як і раніше дозволене
+лише для `DRAFT` та `REJECTED`.
+
+Повний життєвий цикл статусів: `DRAFT → MODERATION → PUBLISHED / REJECTED →
+UNPUBLISHED → MODERATION`. Покупці з активним `Enrollment` не втрачають
+доступ до `UNPUBLISHED` курсу, але в каталозі він не показується.
 
 ## Адміністрування — модерація курсів
 
@@ -861,6 +979,8 @@ Query-параметри:
 | `/` | Головна | гість |
 | `/courses` | Каталог | гість |
 | `/courses/:id` | Сторінка курсу | гість |
+| `/authors/:id` | Публічний профіль автора | гість |
+| `/become-author` | Активація / редагування профілю автора | авторизований користувач |
 | `/login`, `/register` | Авторизація | гість |
 | `/cart`, `/checkout` | Кошик, оплата | учень |
 | `/learn/:courseId/:lessonId` | Плеєр | учень |

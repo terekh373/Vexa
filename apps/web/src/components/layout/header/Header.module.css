@@ -58,6 +58,12 @@
   position: relative;
 }
 
+.notificationSlot {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .userMenuButton {
   max-width: 190px;
   padding: 10px 14px;
@@ -133,10 +139,14 @@
     padding: 16px 0;
   }
 
+  .notificationSlot {
+    margin-left: auto;
+  }
+
   .burger {
     width: 40px;
     height: 40px;
-    margin-left: auto;
+    margin-left: 0;
     padding: 8px;
     display: flex;
     flex-direction: column;

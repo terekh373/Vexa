@@ -19,7 +19,12 @@ import type {
   UpdateModuleInput,
 } from './author.validation.js';
 
-const EDITABLE_STATUSES = new Set<CourseStatus>([CourseStatus.DRAFT, CourseStatus.REJECTED]);
+const EDITABLE_STATUSES = new Set<CourseStatus>([
+  CourseStatus.DRAFT,
+  CourseStatus.REJECTED,
+  CourseStatus.UNPUBLISHED,
+]);
+const DELETABLE_STATUSES = new Set<CourseStatus>([CourseStatus.DRAFT, CourseStatus.REJECTED]);
 
 type DbClient = Prisma.TransactionClient | typeof prisma;
 
@@ -218,7 +223,13 @@ async function findOwnedCourse(db: DbClient, courseId: string, userId: string) {
 
 function assertEditable(status: CourseStatus): void {
   if (!EDITABLE_STATUSES.has(status)) {
-    throw AppError.conflict('Course can be edited only in DRAFT or REJECTED status');
+    throw AppError.conflict('Course can be edited only in DRAFT, REJECTED or UNPUBLISHED status');
+  }
+}
+
+function assertDeletable(status: CourseStatus): void {
+  if (!DELETABLE_STATUSES.has(status)) {
+    throw AppError.conflict('Course can be deleted only in DRAFT or REJECTED status');
   }
 }
 
@@ -447,7 +458,7 @@ export async function updateAuthorCourse(userId: string, courseId: string, input
 export async function deleteAuthorCourse(userId: string, courseId: string): Promise<void> {
   await prisma.$transaction(async (tx) => {
     const course = await findOwnedCourse(tx, courseId, userId);
-    assertEditable(course.status);
+    assertDeletable(course.status);
     await tx.course.update({ where: { id: courseId }, data: { deletedAt: new Date() } });
   });
 }
@@ -672,6 +683,36 @@ export async function reorderAuthorCourse(userId: string, courseId: string, inpu
       await tx.lesson.update({ where: { id: lesson.id }, data: { sortOrder: lesson.sortOrder } });
     }
 
+  });
+
+  return getAuthorCourse(userId, courseId);
+}
+
+export async function unpublishAuthorCourse(userId: string, courseId: string) {
+  await prisma.$transaction(async (tx) => {
+    const course = await findOwnedCourse(tx, courseId, userId);
+
+    if (course.status !== CourseStatus.PUBLISHED) {
+      throw AppError.conflict('Only a PUBLISHED course can be unpublished');
+    }
+
+    await tx.course.update({
+      where: { id: courseId },
+      data: {
+        status: CourseStatus.UNPUBLISHED,
+        rejectionReason: null,
+      },
+    });
+
+    await tx.moderationLog.create({
+      data: {
+        courseId,
+        moderatorId: userId,
+        action: ModerationAction.UNPUBLISHED,
+        fromStatus: CourseStatus.PUBLISHED,
+        toStatus: CourseStatus.UNPUBLISHED,
+      },
+    });
   });
 
   return getAuthorCourse(userId, courseId);

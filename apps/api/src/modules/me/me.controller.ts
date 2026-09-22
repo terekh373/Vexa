@@ -1,7 +1,18 @@
 import type { Request, RequestHandler, Response } from 'express';
 import { AppError } from '../../lib/errors.js';
-import { changePassword, updateMe } from './me.service.js';
-import { changePasswordSchema, updateMeSchema } from './me.validation.js';
+import type { SessionContext } from '../auth/auth.service.js';
+import {
+  activateAuthorProfile,
+  changePassword,
+  updateAuthorProfile,
+  updateMe,
+} from './me.service.js';
+import {
+  authorProfileCreateSchema,
+  authorProfileUpdateSchema,
+  changePasswordSchema,
+  updateMeSchema,
+} from './me.validation.js';
 
 function requireCurrentUserId(req: Request): string {
   if (req.auth === undefined) {
@@ -11,9 +22,42 @@ function requireCurrentUserId(req: Request): string {
   return req.auth.userId;
 }
 
+function readSessionContext(req: Request): SessionContext {
+  const userAgent = req.get('user-agent');
+
+  return {
+    userAgent: userAgent === undefined ? null : userAgent.slice(0, 255),
+    ipAddress: req.ip ?? null,
+  };
+}
+
 export const updateMeHandler: RequestHandler = async (req: Request, res: Response) => {
   const input = updateMeSchema.parse(req.body);
   const result = await updateMe(requireCurrentUserId(req), input);
+
+  res.status(200).json(result);
+};
+
+export const activateAuthorProfileHandler: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  const input = authorProfileCreateSchema.parse(req.body);
+  const result = await activateAuthorProfile(
+    requireCurrentUserId(req),
+    input,
+    readSessionContext(req),
+  );
+
+  res.status(201).json(result);
+};
+
+export const updateAuthorProfileHandler: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  const input = authorProfileUpdateSchema.parse(req.body);
+  const result = await updateAuthorProfile(requireCurrentUserId(req), input);
 
   res.status(200).json(result);
 };

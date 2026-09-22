@@ -61,6 +61,7 @@ export const routes = {
 
   catalog: (query: CatalogQuery = {}): string => build(`/courses${toQueryString(query)}`),
   forAuthors: (): string => build('/for-authors'),
+  becomeAuthor: (): string => build('/become-author'),
   vexaAi: (): string => build('/vexa-ai'),
 
   /** Category landing page — separate from a filtered catalog for SEO. */
@@ -153,6 +154,7 @@ export const routePatterns = {
   home: '/',
   catalog: '/courses',
   forAuthors: '/for-authors',
+  becomeAuthor: '/become-author',
   vexaAi: '/vexa-ai',
   course: '/courses/:idOrSlug',
   category: '/categories/:slug',
@@ -172,6 +174,9 @@ export const routePatterns = {
   authorCourseNew: '/author/courses/new',
   authorArea: '/author/*',
   adminDashboard: '/admin',
+  adminModeration: '/admin/moderation',
+  adminUsers: '/admin/users',
+  adminCategories: '/admin/categories',
   adminArea: '/admin/*',
   order: '/orders/:id',
   checkoutSuccess: '/checkout/success/:orderId',
@@ -195,6 +200,7 @@ export const routeAccess = {
     '/categories',
     '/curriculum',
     '/authors',
+    '/become-author',
     '/login',
     '/register',
     '/forgot-password',
