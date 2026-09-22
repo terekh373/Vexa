@@ -22,9 +22,10 @@ if (existsSync(envFilePath)) {
 }
 
 /**
- * Only variables the API actually reads are listed here. Storage, video and
- * payment keys join this schema in the modules that consume them — validating
- * a variable nobody uses yet would block startup for no reason.
+ * Only variables the API actually reads are listed here. Storage and video
+ * keys join this schema in the modules that consume them — validating a
+ * variable nobody uses yet would block startup for no reason. Payment keys
+ * are read by the payments module (checkout and the LiqPay webhook).
  */
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -63,6 +64,16 @@ const envSchema = z.object({
   S3_SECRET_ACCESS_KEY: z.string().min(1, 'S3_SECRET_ACCESS_KEY is required'),
   // Signed URL lifetime, seconds. SRS 20.2 sets the default at 10 minutes.
   S3_SIGNED_URL_TTL_SEC: z.coerce.number().int().positive().default(600),
+
+  // LiqPay sandbox only — see the payments module. Both keys come from LiqPay.
+  LIQPAY_PUBLIC_KEY: z.string().min(1),
+  LIQPAY_PRIVATE_KEY: z.string().min(1),
+  // Public address of this API's webhook endpoint, handed to LiqPay so it can
+  // call back with the payment result.
+  PAYMENT_WEBHOOK_URL: z.string().url(),
+  // Default platform commission, basis points (1500 = 15.00%). An author can
+  // override it via AuthorProfile.commissionRateBps.
+  PLATFORM_COMMISSION_BPS: z.coerce.number().int().min(0).max(10_000).default(1500),
 });
 
 export type Env = z.infer<typeof envSchema>;
