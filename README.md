@@ -391,6 +391,33 @@ ADMIN_PASSWORD=""
 | `SEED_MODE` | `demo` локально; `production` — лише в продакшн-деплої, див. [Деплой](#-деплой) |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | не потрібні при `SEED_MODE=demo` — можна лишити порожніми |
 
+### Оплата локально (LiqPay sandbox)
+
+`LIQPAY_PUBLIC_KEY` і `LIQPAY_PRIVATE_KEY` — sandbox-ключі з особистого кабінету LiqPay, видає тимлід. З плейсхолдером
+`sandbox_` API стартує нормально, але реальна оплата (навіть у sandbox) не пройде — ключі мають бути справжніми.
+
+LiqPay шле вебхук на `PAYMENT_WEBHOOK_URL`, а це публічна адреса — `localhost` з-за меж машини недосяжний. Два способи
+перевірити оплату локально:
+
+**Спосіб 1 — тунель.** Підняти тунель до локального API, наприклад:
+
+```cmd
+cloudflared tunnel --url http://localhost:3000
+```
+
+Прописати видану адресу в `PAYMENT_WEBHOOK_URL` (`https://<адреса>/api/payments/webhook`) і перезапустити API — LiqPay
+читає цю змінну лише при старті checkout-запиту.
+
+**Спосіб 2 — ручний виклик.** Без тунелю, підписаний вебхук можна відправити напряму:
+
+```cmd
+npm run webhook:liqpay --workspace @vexa/api -- <paymentId> sandbox <сума в копійках>
+```
+
+`paymentId` — з відповіді `POST /api/orders/:id/checkout`. Статус `sandbox` імітує успішну sandbox-оплату.
+
+Комісія завжди рахується округленням вниз, на користь автора.
+
 ## 📜 npm-скрипти
 
 Кореневі скрипти — аліаси, що прокидаються у воркспейс через `npm run <script> --workspace <name>`. Запускати з кореня репозиторію.
