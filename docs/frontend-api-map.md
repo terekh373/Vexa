@@ -124,6 +124,62 @@ refresh-флоу). Акаунт без локального пароля (`passw
 Ендпоінт має таке саме обмеження частоти, як `/api/auth/login`.
 
 
+### Профіль автора
+
+`POST /api/me/author-profile` — активувати роль автора для поточного користувача.
+Bearer-токен обов'язковий, окрема реєстрація не потрібна.
+
+Тіло:
+
+    { "displayName": "Оксана Петренко",
+      "headline": "Викладач математики",
+      "bio": "8 років досвіду..." }
+
+`displayName` обов'язковий (2–160 символів), `headline` і `bio` необов'язкові.
+Порожні необов'язкові поля клієнт може передати як `null`. Сервер в одній
+транзакції створює `author_profiles` та додає `AUTHOR` до `users.roles`.
+Успіх → `201`:
+
+    { "user": { "id", "email", "fullName", "roles": ["STUDENT", "AUTHOR"],
+                "emailVerified", "locale" },
+      "tokens": { "accessToken", "refreshToken", "expiresIn" },
+      "authorProfile": {
+        "userId", "displayName", "headline", "bio", "isVerified",
+        "ratingAvg", "reviewsCount", "studentsCount"
+      } }
+
+Нову пару токенів треба **одразу замінити** в клієнті: роль `AUTHOR` записана
+в access-токені, тому старий access-токен її не знає. Повторна активація →
+`409`; заблокований користувач → `403`.
+
+`PATCH /api/me/author-profile` — редагування `displayName`, `headline`, `bio`.
+Потрібне хоча б одне поле. Успіх → `200`, відповідь — `authorProfile` у формі
+вище без `user` і `tokens`. Якщо профіль автора не існує → `404`.
+
+`GET /api/authors/:id` — публічна сторінка автора, токен не потрібен. Якщо
+профілю автора немає → `404`. Відповідь `200`:
+
+```json
+{
+  "id": "uuid",
+  "displayName": "Оксана Петренко",
+  "headline": "Викладач математики",
+  "bio": "...",
+  "avatar": { "id": "uuid", "fileName": "avatar.jpg", "mimeType": "image/jpeg", "url": "..." },
+  "isVerified": false,
+  "ratingAvg": 4.8,
+  "reviewsCount": 27,
+  "studentsCount": 340,
+  "courses": []
+}
+```
+
+`courses[]` має ту саму форму картки, що `GET /api/courses`: `cover`, `author`,
+`category`, `price`, `rating`, лічильники й `publishedAt`. Повертаються **лише**
+курси/матеріали зі статусом `PUBLISHED`; чернетки, модерація, відхилені та
+зняті з публікації у портфоліо не потрапляють.
+
+
 ## Підтримка
 
 `POST /api/support/contact` — публічний ендпоінт, Bearer-токен не потрібен.
@@ -861,6 +917,8 @@ Query-параметри:
 | `/` | Головна | гість |
 | `/courses` | Каталог | гість |
 | `/courses/:id` | Сторінка курсу | гість |
+| `/authors/:id` | Публічний профіль автора | гість |
+| `/become-author` | Активація / редагування профілю автора | авторизований користувач |
 | `/login`, `/register` | Авторизація | гість |
 | `/cart`, `/checkout` | Кошик, оплата | учень |
 | `/learn/:courseId/:lessonId` | Плеєр | учень |

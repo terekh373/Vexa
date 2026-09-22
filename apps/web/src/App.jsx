@@ -31,6 +31,8 @@ import AdminModeration from './pages/admin/AdminModeration.jsx';
 import AdminModerationCourse from './pages/admin/AdminModerationCourse.jsx';
 import AdminUsers from './pages/admin/AdminUsers.jsx';
 import AdminCategories from './pages/admin/AdminCategories.jsx';
+import BecomeAuthorPage from './pages/author/BecomeAuthorPage.jsx';
+import AuthorProfilePage from './pages/author/AuthorProfilePage.jsx';
 
 function App() {
   return (
@@ -40,6 +42,7 @@ function App() {
         <Route path={routePatterns.catalog} element={<Catalog />} />
         <Route path={routePatterns.forAuthors} element={<ForAuthors />} />
         <Route path={routePatterns.course} element={<Course />} />
+        <Route path={routePatterns.authorProfile} element={<AuthorProfilePage />} />
         <Route path={routePatterns.vexaAi} element={<VexaAI />} />
         <Route path={routePatterns.login} element={<LoginPage />} />
         <Route path={routePatterns.register} element={<RegisterPage />} />
@@ -58,6 +61,10 @@ function App() {
         <Route path="/ai" element={<VexaAI />} />
         <Route path="/vacancies" element={<ComingSoon />} />
         <Route path="/press" element={<ComingSoon />} />
+
+        <Route element={<ProtectedRoute />}>
+          <Route path={routePatterns.becomeAuthor} element={<BecomeAuthorPage />} />
+        </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
           <Route path={routePatterns.learning} element={<ComingSoon title="Моє навчання" />} />
