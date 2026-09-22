@@ -1,0 +1,43 @@
+# Docker reads .dockerignore from the build context root. The API Dockerfile
+# is built with the monorepo root as context, so this file lives here too.
+
+# Version control
+.git
+.gitattributes
+
+# Dependencies — installed fresh in the image via npm ci
+**/node_modules
+
+# Build output — rebuilt inside the image. TypeScript's incremental build
+# cache lives next to tsconfig.json, not inside dist/, and must go too: a
+# stale one copied from the host makes `tsc --build` skip emitting output
+# it thinks already exists.
+**/dist
+**/build
+**/*.tsbuildinfo
+
+# Environment files — secrets must never enter an image layer
+.env
+.env.*
+
+# Client apps not part of the API image. Their package.json stays: npm
+# workspaces needs it to resolve the dependency graph during npm ci.
+apps/web/**
+!apps/web/package.json
+apps/mobile/**
+!apps/mobile/package.json
+
+# Docs and other content not needed to build or run the API
+docs
+*.md
+**/*.md
+.github
+
+# Local editor / OS / coverage artifacts
+.vscode
+.idea
+coverage
+**/coverage
+*.log
+.DS_Store
+Thumbs.db
