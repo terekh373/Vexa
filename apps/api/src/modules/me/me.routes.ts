@@ -1,7 +1,13 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { authenticate } from '../../middleware/authenticate.js';
-import { changePasswordHandler, updateMeHandler } from './me.controller.js';
+import {
+  activateAuthorProfileHandler,
+  changePasswordHandler,
+  updateAuthorProfileHandler,
+  updateMeHandler,
+} from './me.controller.js';
+
 import {
   listNotificationsHandler,
   markAllNotificationsReadHandler,
@@ -30,3 +36,6 @@ meRouter.post('/password', passwordChangeLimiter, changePasswordHandler);
 meRouter.get('/notifications', listNotificationsHandler);
 meRouter.patch('/notifications/read-all', markAllNotificationsReadHandler);
 meRouter.patch('/notifications/:id/read', markNotificationReadHandler);
+
+meRouter.post('/author-profile', activateAuthorProfileHandler);
+meRouter.patch('/author-profile', updateAuthorProfileHandler);

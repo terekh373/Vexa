@@ -49,7 +49,7 @@ function toAuthUser(user: User): AuthUser {
  * Signs an access token and opens a session: allowlist entry in Redis plus a
  * journal row in refresh_tokens.
  */
-async function issueTokens(user: User, context: SessionContext): Promise<AuthTokens> {
+export async function issueTokens(user: User, context: SessionContext): Promise<AuthTokens> {
   const accessToken = signAccessToken(user.id, user.roles);
   const refresh = await issueRefreshToken(user.id);
 
