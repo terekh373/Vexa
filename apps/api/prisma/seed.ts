@@ -24,6 +24,7 @@ import {
   NotificationType,
   ProgressStatus,
 } from '@prisma/client';
+import { AppError } from '../src/lib/errors.js';
 import { hashPassword } from '../src/modules/auth/password.service.js';
 
 const prisma = new PrismaClient();
@@ -193,7 +194,8 @@ async function seedUsers(): Promise<void> {
   }
 }
 
-async function seedTaxonomy(): Promise<void> {
+/** Catalog categories. Reference data, seeded in every mode. */
+async function seedCategories(): Promise<void> {
   const categories = [
     { id: id.categories.school, parentId: null, slug: 'shkilni-predmety', nameUk: 'Шкільні предмети', sortOrder: 1 },
     { id: id.categories.english, parentId: id.categories.school, slug: 'anhliiska-mova', nameUk: 'Англійська мова', sortOrder: 1 },
@@ -210,7 +212,10 @@ async function seedTaxonomy(): Promise<void> {
       create: category,
     });
   }
+}
 
+/** School curriculum reference book. Only used by demo course content. */
+async function seedCurriculumTaxonomy(): Promise<void> {
   const subjects = [
     { id: id.subjects.english, slug: 'anhliiska-mova', nameUk: 'Англійська мова' },
     { id: id.subjects.math, slug: 'matematyka', nameUk: 'Математика' },
@@ -234,6 +239,35 @@ async function seedTaxonomy(): Promise<void> {
       create: topic,
     });
   }
+}
+
+/**
+ * Bootstrap admin account for a fresh production database. Reuses the same
+ * argon2 helper as registration — no separate hashing path to keep in sync.
+ */
+async function seedProductionAdmin(): Promise<void> {
+  const email = process.env.ADMIN_EMAIL;
+  const password = process.env.ADMIN_PASSWORD;
+
+  if (!email || !password) {
+    throw AppError.validation(
+      'ADMIN_EMAIL and ADMIN_PASSWORD must both be set when SEED_MODE=production',
+    );
+  }
+
+  const passwordHash = await hashPassword(password);
+
+  await prisma.user.upsert({
+    where: { email },
+    update: { passwordHash },
+    create: {
+      email,
+      passwordHash,
+      fullName: 'Administrator',
+      roles: [UserRole.ADMIN],
+      emailVerifiedAt: new Date(),
+    },
+  });
 }
 
 async function seedFiles(): Promise<void> {
@@ -725,8 +759,18 @@ async function seedInProgressStudent(): Promise<void> {
 }
 
 async function main(): Promise<void> {
+  const seedMode = process.env.SEED_MODE === 'production' ? 'production' : 'demo';
+
+  if (seedMode === 'production') {
+    await seedCategories();
+    await seedProductionAdmin();
+    console.log('Seed done (production mode): categories and admin account only.');
+    return;
+  }
+
   await seedUsers();
-  await seedTaxonomy();
+  await seedCategories();
+  await seedCurriculumTaxonomy();
   await seedFiles();
   await seedCourseWithPlayer();
   await seedDownloadableMaterial();
