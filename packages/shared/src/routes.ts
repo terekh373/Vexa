@@ -24,6 +24,10 @@ export interface CatalogQuery {
   q?: string;
   type?: 'course' | 'material';
   category?: string;
+  /** Curriculum subject slug. */
+  subject?: string;
+  /** Curriculum topic id. */
+  topic?: string;
   grade?: number;
   priceMin?: number;
   priceMax?: number;
