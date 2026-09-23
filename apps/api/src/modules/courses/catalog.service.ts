@@ -178,6 +178,34 @@ export async function getCatalog(query: CourseCatalogQuery) {
     );
   }
 
+  if (query.subject) {
+    filters.push(
+      Prisma.sql`
+        EXISTS (
+          SELECT 1
+          FROM course_topics ct
+          JOIN curriculum_topics t ON t.id = ct.topic_id
+          JOIN curriculum_subjects s ON s.id = t.subject_id
+          WHERE ct.course_id = c.id
+            AND s.slug = ${query.subject}
+        )
+      `,
+    );
+  }
+
+  if (query.topic) {
+    filters.push(
+      Prisma.sql`
+        EXISTS (
+          SELECT 1
+          FROM course_topics ct
+          WHERE ct.course_id = c.id
+            AND ct.topic_id = ${query.topic}::uuid
+        )
+      `,
+    );
+  }
+
   if (query.grade !== undefined) {
     filters.push(
       Prisma.sql`c.grade = ${query.grade}`,
