@@ -89,6 +89,11 @@ const envSchema = z
     // override it via AuthorProfile.commissionRateBps.
     PLATFORM_COMMISSION_BPS: z.coerce.number().int().min(0).max(10_000).default(1500),
 
+    // Cloudflare Stream API (direct uploads and video status). Both or neither;
+    // without them the API starts and video upload answers 503.
+    CF_STREAM_ACCOUNT_ID: optionalNonEmpty,
+    CF_STREAM_API_TOKEN: optionalNonEmpty,
+
     // Cloudflare Stream signed playback (SRS 20.2, apps/api/src/lib/stream.ts).
     // Optional: most environments run without video signing configured, and the
     // player then falls back to video.status = "UNAVAILABLE" instead of failing.
@@ -116,6 +121,16 @@ const envSchema = z
         code: 'custom',
         path: ['CF_STREAM_CUSTOMER_CODE'],
         message: 'CF_STREAM_CUSTOMER_CODE, CF_STREAM_SIGNING_KEY_ID and CF_STREAM_SIGNING_KEY_PEM must be set together',
+      });
+    }
+
+    // Same reasoning: an account id without a token (or the reverse) can only
+    // fail at the first upload, so reject it at startup.
+    if ((value.CF_STREAM_ACCOUNT_ID === undefined) !== (value.CF_STREAM_API_TOKEN === undefined)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['CF_STREAM_ACCOUNT_ID'],
+        message: 'CF_STREAM_ACCOUNT_ID and CF_STREAM_API_TOKEN must be set together',
       });
     }
   });
