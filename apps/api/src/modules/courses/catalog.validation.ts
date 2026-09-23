@@ -108,3 +108,9 @@ export const courseCatalogQuerySchema = z
 export type CourseCatalogQuery = z.infer<
   typeof courseCatalogQuerySchema
 >;
+
+export const courseSuggestQuerySchema = z
+  .object({ q: z.string().trim().min(2).max(120) })
+  .strict();
+
+export type CourseSuggestQuery = z.infer<typeof courseSuggestQuerySchema>;
