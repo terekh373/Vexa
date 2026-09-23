@@ -3,6 +3,12 @@ import { Router } from 'express';
 import { authenticate } from '../../middleware/authenticate.js';
 import { requireRoles } from '../../middleware/requireRoles.js';
 import {
+  addCourseFileHandler,
+  deleteCourseFileHandler,
+  reorderCourseFilesHandler,
+  updateCourseFileHandler,
+} from './author.material.controller.js';
+import {
   createQuestionHandler,
   createQuizHandler,
   deleteQuestionHandler,
@@ -41,6 +47,11 @@ authorRouter.delete('/courses/:id', deleteCourseHandler);
 authorRouter.post('/courses/:id/modules', createModuleHandler);
 authorRouter.patch('/modules/:id', updateModuleHandler);
 authorRouter.delete('/modules/:id', deleteModuleHandler);
+
+authorRouter.post('/courses/:id/files', addCourseFileHandler);
+authorRouter.patch('/courses/:id/files/reorder', reorderCourseFilesHandler);
+authorRouter.patch('/courses/:id/files/:courseFileId', updateCourseFileHandler);
+authorRouter.delete('/courses/:id/files/:courseFileId', deleteCourseFileHandler);
 
 authorRouter.post('/modules/:id/lessons', createLessonHandler);
 authorRouter.patch('/lessons/:id', updateLessonHandler);

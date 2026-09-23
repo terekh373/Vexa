@@ -7,6 +7,12 @@ import {
 } from '@prisma/client';
 import { AppError } from '../../lib/errors.js';
 import { prisma } from '../../lib/prisma.js';
+import { findCompletenessProblems } from './author.completeness.js';
+import {
+  courseFileOrderBy,
+  courseFileSelect,
+  loadCompletenessSnapshot,
+} from './author.repository.js';
 import type {
   AuthorCourseListQuery,
   AuthorReviewReplyInput,
@@ -77,6 +83,7 @@ const fullCourseSelect = {
       isReady: true,
     },
   },
+  courseFiles: { orderBy: courseFileOrderBy, select: courseFileSelect },
   modules: {
     where: { deletedAt: null },
     orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
@@ -221,7 +228,7 @@ async function findOwnedCourse(db: DbClient, courseId: string, userId: string) {
   return course;
 }
 
-function assertEditable(status: CourseStatus): void {
+export function assertEditable(status: CourseStatus): void {
   if (!EDITABLE_STATUSES.has(status)) {
     throw AppError.conflict('Course can be edited only in DRAFT, REJECTED or UNPUBLISHED status');
   }
@@ -722,6 +729,12 @@ export async function submitAuthorCourse(userId: string, courseId: string) {
   await prisma.$transaction(async (tx) => {
     const course = await findOwnedCourse(tx, courseId, userId);
     assertEditable(course.status);
+
+    const problems = findCompletenessProblems(await loadCompletenessSnapshot(tx, courseId));
+    if (problems.length > 0) {
+      throw AppError.validation('Course is not ready for moderation', problems);
+    }
+
     await recalculateCourseCounters(tx, courseId);
     const now = new Date();
 
