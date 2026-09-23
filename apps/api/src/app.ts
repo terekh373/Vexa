@@ -24,6 +24,7 @@ import { meRouter } from './modules/me/me.routes.js';
 import { supportRouter } from './modules/support/support.routes.js';
 import { authorsRouter } from './modules/authors/authors.routes.js';
 import { paymentsRouter } from './modules/payments/payments.routes.js';
+import { learningRouter } from './modules/learning/learning.routes.js';
 function parseOrigins(value: string): string[] {
   return value
     .split(',')
@@ -66,6 +67,7 @@ export function createApp(): Express {
   app.use('/api/cart', cartRouter);
   app.use('/api/orders', ordersRouter);
   app.use('/api/payments', paymentsRouter);
+  app.use('/api/learn', learningRouter);
   app.use('/api/me/orders', meOrdersRouter);
   app.use('/api/me', meRouter);
   app.use('/api/support', supportRouter);
