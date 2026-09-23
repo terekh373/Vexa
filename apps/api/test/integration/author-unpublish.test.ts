@@ -1,4 +1,4 @@
-import { ContentType, CourseStatus, EnrollmentSource, ModerationAction, UserRole } from '@prisma/client';
+import { ContentType, CourseStatus, EnrollmentSource, LessonType, ModerationAction, UserRole } from '@prisma/client';
 import request from 'supertest';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { createApp } from '../../src/app.js';
@@ -59,6 +59,13 @@ async function seedFixture() {
       description: 'Повний опис курсу',
       priceAmount: 10_000,
       publishedAt: new Date(),
+      modules: {
+        create: {
+          title: 'Модуль',
+          sortOrder: 0,
+          lessons: { create: { type: LessonType.TEXT, title: 'Урок', sortOrder: 0 } },
+        },
+      },
     },
   });
 

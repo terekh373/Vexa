@@ -1,5 +1,6 @@
 import { FileKind, type ContentType, type CourseStatus, type Prisma } from '@prisma/client';
 import type { prisma } from '../../lib/prisma.js';
+import type { CompletenessSnapshot } from './author.completeness.js';
 
 type DbClient = Prisma.TransactionClient | typeof prisma;
 
@@ -127,4 +128,69 @@ export async function listCourseFiles(db: DbClient, courseId: string) {
     orderBy: courseFileOrderBy,
     select: courseFileSelect,
   });
+}
+
+export async function loadCompletenessSnapshot(
+  db: DbClient,
+  courseId: string,
+): Promise<CompletenessSnapshot> {
+  const course = await db.course.findUniqueOrThrow({
+    where: { id: courseId },
+    select: {
+      type: true,
+      modules: {
+        where: { deletedAt: null },
+        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+        select: {
+          lessons: {
+            where: { deletedAt: null },
+            orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+            select: {
+              id: true,
+              title: true,
+              type: true,
+              video: { select: { isReady: true, deletedAt: true } },
+              quiz: {
+                select: {
+                  questions: {
+                    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+                    select: {
+                      id: true,
+                      _count: { select: { options: { where: { isCorrect: true } } } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const readyCourseFilesCount = await db.courseFile.count({
+    where: { courseId, file: { isReady: true, deletedAt: null } },
+  });
+
+  return {
+    type: course.type,
+    lessons: course.modules.flatMap((module) =>
+      module.lessons.map((lesson) => ({
+        id: lesson.id,
+        title: lesson.title,
+        type: lesson.type,
+        videoReady: lesson.video !== null && lesson.video.isReady && lesson.video.deletedAt === null,
+        quiz:
+          lesson.quiz === null
+            ? null
+            : {
+                questions: lesson.quiz.questions.map((question) => ({
+                  id: question.id,
+                  correctOptionsCount: question._count.options,
+                })),
+              },
+      })),
+    ),
+    readyCourseFilesCount,
+  };
 }

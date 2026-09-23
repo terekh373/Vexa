@@ -7,7 +7,12 @@ import {
 } from '@prisma/client';
 import { AppError } from '../../lib/errors.js';
 import { prisma } from '../../lib/prisma.js';
-import { courseFileOrderBy, courseFileSelect } from './author.repository.js';
+import { findCompletenessProblems } from './author.completeness.js';
+import {
+  courseFileOrderBy,
+  courseFileSelect,
+  loadCompletenessSnapshot,
+} from './author.repository.js';
 import type {
   AuthorCourseListQuery,
   AuthorReviewReplyInput,
@@ -724,6 +729,12 @@ export async function submitAuthorCourse(userId: string, courseId: string) {
   await prisma.$transaction(async (tx) => {
     const course = await findOwnedCourse(tx, courseId, userId);
     assertEditable(course.status);
+
+    const problems = findCompletenessProblems(await loadCompletenessSnapshot(tx, courseId));
+    if (problems.length > 0) {
+      throw AppError.validation('Course is not ready for moderation', problems);
+    }
+
     await recalculateCourseCounters(tx, courseId);
     const now = new Date();
 
