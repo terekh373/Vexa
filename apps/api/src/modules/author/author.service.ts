@@ -7,6 +7,7 @@ import {
 } from '@prisma/client';
 import { AppError } from '../../lib/errors.js';
 import { prisma } from '../../lib/prisma.js';
+import { courseFileOrderBy, courseFileSelect } from './author.repository.js';
 import type {
   AuthorCourseListQuery,
   AuthorReviewReplyInput,
@@ -77,6 +78,7 @@ const fullCourseSelect = {
       isReady: true,
     },
   },
+  courseFiles: { orderBy: courseFileOrderBy, select: courseFileSelect },
   modules: {
     where: { deletedAt: null },
     orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
