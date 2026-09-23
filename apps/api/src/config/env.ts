@@ -78,6 +78,13 @@ const envSchema = z
     MAIL_FROM_NAME: z.string().min(1).default('Vexa'),
     SUPPORT_EMAIL: z.string().email().default('support@example.com'),
 
+    // Optional Sentry DSN for collecting API 5xx failures. Empty locally/CI
+    // keeps reporting disabled without affecting request handling.
+    SENTRY_DSN: z.preprocess(
+      (value) => (value === '' ? undefined : value),
+      z.string().url('SENTRY_DSN must be a URL').optional(),
+    ),
+
     // Object storage (Cloudflare R2 or any S3-compatible endpoint). Required:
     // the files module signs URLs at request time, and a missing key would only
     // surface as a 500 on the first upload instead of at startup.
