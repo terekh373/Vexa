@@ -46,3 +46,32 @@ export function summarizeProgress(
     continueLesson: next === undefined ? null : { id: next.id, title: next.title },
   };
 }
+
+export interface EnrollmentProgressSnapshot {
+  orderedLessons: readonly OrderedLesson[];
+  completedLessonIds: ReadonlySet<string>;
+  completedAt: Date | null;
+}
+
+export interface EnrollmentProgressDecision {
+  summary: ProgressSummary;
+  progressPercent: number;
+  completedAt: Date | null;
+}
+
+/**
+ * Enrollment.completedAt keeps the date of the first completion: it is never
+ * cleared or moved, even if lessons are added to the course later.
+ */
+export function decideEnrollmentProgress(snapshot: EnrollmentProgressSnapshot, now: Date): EnrollmentProgressDecision {
+  const summary = summarizeProgress(snapshot.orderedLessons, snapshot.completedLessonIds);
+
+  let completedAt: Date | null = null;
+  if (snapshot.completedAt !== null) {
+    completedAt = snapshot.completedAt;
+  } else if (summary.state === 'COMPLETED') {
+    completedAt = now;
+  }
+
+  return { summary, progressPercent: summary.percent, completedAt };
+}

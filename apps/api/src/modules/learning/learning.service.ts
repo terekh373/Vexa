@@ -1,18 +1,31 @@
-import { ContentType, StorageProvider, UserRole } from '@prisma/client';
+import { ContentType, CourseStatus, LessonType, StorageProvider, UserRole } from '@prisma/client';
 import { AppError } from '../../lib/errors.js';
 import { createStreamPlayback } from '../../lib/stream.js';
 import { decideCourseAccess, decideLessonAccess } from './lesson-access.js';
 import {
+  applyFreeEnrollment,
+  applyLessonCompletion,
+  applyQuizAttempt,
+  findActiveEnrollmentId,
   findActiveEnrollmentProgress,
+  findCourseForEnrollment,
   findCourseProgram,
   findLessonForLearner,
+  findLessonForProgress,
   findMyEnrollments,
+  findQuizForGrading,
   hasActiveEnrollment,
   type LessonForLearner,
   type MyEnrollment,
 } from './learning.repository.js';
-import type { MyEnrollmentsQuery } from './learning.validation.js';
-import { summarizeProgress, type OrderedLesson, type ProgressSummary } from './progress.js';
+import type { MyEnrollmentsQuery, QuizAttemptBody } from './learning.validation.js';
+import {
+  decideEnrollmentProgress,
+  summarizeProgress,
+  type OrderedLesson,
+  type ProgressSummary,
+} from './progress.js';
+import { gradeQuiz, hasAttemptsLeft, shouldRevealCorrectAnswers } from './quiz-grading.js';
 
 export interface LearnerActor {
   userId: string;
@@ -270,5 +283,156 @@ export async function getCourseProgram(actor: LearnerActor, courseId: string) {
       mimeType: courseFile.file.mimeType,
       sizeBytes: courseFile.file.sizeBytes.toString(),
     })),
+  };
+}
+
+export async function enrollInFreeCourse(actor: LearnerActor, courseId: string) {
+  const course = await findCourseForEnrollment(courseId);
+
+  if (course === null || course.status !== CourseStatus.PUBLISHED) {
+    throw AppError.notFound('Course not found');
+  }
+  // Enrolling the author would inflate their own student counters.
+  if (course.authorId === actor.userId) {
+    throw AppError.conflict('Author cannot enroll in own course');
+  }
+  // A paid course is opened only by the payment webhook.
+  if (course.priceAmount !== 0) {
+    throw AppError.conflict('Course is not free');
+  }
+
+  const result = await applyFreeEnrollment({ userId: actor.userId, courseId: course.id });
+
+  return {
+    enrollment: {
+      id: result.enrollment.id,
+      source: result.enrollment.source,
+      enrolledAt: result.enrollment.createdAt,
+    },
+    created: result.kind !== 'EXISTS',
+  };
+}
+
+interface ProgressAccessTarget {
+  isFreePreview: boolean;
+  course: { id: string; authorId: string; status: CourseStatus };
+}
+
+/**
+ * Progress and attempts need an active enrollment. Without one the lesson
+ * access rule only picks the error: an unpublished course stays invisible
+ * (404), everyone else, including the author and an admin who may view but
+ * not track progress, gets 403.
+ */
+async function requireEnrollmentForProgress(actor: LearnerActor, target: ProgressAccessTarget): Promise<string> {
+  const enrollmentId = await findActiveEnrollmentId(actor.userId, target.course.id);
+  if (enrollmentId !== null) return enrollmentId;
+
+  const access = decideLessonAccess({
+    isAdmin: actor.roles.includes(UserRole.ADMIN),
+    isCourseAuthor: target.course.authorId === actor.userId,
+    hasActiveEnrollment: false,
+    courseStatus: target.course.status,
+    isFreePreview: target.isFreePreview,
+  });
+
+  if (access === 'NOT_FOUND') {
+    throw AppError.notFound('Lesson not found');
+  }
+  throw AppError.forbidden('Progress is tracked only for enrolled learners');
+}
+
+export async function completeLesson(actor: LearnerActor, lessonId: string) {
+  const lesson = await findLessonForProgress(lessonId);
+
+  if (lesson === null) {
+    throw AppError.notFound('Lesson not found');
+  }
+
+  const enrollmentId = await requireEnrollmentForProgress(actor, lesson);
+
+  if (lesson.type === LessonType.QUIZ && lesson.hasQuiz) {
+    throw AppError.conflict('Quiz lessons are completed by passing the quiz');
+  }
+
+  const decision = await applyLessonCompletion(
+    { enrollmentId, lessonId: lesson.id, courseId: lesson.course.id, now: new Date() },
+    decideEnrollmentProgress,
+  );
+
+  return {
+    lessonId: lesson.id,
+    isCompleted: true,
+    progress: toProgressDto(decision.summary, decision.completedAt),
+  };
+}
+
+export async function submitQuizAttempt(actor: LearnerActor, quizId: string, body: QuizAttemptBody) {
+  const quiz = await findQuizForGrading(quizId);
+
+  if (quiz === null) {
+    throw AppError.notFound('Quiz not found');
+  }
+
+  const course = quiz.lesson.module.course;
+  const enrollmentId = await requireEnrollmentForProgress(actor, {
+    isFreePreview: quiz.lesson.isFreePreview,
+    course,
+  });
+
+  if (quiz.questions.length === 0) {
+    throw AppError.conflict('Quiz has no questions');
+  }
+
+  const grading = gradeQuiz(quiz.questions, body.answers, quiz.passScore);
+
+  if (!grading.ok) {
+    throw AppError.validation('Invalid answers', grading.details);
+  }
+
+  // timeLimitSec is not enforced here: the attempt arrives in one request and
+  // the server never sees when it started, so the limit is a client timer.
+  const now = new Date();
+  const result = await applyQuizAttempt(
+    {
+      enrollmentId,
+      userId: actor.userId,
+      quizId: quiz.id,
+      lessonId: quiz.lesson.id,
+      courseId: course.id,
+      grading,
+      now,
+    },
+    {
+      canAttempt: (attemptsUsed) => hasAttemptsLeft(attemptsUsed, quiz.attemptsAllowed),
+      decideProgress: decideEnrollmentProgress,
+    },
+  );
+
+  if (result.kind === 'LIMIT_REACHED') {
+    throw AppError.conflict('No attempts left');
+  }
+
+  const reveal = shouldRevealCorrectAnswers(grading.isPassed, result.attemptsUsed, quiz.attemptsAllowed);
+
+  return {
+    attempt: {
+      id: result.attemptId,
+      score: grading.score,
+      maxScore: grading.maxScore,
+      percent: grading.percent,
+      passScore: quiz.passScore,
+      isPassed: grading.isPassed,
+      attemptsUsed: result.attemptsUsed,
+      attemptsAllowed: quiz.attemptsAllowed,
+      finishedAt: now,
+    },
+    questions: grading.questions.map((question) => ({
+      questionId: question.questionId,
+      isCorrect: question.isCorrect,
+      selectedOptionIds: question.selectedOptionIds,
+      correctOptionIds: reveal ? question.correctOptionIds : null,
+    })),
+    progress: toProgressDto(result.decision.summary, result.decision.completedAt),
   };
 }

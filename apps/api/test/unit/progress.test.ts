@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { calculateProgressPercent, summarizeProgress } from '../../src/modules/learning/progress.js';
+import {
+  calculateProgressPercent,
+  decideEnrollmentProgress,
+  summarizeProgress,
+} from '../../src/modules/learning/progress.js';
 
 const lessons = [
   { id: 'l1', title: 'One' },
@@ -58,5 +62,46 @@ describe('summarizeProgress', () => {
     const summary = summarizeProgress(lessons, new Set(['gone', 'l1']));
     expect(summary.completedLessons).toBe(1);
     expect(summary.totalLessons).toBe(3);
+  });
+});
+
+describe('decideEnrollmentProgress', () => {
+  const now = new Date('2026-09-24T10:00:00.000Z');
+  const firstCompletion = new Date('2026-01-01T00:00:00.000Z');
+
+  it('keeps an already set completedAt', () => {
+    const decision = decideEnrollmentProgress(
+      { orderedLessons: lessons, completedLessonIds: new Set(['l1']), completedAt: firstCompletion },
+      now,
+    );
+    expect(decision.completedAt).toBe(firstCompletion);
+    expect(decision.progressPercent).toBe(33);
+  });
+
+  it('keeps the first completion date when everything is done again', () => {
+    const decision = decideEnrollmentProgress(
+      { orderedLessons: lessons, completedLessonIds: new Set(['l1', 'l2', 'l3']), completedAt: firstCompletion },
+      now,
+    );
+    expect(decision.completedAt).toBe(firstCompletion);
+  });
+
+  it('sets now when the program becomes completed', () => {
+    const decision = decideEnrollmentProgress(
+      { orderedLessons: lessons, completedLessonIds: new Set(['l1', 'l2', 'l3']), completedAt: null },
+      now,
+    );
+    expect(decision.completedAt).toBe(now);
+    expect(decision.progressPercent).toBe(100);
+    expect(decision.summary.state).toBe('COMPLETED');
+  });
+
+  it('leaves completedAt null while the program is incomplete', () => {
+    const decision = decideEnrollmentProgress(
+      { orderedLessons: lessons, completedLessonIds: new Set(['l1', 'l2']), completedAt: null },
+      now,
+    );
+    expect(decision.completedAt).toBeNull();
+    expect(decision.progressPercent).toBe(66);
   });
 });
