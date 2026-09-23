@@ -54,6 +54,18 @@
   flex-shrink: 0;
 }
 
+.notificationButton {
+  background: transparent;
+  border: none;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.notificationButton:active {
+  transform: scale(0.97);
+}
+
 .userMenuWrap {
   position: relative;
 }
