@@ -221,7 +221,7 @@ async function findOwnedCourse(db: DbClient, courseId: string, userId: string) {
   return course;
 }
 
-function assertEditable(status: CourseStatus): void {
+export function assertEditable(status: CourseStatus): void {
   if (!EDITABLE_STATUSES.has(status)) {
     throw AppError.conflict('Course can be edited only in DRAFT, REJECTED or UNPUBLISHED status');
   }
