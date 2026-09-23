@@ -33,6 +33,43 @@
 `401` — невірний email **або** пароль (одне повідомлення на оба випадки).
 
 
+### Вхід через Google OAuth 2.0
+
+`GET /api/auth/google` — браузерний redirect на Google. API створює випадковий
+`state`, зберігає його в Redis на 10 хвилин і передає Google для CSRF-захисту.
+Цей endpoint треба відкривати через `window.location`, а не XHR.
+
+Google повертає користувача на `GET /api/auth/google/callback`. API одноразово
+споживає `state`, обмінює authorization code на профіль Google (`sub`, `email`,
+`email_verified`, `name`) і **не** передає access/refresh токени через URL.
+Натомість створюється одноразовий внутрішній код на 60 секунд, після чого API
+редіректить на веб:
+
+    /auth/google/callback?code=<one-time-code>
+
+або при помилці:
+
+    /auth/google/callback?error=<error-code>
+
+Веб одразу викликає:
+
+`POST /api/auth/google/exchange`
+
+    { "code": "..." }
+
+Успіх → `200` і та сама форма `{ user, tokens }`, що у звичайного
+`POST /api/auth/login`. Код атомарно одноразовий: повторне використання → `404`.
+Заблокований користувач → `403`.
+
+Правило акаунтів: спочатку пошук за `google_id`; якщо не знайдено — за email.
+До існуючого акаунта Google прив'язується лише для підтвердженого Google email.
+Новий Google-користувач створюється з `password_hash = null`, стандартною роллю
+`STUDENT` і підтвердженим email. Акаунт з паролем і Google залишається одним.
+
+Змінні API: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`.
+Локальний callback: `http://localhost:3000/api/auth/google/callback`.
+
+
 ### Підтвердження email
 
 Після реєстрації сервер надсилає український HTML + text лист через Brevo з

@@ -14,6 +14,7 @@ import RegisterPage from './pages/register/RegisterPage.jsx';
 import VerifyEmailPage from './pages/verify-email/VerifyEmailPage.jsx';
 import ForgotPasswordPage from './pages/forgot-password/ForgotPasswordPage.jsx';
 import ResetPasswordPage from './pages/reset-password/ResetPasswordPage.jsx';
+import GoogleCallbackPage from './pages/google-callback/GoogleCallbackPage.jsx';
 import Settings from './pages/settings/Settings.jsx';
 import NotFound from './pages/not-found/NotFound.jsx';
 import ComingSoon from './pages/stubs/ComingSoon.jsx';
@@ -50,6 +51,7 @@ function App() {
         <Route path={routePatterns.verifyEmail} element={<VerifyEmailPage />} />
         <Route path={routePatterns.forgotPassword} element={<ForgotPasswordPage />} />
         <Route path={routePatterns.resetPassword} element={<ResetPasswordPage />} />
+        <Route path={routePatterns.googleCallback} element={<GoogleCallbackPage />} />
 
         {/* сделать роутинг */}
         <Route path="/veterans" element={<ForVeterans />} />
