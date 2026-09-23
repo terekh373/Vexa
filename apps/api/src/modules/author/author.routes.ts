@@ -3,6 +3,14 @@ import { Router } from 'express';
 import { authenticate } from '../../middleware/authenticate.js';
 import { requireRoles } from '../../middleware/requireRoles.js';
 import {
+  authorBalanceEntriesHandler,
+  authorBalanceHandler,
+  authorDashboardHandler,
+  authorPayoutsHandler,
+  authorReviewsHandler,
+  createAuthorPayoutHandler,
+} from './author.finance.controller.js';
+import {
   addCourseFileHandler,
   deleteCourseFileHandler,
   reorderCourseFilesHandler,
@@ -37,6 +45,13 @@ import {
 export const authorRouter: Router = Router();
 
 authorRouter.use(authenticate, requireRoles(UserRole.AUTHOR));
+
+authorRouter.get('/dashboard', authorDashboardHandler);
+authorRouter.get('/balance', authorBalanceHandler);
+authorRouter.get('/balance/entries', authorBalanceEntriesHandler);
+authorRouter.post('/payouts', createAuthorPayoutHandler);
+authorRouter.get('/payouts', authorPayoutsHandler);
+authorRouter.get('/reviews', authorReviewsHandler);
 
 authorRouter.post('/courses', createCourseHandler);
 authorRouter.get('/courses', listCoursesHandler);

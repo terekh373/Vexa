@@ -88,6 +88,12 @@ const envSchema = z
     // Default platform commission, basis points (1500 = 15.00%). An author can
     // override it via AuthorProfile.commissionRateBps.
     PLATFORM_COMMISSION_BPS: z.coerce.number().int().min(0).max(10_000).default(1500),
+    // Minimum author payout, in integer kopiykas. Empty in .env.example means
+    // use the product default (50000 = 500.00 UAH).
+    PAYOUT_MIN_AMOUNT: z.preprocess(
+      (value) => (value === '' ? undefined : value),
+      z.coerce.number().int().positive().default(50_000),
+    ),
 
     // Cloudflare Stream API (direct uploads and video status). Both or neither;
     // without them the API starts and video upload answers 503.
