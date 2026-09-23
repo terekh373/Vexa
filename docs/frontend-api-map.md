@@ -1119,6 +1119,150 @@ Query-параметри:
 - `404` — урок не існує, або курс для цього користувача не існує (не
   опублікований і немає ні ролі, ні активного запису).
 
+### Мої курси й матеріали
+
+`GET /api/me/enrollments` — Bearer; ролі `STUDENT`, `AUTHOR`, `ADMIN`.
+
+Query-параметр `type` (необов'язковий): `COURSE` або `MATERIAL`. Будь-яке
+інше значення чи невідомий параметр — `400`. Пагінації немає: у користувача
+десятки записів, не тисячі.
+
+Яка сторінка що викликає:
+
+- `/learning` — `?type=COURSE`;
+- `/learning/materials` — `?type=MATERIAL`.
+
+У відповідь потрапляють активні записи (`revokedAt = null`) на курси, що не
+видалені. Статус курсу не фільтрується: покупка переживає зняття з
+публікації, тож у `course.status` може бути й `UNPUBLISHED`. Порядок — від
+останнього оновленого запису.
+
+Приклад відповіді `200`:
+
+    {
+      "items": [
+        {
+          "id": "enrollment-uuid",
+          "source": "PURCHASE",
+          "enrolledAt": "2026-09-23T10:00:00.000Z",
+          "course": {
+            "id": "uuid",
+            "slug": "string",
+            "title": "string",
+            "type": "COURSE",
+            "status": "PUBLISHED",
+            "cover": { "url": "https://..." },
+            "category": { "id": "uuid", "slug": "string", "name": "Математика" },
+            "author": { "id": "uuid", "name": "string" }
+          },
+          "progress": {
+            "state": "IN_PROGRESS",
+            "percent": 33,
+            "completedLessons": 1,
+            "totalLessons": 3,
+            "continueLesson": { "id": "uuid", "title": "string" },
+            "completedAt": null
+          },
+          "materials": null
+        }
+      ]
+    }
+
+- `enrolledAt` — дата створення запису.
+- `course.cover` — `null`, якщо обкладинки немає; `cover.url` може бути `null`,
+  якщо на сервері не налаштований публічний базовий URL.
+- `course.author.name` — відображуване ім'я профілю автора, а за його
+  відсутності — повне ім'я користувача. `course.category.name` — українська
+  назва категорії.
+- `progress` — для `COURSE`; для `MATERIAL` — `null`.
+  - `state`: `NOT_STARTED` — показати "Почати"; `IN_PROGRESS` — "Продовжити"
+    і прогрес-бар; `COMPLETED` — позначку "Пройдено".
+  - `percent` округлений вниз: `100` лише коли пройдено всі уроки. Рахується
+    за актуальною програмою, видалені уроки не враховуються.
+  - `completedAt` — дата першого завершення курсу, `null`, якщо курс ще не
+    завершували. Ця дата не перераховується, коли в курс додають нові уроки.
+  - `continueLesson` — перший за порядком непройдений урок, `null`, якщо
+    пройдено все або уроків немає.
+- Кнопка "Продовжити" веде на
+  `routes.playerLesson(course.id, progress.continueLesson.id)`; якщо
+  `continueLesson` дорівнює `null` — на `routes.player(course.id)`.
+- `materials` — для `MATERIAL`; для `COURSE` — `null`. `filesCount` — кількість
+  готових файлів, `totalSizeBytes` — сумарний розмір рядком, `formats` —
+  унікальні розширення в нижньому регістрі за алфавітом. Сам файл
+  завантажується через `GET /api/files/:fileId/download-url`.
+
+Помилки:
+
+- `400` — невідомий параметр або значення `type`;
+- `401` — немає токена.
+
+### Програма курсу
+
+`GET /api/learn/courses/:courseId` — Bearer; ролі `STUDENT`, `AUTHOR`,
+`ADMIN`. Викликається бічною панеллю плеєра.
+
+Доступ визначається на кожен запит тими самими правилами 1–4, що й для уроку
+(`decideCourseAccess`):
+
+- запис, автор курсу або адмін — повна програма (`access: "ENROLLED"`,
+  `"AUTHOR"` або `"ADMIN"`);
+- будь-який інший користувач опублікованого курсу — `access: "PREVIEW"`:
+  програма видна, але уроки, що не є безкоштовним прев'ю, мають
+  `isLocked: true`, а `progress` дорівнює `null`;
+- неопублікований курс для користувача без запису, ролі автора чи адміна — `404`.
+
+Прогрес повертається завжди, коли в користувача є активний запис — у тому
+числі в адміна чи автора.
+
+Приклад відповіді `200`:
+
+    {
+      "access": "ENROLLED",
+      "course": { "id": "uuid", "slug": "string", "title": "string", "type": "COURSE", "status": "PUBLISHED" },
+      "progress": {
+        "state": "IN_PROGRESS",
+        "percent": 33,
+        "completedLessons": 1,
+        "totalLessons": 3,
+        "continueLesson": { "id": "uuid", "title": "string" },
+        "completedAt": null
+      },
+      "modules": [
+        {
+          "id": "uuid",
+          "title": "string",
+          "position": 0,
+          "lessons": [
+            { "id": "uuid", "type": "VIDEO", "title": "string", "position": 0, "isPreview": true, "durationSec": 612, "isLocked": false, "isCompleted": true }
+          ]
+        }
+      ],
+      "materials": [
+        { "id": "uuid", "fileId": "uuid", "title": "string", "name": "Конспект.pdf", "format": "pdf", "mimeType": "application/pdf", "sizeBytes": "1204224" }
+      ]
+    }
+
+- `position` = `sortOrder`, `isPreview` = `isFreePreview` — ті самі імена, що
+  й у `GET /api/learn/lessons/:lessonId` та публічному
+  `GET /api/courses/:idOrSlug`.
+- `isLocked` — урок закритий (лише в режимі `PREVIEW`); `isCompleted` — урок
+  пройдений. Для користувача без запису `isCompleted` завжди `false`.
+- `progress` — той самий об'єкт, що й у списку "Мої курси": для `COURSE` із
+  записом, інакше `null`.
+- `materials` — файли курсу (`id` — це `CourseFile.id`); для `COURSE`
+  зазвичай порожній масив. Файл завантажується через
+  `GET /api/files/:fileId/download-url` за `fileId`.
+- Вміст уроку (текст, відео, вкладення, тест) програма **не містить** — його
+  можна отримати лише через `GET /api/learn/lessons/:lessonId`.
+- Позначка проходження уроку й тести — наступна частина issue #85.
+
+Помилки:
+
+- `400` — `courseId` не є UUID;
+- `401` — немає токена;
+- `404` — курсу не існує, або для цього користувача його не існує
+  (не опублікований і немає ні ролі, ні активного запису).
+
 ## Маршрути фронтенду
 
 | URL | Сторінка | Доступ |
