@@ -10,11 +10,18 @@
  * a row exist"; the controller only parses HTTP.
  */
 import { randomUUID } from 'node:crypto';
-import { UserRole, type File } from '@prisma/client';
+import { StorageProvider, UserRole, type File } from '@prisma/client';
 import { AppError } from '../../lib/errors.js';
 import { headObject, presignDownload, presignUpload } from '../../lib/s3.js';
+import { createStreamDirectUpload, getStreamVideo, isStreamApiConfigured } from '../../lib/stream-api.js';
 import * as filesRepository from './files.repository.js';
-import { extensionForMime, type CreateUploadUrlInput, type S3FileKind } from './files.validation.js';
+import {
+  extensionForMime,
+  VIDEO_UPLOAD_POLICY,
+  type CreateUploadUrlInput,
+  type CreateVideoUploadUrlInput,
+  type S3FileKind,
+} from './files.validation.js';
 
 export interface Actor {
   userId: string;
@@ -140,6 +147,61 @@ export async function createUploadUrl(actor: Actor, input: CreateUploadUrlInput)
   };
 }
 
+export interface VideoUploadUrlResult {
+  fileId: string;
+  uploadUrl: string;
+}
+
+export async function createVideoUploadUrl(
+  actor: Actor,
+  input: CreateVideoUploadUrlInput,
+): Promise<VideoUploadUrlResult> {
+  if (!isStreamApiConfigured()) {
+    throw AppError.serviceUnavailable('Video upload is not configured');
+  }
+
+  // Stream first, row second: the UID is issued by Stream, so the row cannot
+  // exist before it. An unused upload link simply expires on Cloudflare's side.
+  const upload = await createStreamDirectUpload({
+    maxDurationSeconds: VIDEO_UPLOAD_POLICY.maxDurationSec,
+    creator: actor.userId,
+  });
+
+  const file = await filesRepository.createPendingVideo({
+    uploadedById: actor.userId,
+    storageKey: upload.uid,
+    originalName: input.originalName,
+    mimeType: input.mimeType,
+    sizeBytes: BigInt(input.sizeBytes),
+  });
+
+  return { fileId: file.id, uploadUrl: upload.uploadUrl };
+}
+
+/**
+ * Asks Stream whether the uploaded video is playable. Processing that is
+ * still running is not an error: the row stays pending and the caller polls.
+ */
+async function confirmStreamVideo(file: File): Promise<FileDto> {
+  const video = await getStreamVideo(file.storageKey);
+
+  if (video === null || video.state === 'pendingupload') {
+    throw AppError.conflict('Video has not been uploaded yet');
+  }
+
+  if (video.state === 'error') {
+    throw AppError.conflict('Video processing failed', [
+      { field: 'video', message: video.errorReasonText ?? video.errorReasonCode ?? 'unknown' },
+    ]);
+  }
+
+  if (video.state === 'ready' && video.readyToStream) {
+    return toFileDto(await filesRepository.markVideoReady(file.id, video.durationSec));
+  }
+
+  return toFileDto(file);
+}
+
 export async function confirmUpload(actor: Actor, fileId: string): Promise<FileDto> {
   const file = await filesRepository.findActiveById(fileId);
 
@@ -156,6 +218,10 @@ export async function confirmUpload(actor: Actor, fileId: string): Promise<FileD
   // Idempotent: a retried confirm after a network blip must not fail.
   if (file.isReady) {
     return toFileDto(file);
+  }
+
+  if (file.provider === StorageProvider.CLOUDFLARE_STREAM) {
+    return confirmStreamVideo(file);
   }
 
   // Trusting the client here would let anyone create "ready" rows pointing at
@@ -189,6 +255,11 @@ export async function createDownloadUrl(actor: Actor, fileId: string): Promise<D
 
   if (!(await canDownload(actor, file))) {
     throw AppError.forbidden('You do not have access to this file');
+  }
+
+  // SRS 20.2: video is streamed over signed HLS links, never downloaded.
+  if (file.provider !== StorageProvider.S3) {
+    throw AppError.conflict('Videos are streamed, not downloaded');
   }
 
   const download = await presignDownload({
