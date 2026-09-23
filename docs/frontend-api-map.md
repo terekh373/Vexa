@@ -485,6 +485,12 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
 **і** роль `AUTHOR`. **Роль `ADMIN` сюди не пускається.** Без токена — `401`;
 з роллю `STUDENT` або `ADMIN` — `403`.
 
+    GET    /api/author/dashboard          ?period=7d|30d|90d|all
+    GET    /api/author/balance
+    GET    /api/author/balance/entries    ?page=1&limit=20
+    POST   /api/author/payouts
+    GET    /api/author/payouts            ?page=1&limit=20
+    GET    /api/author/reviews            ?page=1&limit=20
     POST   /api/author/courses
     GET    /api/author/courses            ?status=DRAFT|MODERATION|PUBLISHED|REJECTED|UNPUBLISHED
     GET    /api/author/courses/:id
@@ -510,6 +516,116 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
     POST   /api/author/courses/:id/submit
     POST   /api/author/courses/:id/unpublish
     POST   /api/author/reviews/:id/reply
+
+### Дашборд, баланс, виплати та відгуки автора
+
+Усі суми нижче — **цілі копійки**. Форматування у гривні робить клієнт.
+
+`GET /api/author/dashboard?period=7d|30d|90d|all`
+
+Відповідь `200`:
+
+    {
+      "period": "30d",
+      "salesCount": 12,
+      "revenueAmount": 245000,
+      "studentsCount": 9,
+      "ratingAvg": 4.75,
+      "reviewsCount": 8,
+      "coursesByStatus": {
+        "DRAFT": 1,
+        "MODERATION": 0,
+        "PUBLISHED": 3,
+        "REJECTED": 0,
+        "UNPUBLISHED": 1
+      },
+      "currency": "UAH"
+    }
+
+`salesCount` і `revenueAmount` рахуються лише за оплаченими `order_items` автора
+у вибраному періоді; `studentsCount` — унікальні активні зарахування за цей
+період; рейтинг — лише опубліковані відгуки за період. `coursesByStatus`
+показує поточний стан усіх не видалених курсів автора.
+
+`GET /api/author/balance`
+
+    {
+      "availableAmount": 180000,
+      "pendingAmount": 0,
+      "withdrawnAmount": 50000,
+      "currency": "UAH",
+      "payoutMinAmount": 50000,
+      "updatedAt": "2026-09-23T12:00:00.000Z"
+    }
+
+Якщо запису балансу ще немає, усі суми повертаються як `0`, валюта — `UAH`.
+`payoutMinAmount` приходить із `PAYOUT_MIN_AMOUNT` серверного конфігу.
+
+`GET /api/author/balance/entries?page=1&limit=20` — історія ledger. Відповідь:
+
+    {
+      "items": [
+        {
+          "id": "uuid",
+          "type": "SALE",
+          "amount": 8500,
+          "comment": "Продаж «Курс»",
+          "createdAt": "...",
+          "orderItem": { "id": "uuid", "titleSnapshot": "Курс" },
+          "payout": null
+        }
+      ],
+      "page": 1, "limit": 20, "total": 1, "totalPages": 1
+    }
+
+`POST /api/author/payouts`
+
+    { "amount": 50000, "method": "CARD", "destination": "4444 3333 2222 1111" }
+
+`method`: `CARD | IBAN`. `amount` має бути integer, не менше
+`payoutMinAmount` і не більше `availableAmount`. Успіх → `201`:
+
+    {
+      "id": "uuid",
+      "amount": 50000,
+      "currency": "UAH",
+      "method": "CARD",
+      "destinationMasked": "**** 1111",
+      "status": "REQUESTED",
+      "comment": null,
+      "processedAt": null,
+      "createdAt": "..."
+    }
+
+Повні реквізити після валідації **не зберігаються**: у БД лишається тільки
+`destinationMasked` з останніми 4 символами. Створення заявки атомарно зменшує
+`availableAmount` і додає `balance_entries` типу `PAYOUT` з від'ємною сумою.
+Паралельні заявки не можуть вивести баланс у мінус. Нижче мінімуму → `400`;
+сума більша за доступну → `409`. Після успіху автор отримує email і внутрішнє
+сповіщення; збій email не відкочує заявку.
+
+`GET /api/author/payouts?page=1&limit=20` — історія заявок у форматі
+`{ items, page, limit, total, totalPages }`; кожний елемент має ту саму форму,
+що відповідь `POST /api/author/payouts`.
+
+`GET /api/author/reviews?page=1&limit=20` — опубліковані відгуки на курси
+автора:
+
+    {
+      "items": [
+        {
+          "id": "uuid", "rating": 5, "text": "...",
+          "authorReply": null, "authorRepliedAt": null, "hasReply": false,
+          "createdAt": "...", "updatedAt": "...",
+          "user": { "id": "uuid", "fullName": "Учень" },
+          "course": { "id": "uuid", "title": "Курс", "slug": "course" }
+        }
+      ],
+      "page": 1, "limit": 20, "total": 1, "totalPages": 1
+    }
+
+Відповідь на відгук залишається окремим
+`POST /api/author/reviews/:id/reply`.
 
 ### Відповіді автора на відгуки
 
