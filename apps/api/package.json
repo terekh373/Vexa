@@ -19,7 +19,8 @@
     "db:validate": "prisma validate",
     "db:dbml:check": "dbml2sql ../../docs/schema.dbml --postgres",
     "test": "node test/run-tests.mjs",
-    "webhook:liqpay": "tsx scripts/send-liqpay-webhook.ts"
+    "webhook:liqpay": "tsx scripts/send-liqpay-webhook.ts",
+    "test:load": "node test/load/catalog-course.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
