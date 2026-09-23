@@ -102,6 +102,7 @@ async function seedFixture() {
         slug: `author-material-course-${courseCounter}`,
         title: `Курс ${courseCounter}`,
         shortDescription: 'Короткий опис',
+        description: 'Повний опис',
       },
     });
   }
