@@ -1,6 +1,6 @@
 import { CourseStatus } from '@prisma/client';
 import { describe, expect, it } from 'vitest';
-import { decideLessonAccess } from '../../src/modules/learning/lesson-access.js';
+import { decideCourseAccess, decideLessonAccess } from '../../src/modules/learning/lesson-access.js';
 
 describe('decideLessonAccess', () => {
   it('admin wins even on a DRAFT course', () => {
@@ -73,5 +73,31 @@ describe('decideLessonAccess', () => {
         isFreePreview: false,
       }),
     ).toBe('FORBIDDEN');
+  });
+});
+
+describe('decideCourseAccess', () => {
+  const base = { isAdmin: false, isCourseAuthor: false, hasActiveEnrollment: false };
+
+  it('admin wins even on a DRAFT course', () => {
+    expect(decideCourseAccess({ ...base, isAdmin: true, courseStatus: CourseStatus.DRAFT })).toBe('ADMIN');
+  });
+
+  it('course author wins on a DRAFT course', () => {
+    expect(decideCourseAccess({ ...base, isCourseAuthor: true, courseStatus: CourseStatus.DRAFT })).toBe('AUTHOR');
+  });
+
+  it('an active enrollment grants access on an UNPUBLISHED course', () => {
+    expect(decideCourseAccess({ ...base, hasActiveEnrollment: true, courseStatus: CourseStatus.UNPUBLISHED })).toBe(
+      'ENROLLED',
+    );
+  });
+
+  it('no rights on an UNPUBLISHED course is NOT_FOUND', () => {
+    expect(decideCourseAccess({ ...base, courseStatus: CourseStatus.UNPUBLISHED })).toBe('NOT_FOUND');
+  });
+
+  it('no rights on a PUBLISHED course is PREVIEW', () => {
+    expect(decideCourseAccess({ ...base, courseStatus: CourseStatus.PUBLISHED })).toBe('PREVIEW');
   });
 });
