@@ -11,8 +11,11 @@ import { findCompletenessProblems } from './author.completeness.js';
 import {
   courseFileOrderBy,
   courseFileSelect,
+  findTopicsByIds,
   loadCompletenessSnapshot,
+  replaceCourseTopics,
 } from './author.repository.js';
+import { findTopicSelectionProblems } from './author.topics.js';
 import type {
   AuthorCourseListQuery,
   AuthorReviewReplyInput,
@@ -84,6 +87,18 @@ const fullCourseSelect = {
     },
   },
   courseFiles: { orderBy: courseFileOrderBy, select: courseFileSelect },
+  topics: {
+    select: {
+      topic: {
+        select: {
+          id: true,
+          title: true,
+          grade: true,
+          subject: { select: { id: true, slug: true, nameUk: true } },
+        },
+      },
+    },
+  },
   modules: {
     where: { deletedAt: null },
     orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
@@ -442,23 +457,37 @@ export async function updateAuthorCourse(userId: string, courseId: string, input
 
   const slug = input.slug === undefined ? undefined : await makeUniqueSlug(input.slug, courseId);
 
-  return prisma.course.update({
-    where: { id: courseId },
-    data: {
-      ...(input.type === undefined ? {} : { type: input.type }),
-      ...(input.title === undefined ? {} : { title: input.title }),
-      ...(input.categoryId === undefined ? {} : { categoryId: input.categoryId }),
-      ...(input.shortDescription === undefined ? {} : { shortDescription: input.shortDescription }),
-      ...(input.description === undefined ? {} : { description: input.description }),
-      ...(input.outcomes === undefined ? {} : { outcomes: input.outcomes }),
-      ...(input.language === undefined ? {} : { language: input.language }),
-      ...(input.grade === undefined ? {} : { grade: input.grade }),
-      ...(input.priceAmount === undefined ? {} : { priceAmount: input.priceAmount }),
-      ...(input.currency === undefined ? {} : { currency: input.currency }),
-      ...(input.coverFileId === undefined ? {} : { coverFileId: input.coverFileId }),
-      ...(slug === undefined ? {} : { slug }),
-    },
-    select: courseListSelect,
+  const { topicIds } = input;
+  if (topicIds !== undefined) {
+    const problems = findTopicSelectionProblems(topicIds, await findTopicsByIds(prisma, topicIds));
+    if (problems.length > 0) throw AppError.validation('Invalid curriculum topics', problems);
+  }
+
+  const updateCourse = (db: DbClient) =>
+    db.course.update({
+      where: { id: courseId },
+      data: {
+        ...(input.type === undefined ? {} : { type: input.type }),
+        ...(input.title === undefined ? {} : { title: input.title }),
+        ...(input.categoryId === undefined ? {} : { categoryId: input.categoryId }),
+        ...(input.shortDescription === undefined ? {} : { shortDescription: input.shortDescription }),
+        ...(input.description === undefined ? {} : { description: input.description }),
+        ...(input.outcomes === undefined ? {} : { outcomes: input.outcomes }),
+        ...(input.language === undefined ? {} : { language: input.language }),
+        ...(input.grade === undefined ? {} : { grade: input.grade }),
+        ...(input.priceAmount === undefined ? {} : { priceAmount: input.priceAmount }),
+        ...(input.currency === undefined ? {} : { currency: input.currency }),
+        ...(input.coverFileId === undefined ? {} : { coverFileId: input.coverFileId }),
+        ...(slug === undefined ? {} : { slug }),
+      },
+      select: courseListSelect,
+    });
+
+  if (topicIds === undefined) return updateCourse(prisma);
+
+  return prisma.$transaction(async (tx) => {
+    await replaceCourseTopics(tx, courseId, topicIds);
+    return updateCourse(tx);
   });
 }
 
