@@ -51,8 +51,8 @@ export async function getAuthorDashboard(userId: string, query: AuthorDashboardQ
     number
   >;
 
-  for (const group of snapshot.courseStatusGroups) {
-    coursesByStatus[group.status] = group._count._all;
+  for (const course of snapshot.courses) {
+    coursesByStatus[course.status] = (coursesByStatus[course.status] ?? 0) + 1;
   }
 
   const revenueAmount = snapshot.orderItems.reduce(

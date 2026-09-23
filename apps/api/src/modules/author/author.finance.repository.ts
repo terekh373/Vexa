@@ -12,7 +12,7 @@ import type {
 } from './author.finance.validation.js';
 
 export async function loadAuthorDashboardSnapshot(userId: string, from: Date | null) {
-  const [orderItems, students, reviewAggregate, courseStatusGroups] = await prisma.$transaction([
+  const [orderItems, students, reviewAggregate, courses] = await prisma.$transaction([
     prisma.orderItem.findMany({
       where: {
         authorId: userId,
@@ -50,14 +50,13 @@ export async function loadAuthorDashboardSnapshot(userId: string, from: Date | n
       _avg: { rating: true },
       _count: { _all: true },
     }),
-    prisma.course.groupBy({
-      by: ['status'],
+    prisma.course.findMany({
       where: { authorId: userId, deletedAt: null },
-      _count: { _all: true },
+      select: { status: true },
     }),
   ]);
 
-  return { orderItems, students, reviewAggregate, courseStatusGroups };
+  return { orderItems, students, reviewAggregate, courses };
 }
 
 export async function findAuthorBalance(userId: string) {
