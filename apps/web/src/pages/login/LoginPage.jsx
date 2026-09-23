@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { loginSchema, routes } from '@vexa/shared';
 
 import { useAuth } from '../../context/auth-context.js';
+import { API } from '../../api/config.js';
 import styles from '../auth/AuthForm.module.css';
 
 const mapIssues = (issues) =>
@@ -34,6 +35,10 @@ const LoginPage = () => {
     setValues((current) => ({ ...current, [name]: value }));
     setErrors((current) => ({ ...current, [name]: undefined }));
     setFormError('');
+  };
+
+  const startGoogleLogin = () => {
+    window.location.assign(`${API.replace(/\/$/, '')}/auth/google`);
   };
 
   const handleSubmit = async (event) => {
@@ -97,6 +102,12 @@ const LoginPage = () => {
             Пароль успішно змінено. Тепер ви можете увійти з новим паролем.
           </p>
         )}
+
+        <button className={styles.submit} type="button" onClick={startGoogleLogin}>
+          Увійти через Google
+        </button>
+
+        <p className={styles.subtitle} style={{ textAlign: 'center', margin: '14px 0' }}>або</p>
 
         <form className={styles.form} onSubmit={handleSubmit} noValidate>
           <label className={styles.field}>

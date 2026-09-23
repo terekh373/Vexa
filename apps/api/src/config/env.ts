@@ -53,6 +53,16 @@ const envSchema = z
     JWT_ACCESS_TTL: z.string().default('15m'),
     JWT_REFRESH_TTL: z.string().default('30d'),
 
+    // Google OAuth 2.0. All three values are configured together. They stay
+    // optional so CI/local environments without OAuth credentials can boot;
+    // the Google endpoints answer 503 until the trio is configured.
+    GOOGLE_CLIENT_ID: optionalNonEmpty,
+    GOOGLE_CLIENT_SECRET: optionalNonEmpty,
+    GOOGLE_REDIRECT_URI: z.preprocess(
+      (value) => (value === '' ? undefined : value),
+      z.string().url('GOOGLE_REDIRECT_URI must be a URL').optional(),
+    ),
+
     // Comma-separated list of allowed browser origins.
     CORS_ORIGINS: z.string().default('http://localhost:5173'),
 
@@ -112,6 +122,17 @@ const envSchema = z
     STREAM_SIGNED_URL_TTL_SEC: z.coerce.number().int().positive().max(86_400).default(600),
   })
   .superRefine((value, ctx) => {
+    const googleKeys = [value.GOOGLE_CLIENT_ID, value.GOOGLE_CLIENT_SECRET, value.GOOGLE_REDIRECT_URI];
+    const googleSetCount = googleKeys.filter((key) => key !== undefined).length;
+
+    if (googleSetCount !== 0 && googleSetCount !== googleKeys.length) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['GOOGLE_CLIENT_ID'],
+        message: 'GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and GOOGLE_REDIRECT_URI must be set together',
+      });
+    }
+
     const streamKeys = [
       value.CF_STREAM_CUSTOMER_CODE,
       value.CF_STREAM_SIGNING_KEY_ID,

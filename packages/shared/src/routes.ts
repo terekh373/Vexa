@@ -93,6 +93,7 @@ export const routes = {
   forgotPassword: (): string => build('/forgot-password'),
   resetPassword: (token: string): string => build(`/reset-password?token=${token}`),
   verifyEmail: (token: string): string => build(`/verify-email?token=${token}`),
+  googleCallback: (): string => build('/auth/google/callback'),
 
   // --- Purchase -------------------------------------------------------------
   cart: (): string => build('/cart'),
@@ -166,6 +167,7 @@ export const routePatterns = {
   forgotPassword: '/forgot-password',
   resetPassword: '/reset-password',
   verifyEmail: '/verify-email',
+  googleCallback: '/auth/google/callback',
   learning: '/learning',
   orders: '/orders',
   settings: '/settings',
@@ -206,6 +208,7 @@ export const routeAccess = {
     '/forgot-password',
     '/reset-password',
     '/verify-email',
+    '/auth/google/callback',
     '/faq',
     '/support',
     '/offer',

@@ -19,6 +19,7 @@ import {
   meHandler,
 } from './auth.controller.js';
 import { authenticate } from '../../middleware/authenticate.js';
+import { googleCallbackHandler, googleExchangeHandler, googleStartHandler } from './googleOAuth.controller.js';
 
 export const authRouter: Router = Router();
 
@@ -79,6 +80,9 @@ authRouter.post('/logout-all', logoutAllHandler);
 
 authRouter.post('/register', registrationLimiter, registerHandler);
 authRouter.post('/login', credentialsLimiter, loginHandler);
+authRouter.get('/google', googleStartHandler);
+authRouter.get('/google/callback', googleCallbackHandler);
+authRouter.post('/google/exchange', credentialsLimiter, googleExchangeHandler);
 authRouter.post('/forgot-password', passwordRecoveryLimiter, forgotPasswordHandler);
 authRouter.post('/reset-password', passwordRecoveryLimiter, resetPasswordHandler);
 authRouter.post('/resend-verification', verificationResendLimiter, resendVerificationHandler);
