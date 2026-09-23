@@ -286,6 +286,9 @@ describe('payments integration', () => {
     expect(course1.studentsCount).toBe(1);
     expect(course2.studentsCount).toBe(1);
 
+    const authorProfile = await prisma.authorProfile.findUniqueOrThrow({ where: { userId: fixture.authorId } });
+    expect(authorProfile.studentsCount).toBe(1);
+
     const myOrder = await request(app)
       .get(`/api/me/orders/${order.id}`)
       .set('Authorization', `Bearer ${fixture.buyerToken}`);

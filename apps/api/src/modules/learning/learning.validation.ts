@@ -12,3 +12,24 @@ export type MyEnrollmentsQuery = z.infer<typeof myEnrollmentsQuerySchema>;
 export const courseParamsSchema = z.object({ courseId: z.string().uuid() }).strict();
 
 export type CourseParams = z.infer<typeof courseParamsSchema>;
+
+export const quizParamsSchema = z.object({ quizId: z.string().uuid() }).strict();
+
+export type QuizParams = z.infer<typeof quizParamsSchema>;
+
+export const quizAttemptBodySchema = z
+  .object({
+    answers: z
+      .array(
+        z
+          .object({
+            questionId: z.string().uuid(),
+            optionIds: z.array(z.string().uuid()).max(50),
+          })
+          .strict(),
+      )
+      .max(200),
+  })
+  .strict();
+
+export type QuizAttemptBody = z.infer<typeof quizAttemptBodySchema>;

@@ -16,6 +16,7 @@ import {
 } from '@prisma/client';
 import { sha256Hex } from '../../lib/crypto.js';
 import { prisma } from '../../lib/prisma.js';
+import { refreshStudentCounters } from '../../lib/student-counters.js';
 
 // ---------------------------------------------------------------------------
 // Checkout
@@ -312,10 +313,7 @@ async function applyDecision(
           update: { availableAmount: { increment: item.authorAmount } },
         });
 
-        await tx.course.update({
-          where: { id: item.courseId },
-          data: { studentsCount: { increment: 1 } },
-        });
+        await refreshStudentCounters(tx, item.courseId);
       }
 
       return;
