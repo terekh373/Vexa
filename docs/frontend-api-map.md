@@ -502,6 +502,10 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
     POST   /api/author/quizzes/:id/questions
     PATCH  /api/author/questions/:id
     DELETE /api/author/questions/:id
+    POST   /api/author/courses/:id/files
+    PATCH  /api/author/courses/:id/files/reorder
+    PATCH  /api/author/courses/:id/files/:courseFileId
+    DELETE /api/author/courses/:id/files/:courseFileId
     PATCH  /api/author/courses/:id/reorder
     POST   /api/author/courses/:id/submit
     POST   /api/author/courses/:id/unpublish
@@ -544,7 +548,7 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
 
 ### Тести (`QUIZ`)
 
-Усі маршрути нижче доступні лише ролі `AUTHOR` і перевіряють, що урок/тест/питання належить курсу поточного автора. Чужий ресурс повертає `403`.
+Усі маршрути нижче доступні лише ролі `AUTHOR` і перевіряють, що урок/тест/питання належить курсу поточного автора. Чужий ресурс повертає `403`. Тести редагуються в `DRAFT`, `REJECTED` та `UNPUBLISHED` — так само, як уроки; в інших статусах — `409`.
 
 - `POST /api/author/lessons/:id/quiz` — створити тест для `QUIZ`-уроку. Тіло: `passScore` (`0..100`, default `60`), `attemptsAllowed` (`integer >= 1` або `null`).
 - `PATCH /api/author/quizzes/:id` — змінити `passScore` / `attemptsAllowed`.
@@ -570,6 +574,45 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
 - Плоский `lessons[]` — перенесення уроку між модулями (drag & drop).
 - Дублікат `id` у межах одного запиту → `400`.
 
+### Файли матеріалу (MATERIAL)
+
+Курс з `type = MATERIAL` наповнюється файлами, а не уроками. Порядок дій:
+
+1. Завантажити файл як `ATTACHMENT` через `POST /api/files/upload-url` і
+   `confirm` (див. розділ «Файли»).
+2. Прив'язати його: `POST /api/author/courses/:id/files`.
+
+Маршрути:
+
+- `POST /api/author/courses/:id/files` — тіло `{ "fileId": "uuid", "title": "Конспект" }`
+  (`title`: `1..180` символів після trim). `201`. `sortOrder` призначається
+  автоматично — наступний після останнього.
+- `PATCH /api/author/courses/:id/files/:courseFileId` — тіло `{ "title" }`. `200`.
+- `PATCH /api/author/courses/:id/files/reorder` — тіло
+  `{ "files": [ { "id": "courseFileId", "sortOrder": 0 } ] }`; `id` — це `id`
+  прив'язки (не `fileId`), дублікат `id` → `400`. `200`, відповідь — масив
+  усіх файлів матеріалу в новому порядку.
+- `DELETE /api/author/courses/:id/files/:courseFileId` — `204`. Видаляється
+  лише прив'язка, сам файл лишається.
+
+Відповідь `POST` і `PATCH` (і елементи масиву `reorder`):
+
+    { "id": "uuid", "fileId": "uuid", "title": "Конспект", "sortOrder": 0,
+      "file": { "id": "uuid", "kind": "ATTACHMENT", "originalName": "notes.pdf",
+                "mimeType": "application/pdf", "isReady": true } }
+
+Помилки:
+
+- `404 Course not found` — курс не існує, чужий або видалений;
+- `409` — курс не в `DRAFT` / `REJECTED` / `UNPUBLISHED`;
+- `409 Files can be attached only to a MATERIAL` — курс має тип `COURSE`;
+- `404 File not found` — файл чужий, не `ATTACHMENT`, ще не готовий або видалений;
+- `409 File is already attached` — файл уже прив'язаний до цього курсу;
+- `404 Course file not found` — прив'язка не належить цьому курсу.
+
+`GET /api/author/courses/:id` повертає масив `courseFiles` (за `sortOrder`, потім
+за часом створення) з тими самими полями, що й відповідь `POST`.
+
 ### Подача на модерацію
 
 `POST /api/author/courses/:id/submit` — переводить `DRAFT`, `REJECTED` або
@@ -581,6 +624,28 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
 виклик для курсу не в `PUBLISHED` повертає `409`. Після зняття курс можна
 редагувати й повторно подати на модерацію; видалення як і раніше дозволене
 лише для `DRAFT` та `REJECTED`.
+
+Перед переведенням у `MODERATION` сервер перевіряє повноту курсу:
+
+- `COURSE` — щонайменше один урок;
+- урок `VIDEO` — завантажене й оброблене відео;
+- урок `QUIZ` — тест хоча б з одним питанням, і в кожному питанні є правильна відповідь;
+- `MATERIAL` — хоча б один готовий файл.
+
+Якщо чогось бракує, відповідь `400` (`VALIDATION_ERROR`), статус не змінюється:
+
+    { "error": { "code": "VALIDATION_ERROR",
+                 "message": "Course is not ready for moderation",
+                 "details": [
+                   { "field": "lessons.<lessonId>.video",
+                     "message": "Урок «Вступ»: відео не завантажене або ще обробляється" },
+                   { "field": "lessons.<lessonId>.quiz.questions.<questionId>",
+                     "message": "Урок «Тест 1»: у питанні немає правильної відповіді" } ] } }
+
+Можливі `field`: `lessons`, `lessons.<id>.video`, `lessons.<id>.quiz`,
+`lessons.<id>.quiz.questions.<questionId>`, `courseFiles`. Порада для UI:
+показувати кожну проблему біля відповідного уроку (або блоку файлів) за
+`field`, а не одним списком помилок.
 
 Повний життєвий цикл статусів: `DRAFT → MODERATION → PUBLISHED / REJECTED →
 UNPUBLISHED → MODERATION`. Покупці з активним `Enrollment` не втрачають
