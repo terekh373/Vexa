@@ -372,6 +372,10 @@ S3_SECRET_ACCESS_KEY="minioadmin"
 S3_SIGNED_URL_TTL_SEC="600"
 CF_STREAM_ACCOUNT_ID=""
 CF_STREAM_API_TOKEN=""
+CF_STREAM_CUSTOMER_CODE=""
+CF_STREAM_SIGNING_KEY_ID=""
+CF_STREAM_SIGNING_KEY_PEM=""
+STREAM_SIGNED_URL_TTL_SEC="600"
 PAYMENT_PROVIDER="LIQPAY"
 LIQPAY_PUBLIC_KEY="sandbox_"
 LIQPAY_PRIVATE_KEY="sandbox_"
@@ -388,6 +392,7 @@ ADMIN_PASSWORD=""
 | `CORS_ORIGINS` | `http://localhost:5173` — Vite |
 | `PLATFORM_COMMISSION_BPS`, `PAYOUT_MIN_AMOUNT`, `REFUND_WINDOW_DAYS` | значення з ТЗ: 15 %, 500 грн, 14 днів. Гроші всюди — **цілі копійки** |
 | `CF_STREAM_*`, `LIQPAY_*` | порожні / `sandbox_`. Потрібні лише для задач з відео та оплатою; ключі видає тимлід |
+| `CF_STREAM_CUSTOMER_CODE`, `CF_STREAM_SIGNING_KEY_ID`, `CF_STREAM_SIGNING_KEY_PEM` | задаються лише всі разом; порожні — плеєр працює зі статусом `UNAVAILABLE` |
 | `SEED_MODE` | `demo` локально; `production` — лише в продакшн-деплої, див. [Деплой](#-деплой) |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | не потрібні при `SEED_MODE=demo` — можна лишити порожніми |
 
