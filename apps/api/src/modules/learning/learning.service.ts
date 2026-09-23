@@ -1,8 +1,10 @@
 import { ContentType, StorageProvider, UserRole } from '@prisma/client';
 import { AppError } from '../../lib/errors.js';
 import { createStreamPlayback } from '../../lib/stream.js';
-import { decideLessonAccess } from './lesson-access.js';
+import { decideCourseAccess, decideLessonAccess } from './lesson-access.js';
 import {
+  findActiveEnrollmentProgress,
+  findCourseProgram,
   findLessonForLearner,
   findMyEnrollments,
   hasActiveEnrollment,
@@ -10,7 +12,7 @@ import {
   type MyEnrollment,
 } from './learning.repository.js';
 import type { MyEnrollmentsQuery } from './learning.validation.js';
-import { summarizeProgress, type ProgressSummary } from './progress.js';
+import { summarizeProgress, type OrderedLesson, type ProgressSummary } from './progress.js';
 
 export interface LearnerActor {
   userId: string;
@@ -150,6 +152,14 @@ function toProgressDto(summary: ProgressSummary, completedAt: Date | null) {
   return { ...summary, completedAt };
 }
 
+function courseProgressDto(
+  orderedLessons: readonly OrderedLesson[],
+  completedIds: ReadonlySet<string>,
+  completedAt: Date | null,
+) {
+  return toProgressDto(summarizeProgress(orderedLessons, completedIds), completedAt);
+}
+
 function toMaterialsSummary(files: MyEnrollment['course']['courseFiles']) {
   let totalSizeBytes = BigInt(0);
   const formats = new Set<string>();
@@ -186,7 +196,7 @@ function toMyEnrollmentDto(enrollment: MyEnrollment) {
         name: course.author.authorProfile?.displayName ?? course.author.fullName,
       },
     },
-    progress: isCourse ? toProgressDto(summarizeProgress(orderedLessons, completedIds), enrollment.completedAt) : null,
+    progress: isCourse ? courseProgressDto(orderedLessons, completedIds, enrollment.completedAt) : null,
     materials: isCourse ? null : toMaterialsSummary(course.courseFiles),
   };
 }
@@ -196,4 +206,69 @@ export async function listMyEnrollments(userId: string, query: MyEnrollmentsQuer
   const enrollments = await findMyEnrollments(userId, query.type);
 
   return { items: enrollments.map(toMyEnrollmentDto) };
+}
+
+export async function getCourseProgram(actor: LearnerActor, courseId: string) {
+  const course = await findCourseProgram(courseId);
+
+  if (course === null) {
+    throw AppError.notFound('Course not found');
+  }
+
+  // Always looked up: an admin or the author may also be enrolled, and the
+  // enrollment is what carries their progress.
+  const enrollment = await findActiveEnrollmentProgress(actor.userId, course.id);
+
+  const access = decideCourseAccess({
+    isAdmin: actor.roles.includes(UserRole.ADMIN),
+    isCourseAuthor: course.authorId === actor.userId,
+    hasActiveEnrollment: enrollment !== null,
+    courseStatus: course.status,
+  });
+
+  if (access === 'NOT_FOUND') {
+    throw AppError.notFound('Course not found');
+  }
+
+  const completedIds = new Set(enrollment?.completedLessonIds ?? []);
+  const orderedLessons = course.modules.flatMap((learningModule) => learningModule.lessons);
+
+  return {
+    access,
+    course: {
+      id: course.id,
+      slug: course.slug,
+      title: course.title,
+      type: course.type,
+      status: course.status,
+    },
+    progress:
+      course.type === ContentType.COURSE && enrollment !== null
+        ? courseProgressDto(orderedLessons, completedIds, enrollment.completedAt)
+        : null,
+    modules: course.modules.map((learningModule) => ({
+      id: learningModule.id,
+      title: learningModule.title,
+      position: learningModule.sortOrder,
+      lessons: learningModule.lessons.map((lesson) => ({
+        id: lesson.id,
+        type: lesson.type,
+        title: lesson.title,
+        position: lesson.sortOrder,
+        isPreview: lesson.isFreePreview,
+        durationSec: lesson.durationSec,
+        isLocked: access === 'PREVIEW' && !lesson.isFreePreview,
+        isCompleted: enrollment !== null && completedIds.has(lesson.id),
+      })),
+    })),
+    materials: course.courseFiles.map((courseFile) => ({
+      id: courseFile.id,
+      fileId: courseFile.file.id,
+      title: courseFile.title,
+      name: courseFile.file.originalName,
+      format: extensionFromName(courseFile.file.originalName),
+      mimeType: courseFile.file.mimeType,
+      sizeBytes: courseFile.file.sizeBytes.toString(),
+    })),
+  };
 }
