@@ -435,8 +435,49 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
 існує або ще не підтверджений. Обкладинки курсів і аватари для показу в
 каталозі беруть з `coverUrl`/`avatar.url` сторінки курсу, не з цього ендпоінта.
 
+Для відео цей ендпоінт завжди повертає `409`: відео лише стрімиться (ТЗ 20.2).
+Плеєр отримує посилання через `GET /api/learn/lessons/:lessonId`.
+
 Типи запитів/відповідей — `CreateUploadUrlRequest`, `CreateUploadUrlResponse`,
 `FileDto`, `DownloadUrlResponse` у `@vexa/shared`.
+
+### Відео уроку (Cloudflare Stream)
+
+Відео йде з браузера напряму в Cloudflare Stream, повз API. Лише `AUTHOR`.
+
+**1.** `POST /api/files/video-upload-url` — Bearer, лише `AUTHOR`.
+
+    { "originalName": "lesson.mp4",
+      "mimeType": "video/mp4",
+      "sizeBytes": 52428800 }
+
+- `mimeType` — `video/mp4`, `video/quicktime` або `video/webm`.
+- `sizeBytes` — точний `File.size`, не більше **200 МБ**. Довші відео потребують
+  tus, його не підтримуємо; тривалість — до години.
+
+Відповідь `201`: `{ "fileId", "uploadUrl" }`. `uploadUrl` одноразовий.
+
+`400` — недозволений тип або розмір; `403` — не автор; `503` — відео не
+налаштоване на сервері або Stream недоступний.
+
+**2.** `POST <uploadUrl>` — `multipart/form-data`, поле `file`, без
+`Authorization`, напряму в Stream.
+
+    const form = new FormData();
+    form.append('file', file);
+    await fetch(uploadUrl, { method: 'POST', body: form });
+
+**3.** `POST /api/files/:fileId/confirm` — Bearer, той самий автор.
+
+- `200` — відео готове (`file.isReady: true`).
+- `202` — Stream ще обробляє відео (`file.isReady: false`). Повторювати запит
+  кожні ~5 с; зупинитися приблизно через 5 хв і показати «відео обробляється».
+- `409` «Video has not been uploaded yet» — завантаження не завершилося.
+- `409` «Video processing failed» — причина в `error.details`; завантажити інший
+  файл.
+
+**4.** Прив'язка: `PATCH /api/author/lessons/:id` з `{ "videoFileId": "<fileId>" }`
+— лише для готового файлу (інакше `404`). Тривалість уроку береться з відео.
 
 ## Кабінет автора (конструктор курсу)
 

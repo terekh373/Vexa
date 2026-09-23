@@ -5,8 +5,15 @@
  */
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
+import { UserRole } from '@prisma/client';
 import { authenticate } from '../../middleware/authenticate.js';
-import { confirmUploadHandler, createUploadUrlHandler, downloadUrlHandler } from './files.controller.js';
+import { requireRoles } from '../../middleware/requireRoles.js';
+import {
+  confirmUploadHandler,
+  createUploadUrlHandler,
+  createVideoUploadUrlHandler,
+  downloadUrlHandler,
+} from './files.controller.js';
 
 export const filesRouter: Router = Router();
 
@@ -27,6 +34,16 @@ const uploadLimiter = rateLimit({
 // (AVATAR is open to every account, COVER/ATTACHMENT to authors), and the
 // router cannot see the body. The service enforces it per request.
 filesRouter.post('/upload-url', authenticate, uploadLimiter, createUploadUrlHandler);
+
+// Unlike upload-url, the role is known without the body: only authors upload
+// lesson videos, so the router can gate it.
+filesRouter.post(
+  '/video-upload-url',
+  authenticate,
+  requireRoles(UserRole.AUTHOR),
+  uploadLimiter,
+  createVideoUploadUrlHandler,
+);
 
 // The service checks the caller is the uploader — that is the only right
 // that matters for confirm, and it is per row, not per role.
