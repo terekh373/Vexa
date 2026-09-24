@@ -1,0 +1,777 @@
+.dashboard {
+  width: 100%;
+  background: var(--footer-bg-color);
+  height: 100%;
+}
+
+.container {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 32px 40px 48px;
+  box-sizing: border-box;
+}
+
+.header {
+  margin-bottom: 32px;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-width: 0;
+}
+
+.greeting h1 {
+  margin: 0 0 6px;
+  color: var(--main-dark-color);
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 700;
+}
+
+.greeting p {
+  margin: 0;
+  color: var(--main-dark-color);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.leftCol,
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.card,
+.heroCard,
+.emptyHeroCard {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--accessory-grey);
+  border-radius: 16px;
+  background: var(--white-color);
+}
+
+.card {
+  padding: 24px;
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 24px;
+  margin-bottom: 20px;
+}
+
+.cardTop h2 {
+  margin: 0;
+  color: var(--main-dark-color);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--purple-color);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: var(--accessory-purple);
+}
+
+.heroCard {
+  display: flex;
+  flex-direction: column;
+  min-height: 286px;
+  overflow: hidden;
+}
+
+.heroTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 52px;
+  padding: 12px 24px;
+  box-sizing: border-box;
+  background: var(--purple-color);
+  color: var(--white-color);
+}
+
+.heroTitle {
+  min-width: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.heroBadge {
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--white-color);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.heroBottom {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 190px;
+  gap: 24px;
+  align-items: center;
+  flex: 1;
+  padding: 24px;
+}
+
+.heroInfo {
+  min-width: 0;
+}
+
+.courseMeta {
+  margin-bottom: 20px;
+}
+
+.courseMeta strong {
+  display: block;
+  margin-top: 3px;
+  color: var(--main-dark-color);
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.lightText {
+  display: block;
+  margin-top: 4px;
+  color: var(--secondary-grey);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.progressBox {
+  margin-bottom: 20px;
+}
+
+.progressLabels {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  color: var(--main-dark-color);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.percentText {
+  color: var(--purple-color);
+}
+
+.track {
+  width: 100%;
+  height: 6px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--accessory-grey);
+}
+
+.bar {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--purple-color);
+  transition: width 0.3s ease;
+}
+
+.btnContinue {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--purple-color);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.btnContinue:hover {
+  color: var(--accessory-purple);
+}
+
+.heroImgBox {
+  width: 100%;
+  height: 150px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--footer-bg-color);
+}
+
+.heroImgBox img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.emptyHeroCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 286px;
+  padding: 40px;
+  flex-direction: column;
+  border-color: var(--secondary-purple);
+  border-style: dashed;
+  background: var(--footer-bg-color);
+  text-align: center;
+}
+
+.emptyHeroCard h3 {
+  margin: 0 0 10px;
+  color: var(--main-dark-color);
+  font-size: 22px;
+  line-height: 30px;
+}
+
+.emptyHeroCard p {
+  max-width: 480px;
+  margin: 0 0 24px;
+  color: var(--secondary-grey);
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.btnPrimary {
+  padding: 12px 24px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--purple-color);
+  color: var(--white-color);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btnPrimary:hover {
+  background: var(--accessory-purple);
+}
+
+.coursesList {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.courseItem {
+  display: flex;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  flex-direction: column;
+  border: 1px solid var(--accessory-grey);
+  border-radius: 12px;
+  background: var(--white-color);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.courseItem:hover {
+  border-color: var(--purple-color);
+  transform: translateY(-2px);
+}
+
+.imgWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--footer-bg-color);
+}
+
+.imgWrapper img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.courseImageFallback {
+  width: 100%;
+  height: 100%;
+  background: var(--secondary-purple);
+}
+
+.courseText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 12px;
+}
+
+.courseText h3 {
+  margin: 0 0 5px;
+  color: var(--main-dark-color);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.courseText p {
+  flex: 1;
+  margin: 0 0 12px;
+  color: var(--secondary-grey);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.courseProgress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: var(--secondary-grey);
+  font-size: 10px;
+  line-height: 14px;
+}
+
+.courseProgress strong {
+  color: var(--purple-color);
+  font-size: 10px;
+}
+
+.miniTrack {
+  width: 100%;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--accessory-grey);
+}
+
+.miniBar {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--purple-color);
+  transition: width 0.3s ease;
+}
+
+.emptyCourses {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.emptyCourses p {
+  margin: 0;
+  color: var(--secondary-grey);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.calendarCard {
+  display: flex;
+  flex-direction: column;
+  min-height: 286px;
+}
+
+.calendarNavigation {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.calendarRange {
+  min-width: 140px;
+  color: var(--purple-color);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.calendarArrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--purple-color);
+  font-family: inherit;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.calendarArrow:hover {
+  color: var(--accessory-purple);
+}
+
+.calGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.calDay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: 82px;
+  padding: 10px 6px;
+  flex-direction: column;
+  box-sizing: border-box;
+  border: 1px solid var(--secondary-purple);
+  border-radius: 12px;
+  background: var(--white-color);
+  text-align: center;
+}
+
+.calDay.today {
+  border-color: var(--purple-color);
+  background: var(--footer-bg-color);
+}
+
+.calDay strong {
+  margin-bottom: 5px;
+  color: var(--main-dark-color);
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.calDay > span {
+  margin: 0;
+  color: var(--secondary-grey);
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.bottomSplit {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  align-items: stretch;
+}
+
+.bottomSplit .card {
+  min-width: 0;
+  height: 100%;
+}
+
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.taskItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 36px;
+}
+
+.taskItem strong {
+  display: block;
+  color: var(--main-dark-color);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.taskItem p {
+  margin: 3px 0 0;
+  color: var(--secondary-grey);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.checkDone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--purple-color);
+  color: var(--white-color);
+  font-size: 11px;
+}
+
+.timeTag {
+  flex-shrink: 0;
+  color: var(--purple-color);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
+}
+
+.joinFlex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.joinFlex > div {
+  min-width: 0;
+}
+
+.joinFlex strong {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  /* -webkit-line-clamp: 1; */
+}
+
+.joinBtn {
+  flex-shrink: 0;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--purple-color);
+  color: var(--white-color);
+  font-family: inherit;
+  font-size: 10px;
+  line-height: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.joinBtn:hover {
+  background: var(--accessory-purple);
+}
+
+.metaCount {
+  flex-shrink: 0;
+  color: var(--secondary-grey);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.checkRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.checkRow input {
+  margin: 2px 0 0;
+  flex-shrink: 0;
+  accent-color: var(--purple-color);
+}
+
+.checkRow div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.checkRow strong {
+  color: var(--main-dark-color);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.checkRow p {
+  margin: 3px 0 0;
+  color: var(--secondary-grey);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+@media (max-width: 1200px) {
+  .container {
+    padding: 28px 32px 40px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .heroCard,
+  .calendarCard {
+    min-height: auto;
+  }
+
+  .heroBottom {
+    grid-template-columns: minmax(0, 1fr) 240px;
+  }
+}
+
+@media (max-width: 960px) {
+  .container {
+    padding: 24px;
+  }
+
+  .header {
+    margin-bottom: 24px;
+  }
+
+  .greeting h1 {
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  .coursesList {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .calGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .headerContent {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .heroBottom {
+    grid-template-columns: 1fr;
+  }
+
+  .heroImgBox {
+    height: 220px;
+  }
+
+  .coursesList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bottomSplit {
+    grid-template-columns: 1fr;
+  }
+
+  .calGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 540px) {
+  .container {
+    padding: 20px 16px 32px;
+  }
+
+  .userInfo {
+    gap: 14px;
+  }
+
+  .greeting h1 {
+    margin-bottom: 4px;
+    font-size: 24px;
+    line-height: 30px;
+  }
+
+  .greeting p {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .card {
+    padding: 18px;
+  }
+
+  .cardTop {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .heroTop {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 14px 18px;
+  }
+
+  .heroBottom {
+    padding: 18px;
+  }
+
+  .heroImgBox {
+    height: 190px;
+  }
+
+  .coursesList {
+    grid-template-columns: 1fr;
+  }
+
+  .calendarNavigation {
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .calendarRange {
+    min-width: 0;
+    font-size: 13px;
+  }
+
+  .calGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .calDay {
+    height: 76px;
+  }
+}

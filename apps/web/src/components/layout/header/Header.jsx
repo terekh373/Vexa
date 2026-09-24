@@ -98,15 +98,15 @@ const Header = () => {
 
   const studentNavigation = (
     <>
-      <Link to={routes.home()} className={styles.link}>
-        Головна
+      <Link to={routes.studentDashboard()} className={styles.link}>
+        Кабінет
       </Link>
 
       <Link to={routes.learning()} className={styles.link}>
         Мої курси
       </Link>
 
-      <Link to={routes.learning()} className={styles.link}>
+      <Link to={routes.schedule()} className={styles.link}>
         Розклад
       </Link>
 

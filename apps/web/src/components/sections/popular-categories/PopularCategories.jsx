@@ -11,6 +11,7 @@ import { getCategories } from '../../../services/coursesService.js';
 const Section = styled.section`
   padding: 48px 0;
   background: var(--footer-bg-color);
+  margin-bottom: 48px;
 
   @media (max-width: 960px) {
     padding: 32px 0;
@@ -85,13 +86,18 @@ export const PopularCategories = () => {
     navigate(routes.catalog({ category: slug }));
   };
 
+  const openCategories = () => {
+    navigate('/categories');
+  };
+
   return (
     <Section>
       <Container>
         <OpenMore
           title='Популярні категорії'
           bttnTxt='Всі категорії'
-          onClick={openCatalog}
+          // onClick={openCatalog}
+          onClick={openCategories}
         />
 
         {loading && <State>Завантажуємо категорії...</State>}
