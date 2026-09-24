@@ -114,18 +114,27 @@ export async function sendMail(message: MailMessage): Promise<void> {
 
 export async function sendPurchaseReceiptEmail(input: {
   email: string;
-  orderId: string;
+  orderNumber: number;
+  items: { title: string; amount: string }[];
   totalAmount: string;
 }): Promise<void> {
   const ordersUrl = webUrl('/orders');
-  const orderId = escapeHtml(input.orderId);
-  const total = escapeHtml(input.totalAmount);
+  const textLines = input.items.map((item) => `— ${item.title}: ${item.amount}`);
+  const htmlItems = input.items
+    .map((item) => `<li>${escapeHtml(item.title)}: ${escapeHtml(item.amount)}</li>`)
+    .join('');
 
   await sendMail({
     to: [{ email: input.email }],
     subject: 'Vexa — підтвердження покупки',
-    text: `Дякуємо за покупку у Vexa. Замовлення: ${input.orderId}. Сума: ${input.totalAmount}. Ваші замовлення: ${ordersUrl}`,
-    html: `<p>Дякуємо за покупку у Vexa.</p><p>Замовлення: <strong>${orderId}</strong><br>Сума: <strong>${total}</strong></p><p><a href="${ordersUrl}">Переглянути замовлення</a></p>`,
+    text: [
+      'Дякуємо за покупку у Vexa.',
+      `Замовлення №${input.orderNumber}`,
+      ...textLines,
+      `Разом: ${input.totalAmount}`,
+      `Ваші замовлення: ${ordersUrl}`,
+    ].join('\n'),
+    html: `<p>Дякуємо за покупку у Vexa.</p><p>Замовлення №${escapeHtml(String(input.orderNumber))}</p><ul>${htmlItems}</ul><p>Разом: <strong>${escapeHtml(input.totalAmount)}</strong></p><p><a href="${escapeHtml(ordersUrl)}">Переглянути замовлення</a></p>`,
   });
 }
 

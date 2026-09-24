@@ -3,6 +3,7 @@ import {
   ContentType,
   CourseStatus,
   EnrollmentSource,
+  NotificationType,
   OrderStatus,
   PaymentStatus,
   UserRole,
@@ -11,6 +12,7 @@ import request from 'supertest';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { createApp } from '../../src/app.js';
 import { env } from '../../src/config/env.js';
+import { setMailTransportForTests, type MailMessage } from '../../src/lib/mailer.js';
 import { prisma } from '../../src/lib/prisma.js';
 import { redis } from '../../src/lib/redis.js';
 import { signAccessToken } from '../../src/modules/auth/token.service.js';
@@ -18,8 +20,10 @@ import { encodeData, formatAmount, LIQPAY_CHECKOUT_URL, signData } from '../../s
 
 const app = createApp();
 const CATEGORY_SLUG = 'payments-integration-category';
+const sentMessages: MailMessage[] = [];
 
 interface Fixture {
+  categoryId: string;
   authorId: string;
   buyerId: string;
   buyerToken: string;
@@ -31,6 +35,7 @@ interface Fixture {
 }
 
 async function resetState(): Promise<void> {
+  await prisma.notification.deleteMany();
   await prisma.balanceEntry.deleteMany();
   await prisma.balance.deleteMany();
   await prisma.paymentWebhookEvent.deleteMany();
@@ -105,6 +110,7 @@ async function seedFixture(): Promise<Fixture> {
   });
 
   return {
+    categoryId: category.id,
     authorId: author.id,
     buyerId: buyer.id,
     buyerToken: signAccessToken(buyer.id, buyer.roles),
@@ -114,6 +120,36 @@ async function seedFixture(): Promise<Fixture> {
     course2Id: course2.id,
     course2Price: course2.priceAmount,
   };
+}
+
+async function seedSecondAuthorCourse(categoryId: string): Promise<{ authorId: string; courseId: string }> {
+  const author = await prisma.user.create({
+    data: {
+      email: `payments-second-author-${randomUUID()}@example.com`,
+      fullName: 'Second Author',
+      roles: [UserRole.AUTHOR],
+    },
+  });
+  await prisma.authorProfile.create({
+    data: { userId: author.id, displayName: 'Second Author' },
+  });
+
+  const course = await prisma.course.create({
+    data: {
+      authorId: author.id,
+      categoryId,
+      type: ContentType.COURSE,
+      status: CourseStatus.PUBLISHED,
+      shortDescription: 'Короткий опис',
+      description: 'Повний опис',
+      publishedAt: new Date(),
+      slug: `payments-other-author-course-${randomUUID()}`,
+      title: 'Курс іншого автора',
+      priceAmount: 14_900,
+    },
+  });
+
+  return { authorId: author.id, courseId: course.id };
 }
 
 interface OrderResponse {
@@ -181,9 +217,14 @@ async function paySuccessfully(
 describe('payments integration', () => {
   beforeEach(async () => {
     await resetState();
+    sentMessages.length = 0;
+    setMailTransportForTests(async (message) => {
+      sentMessages.push(message);
+    });
   });
 
   afterAll(async () => {
+    setMailTransportForTests(null);
     await resetState();
     await prisma.$disconnect();
     await redis.quit();
@@ -522,5 +563,107 @@ describe('payments integration', () => {
 
     const balance = await prisma.balance.findUnique({ where: { userId: fixture.authorId } });
     expect(balance).toBeNull();
+  });
+
+  it('notifies the buyer and each author and emails one receipt after a confirmed payment', async () => {
+    const fixture = await seedFixture();
+    const second = await seedSecondAuthorCourse(fixture.categoryId);
+    const order = await createOrder(fixture.buyerToken, [fixture.course1Id, second.courseId]);
+    const checkoutResponse = await checkout(fixture.buyerToken, order.id);
+
+    const response = await paySuccessfully(checkoutResponse.body.paymentId as string, order.totalAmount);
+    expect(response.status).toBe(200);
+
+    const buyerNotifications = await prisma.notification.findMany({
+      where: { userId: fixture.buyerId, type: NotificationType.PURCHASE },
+    });
+    expect(buyerNotifications).toHaveLength(1);
+    expect(buyerNotifications[0]?.payload).toMatchObject({ orderId: order.id });
+
+    const firstAuthorNotifications = await prisma.notification.findMany({
+      where: { userId: fixture.authorId, type: NotificationType.PURCHASE },
+    });
+    expect(firstAuthorNotifications).toHaveLength(1);
+    expect(firstAuthorNotifications[0]?.payload).toMatchObject({ courseId: fixture.course1Id });
+
+    const secondAuthorNotifications = await prisma.notification.findMany({
+      where: { userId: second.authorId, type: NotificationType.PURCHASE },
+    });
+    expect(secondAuthorNotifications).toHaveLength(1);
+    expect(secondAuthorNotifications[0]?.payload).toMatchObject({ courseId: second.courseId });
+
+    const buyer = await prisma.user.findUniqueOrThrow({ where: { id: fixture.buyerId } });
+    expect(sentMessages).toHaveLength(1);
+    expect(sentMessages[0]?.to[0]?.email).toBe(buyer.email);
+    const text = sentMessages[0]?.text ?? '';
+    expect(text).toContain(`№${order.number}`);
+    expect(text).toContain('Курс оплати 1');
+    expect(text).toContain('Курс іншого автора');
+    expect(text).toContain(formatAmount(order.totalAmount));
+  });
+
+  it('does not duplicate notifications or the receipt on repeated callbacks', async () => {
+    const fixture = await seedFixture();
+    const order = await createOrder(fixture.buyerToken, [fixture.course1Id, fixture.course2Id]);
+    const checkoutResponse = await checkout(fixture.buyerToken, order.id);
+    const paymentId = checkoutResponse.body.paymentId as string;
+
+    const { data, signature } = signWebhook({
+      order_id: paymentId,
+      status: 'sandbox',
+      amount: order.totalAmount / 100,
+      currency: 'UAH',
+      payment_id: 777,
+    });
+
+    expect((await sendWebhook(data, signature)).status).toBe(200);
+    const countAfterFirst = await prisma.notification.count();
+    expect(countAfterFirst).toBeGreaterThan(0);
+
+    expect((await sendWebhook(data, signature)).status).toBe(200);
+    expect((await paySuccessfully(paymentId, order.totalAmount, 'success')).status).toBe(200);
+
+    expect(await prisma.notification.count()).toBe(countAfterFirst);
+    expect(sentMessages).toHaveLength(1);
+  });
+
+  it('creates no notifications and sends no email when the payment fails', async () => {
+    const fixture = await seedFixture();
+    const order = await createOrder(fixture.buyerToken, [fixture.course1Id]);
+    const checkoutResponse = await checkout(fixture.buyerToken, order.id);
+
+    const { data, signature } = signWebhook({
+      order_id: checkoutResponse.body.paymentId as string,
+      status: 'failure',
+      amount: order.totalAmount / 100,
+      currency: 'UAH',
+      err_code: 'limit',
+      err_description: 'Insufficient funds',
+    });
+
+    expect((await sendWebhook(data, signature)).status).toBe(200);
+    expect(await prisma.notification.count()).toBe(0);
+    expect(sentMessages).toHaveLength(0);
+  });
+
+  it('answers 200 and keeps access when the receipt email fails', async () => {
+    const fixture = await seedFixture();
+    const order = await createOrder(fixture.buyerToken, [fixture.course1Id]);
+    const checkoutResponse = await checkout(fixture.buyerToken, order.id);
+
+    setMailTransportForTests(async () => {
+      throw new Error('provider down');
+    });
+
+    const response = await paySuccessfully(checkoutResponse.body.paymentId as string, order.totalAmount);
+    expect(response.status).toBe(200);
+
+    const dbOrder = await prisma.order.findUniqueOrThrow({ where: { id: order.id } });
+    expect(dbOrder.status).toBe(OrderStatus.PAID);
+
+    const buyerNotifications = await prisma.notification.count({
+      where: { userId: fixture.buyerId, type: NotificationType.PURCHASE },
+    });
+    expect(buyerNotifications).toBe(1);
   });
 });
