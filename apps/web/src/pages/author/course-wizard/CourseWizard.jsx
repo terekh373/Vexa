@@ -492,7 +492,12 @@ const CourseWizard = () => {
         {activeKey === 'lessons' && (
           <>
             {modulesError && <p className={styles.formError}>{modulesError}</p>}
-            <StepLessonContent modules={modules} readOnly={isReadOnly} onUpdateLesson={handleUpdateLesson} />
+            <StepLessonContent
+              modules={modules}
+              readOnly={isReadOnly}
+              onUpdateLesson={handleUpdateLesson}
+              onRefresh={refreshModules}
+            />
           </>
         )}
 
