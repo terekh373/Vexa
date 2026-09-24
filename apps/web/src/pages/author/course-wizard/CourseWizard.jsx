@@ -24,6 +24,7 @@ import {
   buildDiffableState,
   diffFields,
   emptyFormState,
+  isEditableStatus,
   pickTrackedFields,
   toFormState,
 } from './courseFormState.js';
@@ -121,7 +122,7 @@ const CourseWizard = () => {
         savedRef.current = pickTrackedFields(course);
         setFormState(nextFormState);
         setCourseId(course.id);
-        setIsReadOnly(nextFormState.status !== 'draft');
+        setIsReadOnly(!isEditableStatus(nextFormState.status));
         setModules(course.modules ?? []);
         setMaterialFiles(course.courseFiles ?? []);
 
@@ -379,7 +380,7 @@ const CourseWizard = () => {
       setSubmitting(true);
       await submitAuthorCourse(courseId);
       setIsReadOnly(true);
-      setFormState((current) => ({ ...current, status: 'moderation' }));
+      setFormState((current) => ({ ...current, status: 'moderation', rejectionReason: '' }));
       setSubmitProblems([]);
       setSubmitMessage('Курс подано на модерацію.');
     } catch (error) {
@@ -437,6 +438,20 @@ const CourseWizard = () => {
 
       <div className={styles.card}>
         {formError && <p className={styles.formError}>{formError}</p>}
+        {formState.status === 'rejected' && (
+          <p className={styles.formError}>
+            {formState.rejectionReason
+              ? `Курс відхилено модератором. Причина: ${formState.rejectionReason}`
+              : 'Курс відхилено модератором.'}
+            <br />
+            Виправте зауваження й подайте курс на модерацію повторно.
+          </p>
+        )}
+        {formState.status === 'unpublished' && (
+          <p className={styles.notice}>
+            Курс знято з публікації. Після змін подайте його на модерацію, щоб він знову з'явився в каталозі.
+          </p>
+        )}
         {activeKey === 'basic' && coverError && <p className={styles.formError}>{coverError}</p>}
 
         {activeKey === 'basic' && (
