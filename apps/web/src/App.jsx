@@ -35,6 +35,10 @@ import AdminUsers from './pages/admin/AdminUsers.jsx';
 import AdminCategories from './pages/admin/AdminCategories.jsx';
 import BecomeAuthorPage from './pages/author/BecomeAuthorPage.jsx';
 import AuthorProfilePage from './pages/author/AuthorProfilePage.jsx';
+import Cart from './pages/cart/Cart.jsx';
+import Checkout from './pages/checkout/Checkout.jsx';
+import Orders from './pages/orders/Orders.jsx';
+import OrderDetails from './pages/order-details/OrderDetails.jsx';
 
 function App() {
   return (
@@ -73,8 +77,12 @@ function App() {
         <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
           <Route path={routePatterns.learning} element={<Profile />} />
           <Route path={routePatterns.settings} element={<Settings />} />
-          <Route path={routePatterns.orders} element={<ComingSoon title="Замовлення" />} />
+          <Route path={routePatterns.cart} element={<Cart />} />
           <Route path={routePatterns.checkoutSuccess} element={<CheckoutSuccess />} />
+          <Route path={routePatterns.checkout} element={<Checkout />} />
+          <Route path={routePatterns.orders} element={<Orders />} />
+          <Route path={routePatterns.order} element={<OrderDetails />} />
+
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['AUTHOR']} />}>
