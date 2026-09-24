@@ -70,29 +70,21 @@ const Header = () => {
 
   const authorNavigation = (
     <>
-      <Link to={routes.home()} className={styles.link}>
-        Головна
+      <Link to={routes.authorDashboard()} className={styles.link}>
+        Дашборд
       </Link>
 
       <Link to={routes.authorCourses()} className={styles.link}>
         Мої курси
       </Link>
 
-      <Link to={routes.authorDashboard()} className={styles.link}>
-        Учні
+      <Link to={routes.authorBalance()} className={styles.link}>
+        Баланс
       </Link>
 
-      <Link to={routes.authorDashboard()} className={styles.link}>
-        Розклад
+      <Link to={routes.authorReviews()} className={styles.link}>
+        Відгуки
       </Link>
-
-      <Link to={routes.authorDashboard()} className={styles.link}>
-        Завдання
-      </Link>
-
-      {/* <Link to={routes.authorDashboard()} className={styles.link}>
-        Повідомлення
-      </Link> */}
     </>
   );
 
