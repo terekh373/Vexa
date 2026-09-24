@@ -76,6 +76,7 @@ const CourseWizard = () => {
   const [formError, setFormError] = useState('');
   const [submitError, setSubmitError] = useState('');
   const [submitMessage, setSubmitMessage] = useState('');
+  const [submitProblems, setSubmitProblems] = useState([]);
 
   const [coverName, setCoverName] = useState('');
   const [coverPreviewUrl, setCoverPreviewUrl] = useState(null);
@@ -372,16 +373,21 @@ const CourseWizard = () => {
 
     setSubmitError('');
     setSubmitMessage('');
+    setSubmitProblems([]);
 
     try {
       setSubmitting(true);
       await submitAuthorCourse(courseId);
       setIsReadOnly(true);
       setFormState((current) => ({ ...current, status: 'moderation' }));
+      setSubmitProblems([]);
       setSubmitMessage('Курс подано на модерацію.');
     } catch (error) {
       const status = error.response?.status;
-      if (status === 409) {
+      const details = error.response?.data?.error?.details;
+      if (status === 400 && Array.isArray(details) && details.length > 0) {
+        setSubmitProblems(details);
+      } else if (status === 409) {
         setSubmitError('Курс уже на модерації');
       } else if (status === 403) {
         setFormError('Потрібно активувати профіль автора');
@@ -505,6 +511,7 @@ const CourseWizard = () => {
             submitting={submitting}
             submitError={submitError}
             submitMessage={submitMessage}
+            problems={submitProblems}
             onSubmit={handleSubmitForModeration}
           />
         )}
