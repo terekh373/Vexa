@@ -237,7 +237,7 @@ async function seedCategories(): Promise<void> {
   }
 }
 
-/** School curriculum reference book. Only used by demo course content. */
+/** School curriculum reference book (subjects, grades, topics). Reference data, seeded in every mode. */
 async function seedCurriculumTaxonomy(): Promise<void> {
   const subjects = [
     { id: id.subjects.english, slug: 'anhliiska-mova', nameUk: 'Англійська мова' },
@@ -811,8 +811,9 @@ async function main(): Promise<void> {
 
   if (seedMode === 'production') {
     await seedCategories();
+    await seedCurriculumTaxonomy();
     await seedProductionAdmin();
-    console.log('Seed done (production mode): categories and admin account only.');
+    console.log('Seed done (production mode): categories, curriculum reference data, and admin account only.');
     return;
   }
 
