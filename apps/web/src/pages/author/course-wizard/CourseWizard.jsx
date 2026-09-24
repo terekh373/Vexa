@@ -30,15 +30,24 @@ import {
 import StepBasicInfo from './steps/StepBasicInfo.jsx';
 import StepCurriculum from './steps/StepCurriculum.jsx';
 import StepLessonContent from './steps/StepLessonContent.jsx';
+import StepMaterialFiles from './steps/StepMaterialFiles.jsx';
 import StepPricing from './steps/StepPricing.jsx';
 import StepPublish from './steps/StepPublish.jsx';
+import { useMaterialFiles } from './useMaterialFiles.js';
 
-const STEPS = [
-  { id: 1, label: 'Основна інформація' },
-  { id: 2, label: 'Модулі' },
-  { id: 3, label: 'Уроки' },
-  { id: 4, label: 'Ціна' },
-  { id: 5, label: 'Публікація' },
+const COURSE_STEPS = [
+  { key: 'basic', label: 'Основна інформація' },
+  { key: 'curriculum', label: 'Модулі' },
+  { key: 'lessons', label: 'Уроки' },
+  { key: 'pricing', label: 'Ціна' },
+  { key: 'publish', label: 'Публікація' },
+];
+
+const MATERIAL_STEPS = [
+  { key: 'basic', label: 'Основна інформація' },
+  { key: 'materialFiles', label: 'Файли матеріалу' },
+  { key: 'pricing', label: 'Ціна' },
+  { key: 'publish', label: 'Публікація' },
 ];
 
 const findCategoryName = (categories, categoryId) => {
@@ -55,7 +64,7 @@ const CourseWizard = () => {
   const navigate = useNavigate();
 
   const [courseId, setCourseId] = useState(id ?? null);
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState('basic');
   const [formState, setFormState] = useState(emptyFormState());
   const [categories, setCategories] = useState([]);
   const [categoriesError, setCategoriesError] = useState('');
@@ -74,6 +83,9 @@ const CourseWizard = () => {
 
   const [modules, setModules] = useState([]);
   const [modulesError, setModulesError] = useState('');
+
+  const materialFiles = useMaterialFiles(courseId);
+  const { setFiles: setMaterialFiles } = materialFiles;
 
   // Last server-confirmed subset of fields, diffed against live form state so
   // autosave only ever sends what actually changed. Null until the course
@@ -110,6 +122,7 @@ const CourseWizard = () => {
         setCourseId(course.id);
         setIsReadOnly(nextFormState.status !== 'draft');
         setModules(course.modules ?? []);
+        setMaterialFiles(course.courseFiles ?? []);
 
         if (course.cover) {
           setCoverName(course.cover.originalName);
@@ -136,7 +149,7 @@ const CourseWizard = () => {
     return () => {
       active = false;
     };
-  }, [id]);
+  }, [id, setMaterialFiles]);
 
   const applySaveError = (error) => {
     const status = error.response?.status;
@@ -216,15 +229,24 @@ const CourseWizard = () => {
     }
   };
 
-  const goToStep = async (targetStep) => {
-    if (targetStep === step) return;
+  const steps = formState.type === 'MATERIAL' ? MATERIAL_STEPS : COURSE_STEPS;
+  // A stored key can be missing from the current list (the type was switched
+  // on the first step), in which case the wizard falls back to the first step.
+  const activeIndex = Math.max(
+    steps.findIndex((item) => item.key === step),
+    0,
+  );
+  const activeKey = steps[activeIndex].key;
+
+  const goToStep = async (targetKey) => {
+    if (targetKey === activeKey) return;
 
     if (!isReadOnly) {
       const ok = await persistChanges();
       if (!ok) return;
     }
 
-    setStep(targetStep);
+    setStep(targetKey);
   };
 
   const handleFieldChange = (name, value) => {
@@ -389,17 +411,17 @@ const CourseWizard = () => {
       <h1 className={styles.heading}>{courseId ? 'Редагування курсу' : 'Новий курс'}</h1>
 
       <ul className={styles.stepper}>
-        {STEPS.map((item) => {
-          const disabled = item.id !== 1 && !courseId;
+        {steps.map((item, index) => {
+          const disabled = item.key !== 'basic' && !courseId;
           return (
-            <li key={item.id}>
+            <li key={item.key}>
               <button
                 type="button"
-                className={`${styles.step} ${step === item.id ? styles.stepActive : ''}`}
-                onClick={() => goToStep(item.id)}
+                className={`${styles.step} ${activeKey === item.key ? styles.stepActive : ''}`}
+                onClick={() => goToStep(item.key)}
                 disabled={disabled}
               >
-                <span className={styles.stepNumber}>{item.id}</span>
+                <span className={styles.stepNumber}>{index + 1}</span>
                 {item.label}
               </button>
             </li>
@@ -409,9 +431,9 @@ const CourseWizard = () => {
 
       <div className={styles.card}>
         {formError && <p className={styles.formError}>{formError}</p>}
-        {step === 1 && coverError && <p className={styles.formError}>{coverError}</p>}
+        {activeKey === 'basic' && coverError && <p className={styles.formError}>{coverError}</p>}
 
-        {step === 1 && (
+        {activeKey === 'basic' && (
           <StepBasicInfo
             formState={formState}
             onChange={handleFieldChange}
@@ -430,7 +452,7 @@ const CourseWizard = () => {
           />
         )}
 
-        {step === 2 && (
+        {activeKey === 'curriculum' && (
           <>
             {modulesError && <p className={styles.formError}>{modulesError}</p>}
             <StepCurriculum
@@ -446,14 +468,26 @@ const CourseWizard = () => {
           </>
         )}
 
-        {step === 3 && (
+        {activeKey === 'lessons' && (
           <>
             {modulesError && <p className={styles.formError}>{modulesError}</p>}
             <StepLessonContent modules={modules} readOnly={isReadOnly} onUpdateLesson={handleUpdateLesson} />
           </>
         )}
 
-        {step === 4 && (
+        {activeKey === 'materialFiles' && (
+          <StepMaterialFiles
+            files={materialFiles.files}
+            readOnly={isReadOnly}
+            error={materialFiles.error}
+            onAttach={materialFiles.attach}
+            onRename={materialFiles.rename}
+            onRemove={materialFiles.remove}
+            onMove={materialFiles.move}
+          />
+        )}
+
+        {activeKey === 'pricing' && (
           <StepPricing
             formState={formState}
             onChange={handleFieldChange}
@@ -462,7 +496,7 @@ const CourseWizard = () => {
           />
         )}
 
-        {step === 5 && (
+        {activeKey === 'publish' && (
           <StepPublish
             formState={formState}
             categoryName={categoryName}
@@ -479,17 +513,17 @@ const CourseWizard = () => {
           <button
             type="button"
             className={`${styles.button} ${styles.buttonSecondary}`}
-            onClick={() => goToStep(step - 1)}
-            disabled={step === 1 || saving}
+            onClick={() => goToStep(steps[activeIndex - 1].key)}
+            disabled={activeIndex === 0 || saving}
           >
             Назад
           </button>
 
-          {step < STEPS.length && (
+          {activeIndex < steps.length - 1 && (
             <button
               type="button"
               className={`${styles.button} ${styles.buttonPrimary}`}
-              onClick={() => goToStep(step + 1)}
+              onClick={() => goToStep(steps[activeIndex + 1].key)}
               disabled={saving}
             >
               {saving ? 'Зберігаємо...' : 'Далі'}

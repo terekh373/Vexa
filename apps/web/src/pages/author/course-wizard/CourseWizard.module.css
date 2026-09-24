@@ -514,6 +514,14 @@
   border-radius: 10px;
 }
 
+.materialFileInfo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
 @media (max-width: 540px) {
   .card {
     padding: 22px 18px;
