@@ -16,6 +16,7 @@ import { authRouter } from './modules/auth/auth.routes.js';
 import { courseRouter } from './modules/courses/course.routes.js';
 import { authorRouter } from './modules/author/author.routes.js';
 import { categoriesRouter } from './modules/categories/categories.routes.js';
+import { curriculumRouter } from './modules/curriculum/curriculum.routes.js';
 import { filesRouter } from './modules/files/files.routes.js';
 import { adminRouter } from './modules/admin/admin.routes.js';
 import { cartRouter } from './modules/cart/cart.routes.js';
@@ -62,6 +63,7 @@ export function createApp(): Express {
   app.use('/api/author', authorRouter);
   app.use('/api/courses', courseRouter);
   app.use('/api/categories', categoriesRouter);
+  app.use('/api/curriculum', curriculumRouter);
   app.use('/api/files', filesRouter);
   app.use('/api/admin', adminRouter);
   app.use('/api/cart', cartRouter);

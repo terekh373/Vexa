@@ -130,6 +130,26 @@ export async function listCourseFiles(db: DbClient, courseId: string) {
   });
 }
 
+export async function findTopicsByIds(
+  db: DbClient,
+  ids: string[],
+): Promise<{ id: string; subjectId: string }[]> {
+  return db.curriculumTopic.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, subjectId: true },
+  });
+}
+
+/** Replaces the whole topic set; call inside the transaction that updates the course. */
+export async function replaceCourseTopics(
+  tx: Prisma.TransactionClient,
+  courseId: string,
+  topicIds: string[],
+): Promise<void> {
+  await tx.courseTopic.deleteMany({ where: { courseId } });
+  await tx.courseTopic.createMany({ data: topicIds.map((topicId) => ({ courseId, topicId })) });
+}
+
 export async function loadCompletenessSnapshot(
   db: DbClient,
   courseId: string,
