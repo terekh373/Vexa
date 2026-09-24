@@ -102,7 +102,6 @@ const Header = () => {
           <nav className={styles.navigation}>
             <Link to={routes.catalog()} className={styles.link}>Каталог курсів</Link>
             <Link to={routes.forAuthors()} className={styles.link}>Для авторів</Link>
-            <Link to={routes.vexaAi()} className={styles.link}>Vexa AI</Link>
           </nav>
 
           <div className={styles.desktopSearch}>
@@ -137,9 +136,6 @@ const Header = () => {
                 </Link>
                 <Link to={routes.forAuthors()} className={styles.link} onClick={() => setIsMenuOpen(false)}>
                   Для авторів
-                </Link>
-                <Link to={routes.vexaAi()} className={styles.link} onClick={() => setIsMenuOpen(false)}>
-                  Vexa AI
                 </Link>
               </nav>
 

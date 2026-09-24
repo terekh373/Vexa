@@ -27,6 +27,11 @@ import About from './pages/footer/about/About.jsx';
 import Contacts from './pages/footer/contacts/Contacts.jsx';
 import Categories from './pages/categories/Categories.jsx';
 import Profile from './pages/profile/Profile.jsx';
+import Offer from './pages/Offer/Offer.jsx';
+import ContentRules from './pages/ContentRules/ContentRules.jsx';
+import Privacy from './pages/Privacy/Privacy.jsx';
+import Cookies from './pages/Cookies/Cookies.jsx';
+import Support from './pages/Support/Support.jsx';
 
 function App() {
   return (
@@ -42,6 +47,11 @@ function App() {
         <Route path={routePatterns.verifyEmail} element={<VerifyEmailPage />} />
         <Route path={routePatterns.forgotPassword} element={<ForgotPasswordPage />} />
         <Route path={routePatterns.resetPassword} element={<ResetPasswordPage />} />
+        <Route path="/offer" element={<Offer />} />
+        <Route path="/content-rules" element={<ContentRules />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/cookies" element={<Cookies />} />
+        <Route path="/support" element={<Support />} />
 
         <Route path="/veterans" element={<ForVeterans />} />
         <Route path="/faq" element={<Questions />} />
