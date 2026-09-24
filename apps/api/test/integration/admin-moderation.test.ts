@@ -3,11 +3,13 @@ import { ContentType, CourseStatus, ModerationAction, NotificationType, UserRole
 import request from 'supertest';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { createApp } from '../../src/app.js';
+import { setMailTransportForTests, type MailMessage } from '../../src/lib/mailer.js';
 import { prisma } from '../../src/lib/prisma.js';
 import { redis } from '../../src/lib/redis.js';
 import { signAccessToken } from '../../src/modules/auth/token.service.js';
 
 const app = createApp();
+const sentMessages: MailMessage[] = [];
 
 const CATEGORY_SLUG = 'admin-moderation-category';
 
@@ -75,9 +77,14 @@ async function createCourse(
 describe('admin course moderation integration', () => {
   beforeEach(async () => {
     await resetState();
+    sentMessages.length = 0;
+    setMailTransportForTests(async (message) => {
+      sentMessages.push(message);
+    });
   });
 
   afterAll(async () => {
+    setMailTransportForTests(null);
     await resetState();
     await prisma.$disconnect();
     await redis.quit();
@@ -238,5 +245,43 @@ describe('admin course moderation integration', () => {
       where: { userId: fixture.authorId, type: NotificationType.MODERATION },
     });
     expect(notifications).toHaveLength(1);
+  });
+
+  it('emails the author once when a course is approved', async () => {
+    const fixture = await seedFixture();
+    const course = await createCourse(fixture, { status: CourseStatus.MODERATION });
+
+    const approve = await request(app)
+      .post(`/api/admin/courses/${course.id}/moderate`)
+      .set('Authorization', `Bearer ${fixture.adminToken}`)
+      .send({ action: 'APPROVE' });
+    expect(approve.status).toBe(200);
+
+    expect(sentMessages).toHaveLength(1);
+    expect(sentMessages[0]?.to[0]?.email).toBe('author@example.com');
+    expect(sentMessages[0]?.subject).toContain('схвалено');
+
+    const repeat = await request(app)
+      .post(`/api/admin/courses/${course.id}/moderate`)
+      .set('Authorization', `Bearer ${fixture.adminToken}`)
+      .send({ action: 'APPROVE' });
+    expect(repeat.status).toBe(409);
+    expect(sentMessages).toHaveLength(1);
+  });
+
+  it('emails the author the rejection comment', async () => {
+    const fixture = await seedFixture();
+    const course = await createCourse(fixture, { status: CourseStatus.MODERATION });
+    const comment = 'Додайте опис результатів навчання';
+
+    const reject = await request(app)
+      .post(`/api/admin/courses/${course.id}/moderate`)
+      .set('Authorization', `Bearer ${fixture.adminToken}`)
+      .send({ action: 'REJECT', comment });
+    expect(reject.status).toBe(200);
+
+    expect(sentMessages).toHaveLength(1);
+    expect(sentMessages[0]?.subject).toContain('відхилено');
+    expect(sentMessages[0]?.text).toContain(comment);
   });
 });

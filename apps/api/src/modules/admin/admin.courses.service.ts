@@ -1,5 +1,6 @@
 import { CourseStatus, ModerationAction, type Prisma } from '@prisma/client';
 import { AppError } from '../../lib/errors.js';
+import { sendModerationResultEmail } from '../../lib/mailer.js';
 import {
   findAdminCourseById,
   findModerationCandidate,
@@ -76,6 +77,8 @@ export async function moderateCourse(moderatorId: string, courseId: string, inpu
   // The pre-check above already read MODERATION, so count === 0 here means a
   // second moderator won the race between that read and this transaction.
   if (!applied) throw AppError.conflict('Course status changed concurrently');
+
+  await sendModerationResultEmail({ email: course.authorEmail, courseTitle: course.title, approved: isApproval, comment });
 
   return getAdminCourse(courseId);
 }
