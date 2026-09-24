@@ -14,7 +14,6 @@ import BellIcon from '../../../assets/icons/bell.svg';
 import NotificationModal from './notification-modal/NotificationModal.jsx';
 
 import { useAuth } from '../../../context/auth-context.js';
-import NotificationBell from '../../notifications/NotificationBell.jsx';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -171,8 +170,6 @@ const Header = () => {
       />
     </>
   );
-
-  const initials = (user?.fullName || user?.email || 'U').substring(0, 2).toUpperCase();
 
   const signedInActions = (
     <>
