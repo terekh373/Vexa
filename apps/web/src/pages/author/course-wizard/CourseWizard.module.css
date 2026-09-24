@@ -147,7 +147,8 @@
 }
 
 .formError,
-.success {
+.success,
+.notice {
   margin: 0;
   padding: 12px 14px;
   border-radius: 12px;
@@ -163,6 +164,11 @@
 .success {
   background: #eefbf2;
   color: #176b35;
+}
+
+.notice {
+  background: var(--footer-bg-color);
+  color: var(--main-dark-color);
 }
 
 .outcomesList {
