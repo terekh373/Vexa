@@ -12,6 +12,10 @@ import CardIcon from '../../assets/icons/checkout/card.svg';
 import GarantiyaIcon from '../../assets/icons/checkout/garantiya.svg';
 
 import { getCart } from '../../services/cartService.js';
+import {
+  createOrder,
+  startCheckout,
+} from '../../services/ordersService.js';
 
 import styles from './Checkout.module.css';
 
@@ -33,6 +37,7 @@ const Checkout = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('card');
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   const [form, setForm] = useState({
     fullName: '',
@@ -207,14 +212,84 @@ const Checkout = () => {
     return !Object.values(errors).some(Boolean);
   };
 
-  const handlePayment = () => {
+  const submitLiqPayForm = ({
+    checkoutUrl,
+    data,
+    signature,
+  }) => {
+    const form = document.createElement('form');
+
+    form.method = 'POST';
+    form.action = checkoutUrl;
+    form.acceptCharset = 'utf-8';
+
+    const dataInput = document.createElement('input');
+
+    dataInput.type = 'hidden';
+    dataInput.name = 'data';
+    dataInput.value = data;
+
+    const signatureInput = document.createElement('input');
+
+    signatureInput.type = 'hidden';
+    signatureInput.name = 'signature';
+    signatureInput.value = signature;
+
+    form.appendChild(dataInput);
+    form.appendChild(signatureInput);
+
+    document.body.appendChild(form);
+
+    form.submit();
+  };
+
+  const handlePayment = async () => {
     setError('');
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
+    if (paymentLoading) return;
 
-    setError('Оплата soon.. LiqPay.');
+    try {
+      setPaymentLoading(true);
+
+      const order = await createOrder();
+      const payment = await startCheckout(order.id);
+
+      localStorage.setItem(
+        'liqpayDebug',
+        JSON.stringify({
+          orderId: order.id,
+          paymentId: payment.paymentId,
+          amount: order.totalAmount,
+        })
+      );
+
+      if (
+        !payment?.checkoutUrl ||
+        !payment?.data ||
+        !payment?.signature
+      ) {
+        throw new Error('Invalid LiqPay checkout response');
+      }
+
+      submitLiqPayForm(payment);
+    } catch (error) {
+      console.error('Payment error:', error);
+
+      const status = error.response?.status;
+
+      if (status === 409) {
+        setError(
+          'Замовлення вже оплачене, скасоване або недоступне для оплати.'
+        );
+      } else if (status === 404) {
+        setError('Замовлення не знайдено.');
+      } else {
+        setError('Не вдалося розпочати оплату. Спробуйте ще раз.');
+      }
+
+      setPaymentLoading(false);
+    }
   };
 
   if (loading) {
@@ -266,23 +341,6 @@ const Checkout = () => {
             <div className={styles.leftColumn}>
               <section className={styles.card}>
                 <h2>Контактні дані</h2>
-
-                {/* <div className={styles.form}>
-                  <input
-                    type="text"
-                    placeholder="Ім’я та Прізвище"
-                  />
-
-                  <input
-                    type="tel"
-                    placeholder="Номер телефону"
-                  />
-
-                  <input
-                    type="email"
-                    placeholder="Email"
-                  />
-                </div> */}
                 <div className={styles.form}>
                   <div className={styles.field}>
                     <div
@@ -403,8 +461,6 @@ const Checkout = () => {
                     onClick={() => setPaymentMethod('card')}
                   >
                     <img src={CardIcon} alt='card' className={styles.payIcon} />
-                    {/* <span className={styles.paymentIcon}>▣</span> */}
-                    {/* <span>Картка</span> */}
                     <span className={styles.radio} />
                   </button>
 
@@ -416,8 +472,6 @@ const Checkout = () => {
                     onClick={() => setPaymentMethod('google')}
                   >
                     <img src={GoogleIcon} alt='google icon' className={styles.payIcon} />
-                    {/* <span className={styles.google}>G</span> */}
-                    {/* <span>Google Pay</span> */}
                     <span className={styles.radio} />
                   </button>
 
@@ -429,8 +483,6 @@ const Checkout = () => {
                     onClick={() => setPaymentMethod('apple')}
                   >
                     <img src={AppleIcon} alt='apple icon' className={styles.payIcon} />
-                    {/* <span className={styles.apple}>●</span> */}
-                    {/* <span>Apple Pay</span> */}
                     <span className={styles.radio} />
                   </button>
                 </div>
@@ -526,13 +578,15 @@ const Checkout = () => {
               </div>
 
               <Button
-                title={`Оплатити ${formatPrice(
-                  totalAmount,
-                  currency,
-                )}`}
+                title={
+                  paymentLoading
+                    ? 'Переходимо до оплати...'
+                    : `Оплатити ${formatPrice(totalAmount, currency)}`
+                }
                 variant="primary"
                 size="medium"
                 onClick={handlePayment}
+                disabled={paymentLoading}
               />
 
               <div className={styles.conditions}>

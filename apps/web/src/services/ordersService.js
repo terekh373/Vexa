@@ -17,3 +17,11 @@ export const getOrder = async (orderId) => {
   const { data } = await apiClient.get(`/me/orders/${orderId}`);
   return data;
 };
+
+export const startCheckout = async (orderId) => {
+  const { data } = await apiClient.post(
+    `/orders/${orderId}/checkout`
+  );
+
+  return data;
+};
