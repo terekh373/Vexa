@@ -98,6 +98,8 @@ export interface WebhookOrderItemSnapshot {
 
 export interface WebhookOrderSnapshot {
   id: string;
+  number: number;
+  buyerEmail: string;
   userId: string;
   status: OrderStatus;
   totalAmount: number;
@@ -185,7 +187,17 @@ export interface ApplyWebhookInput {
   defaultCommissionBps: number;
 }
 
-export type ApplyWebhookResult = { duplicate: true } | { duplicate: false; decision: WebhookDecision };
+export interface FulfilledOrder {
+  order: WebhookOrderSnapshot;
+  items: FulfilItem[];
+}
+
+/** Runs inside the webhook transaction, after access and ledger writes. */
+export type OnFulfilled = (tx: Prisma.TransactionClient, fulfilled: FulfilledOrder) => Promise<void>;
+
+export type ApplyWebhookResult =
+  | { duplicate: true }
+  | { duplicate: false; decision: WebhookDecision; order: WebhookOrderSnapshot | null };
 
 async function applyDecision(
   tx: Prisma.TransactionClient,
@@ -195,6 +207,7 @@ async function applyDecision(
     order: WebhookOrderSnapshot | null;
     callback: WebhookCallback;
     payload: Prisma.InputJsonValue;
+    onFulfilled: OnFulfilled;
   },
 ): Promise<void> {
   const { payment, order, callback, payload } = ctx;
@@ -316,6 +329,8 @@ async function applyDecision(
         await refreshStudentCounters(tx, item.courseId);
       }
 
+      await ctx.onFulfilled(tx, { order, items: decision.items });
+
       return;
     }
   }
@@ -324,6 +339,7 @@ async function applyDecision(
 export async function applyWebhook(
   input: ApplyWebhookInput,
   decide: (snapshot: WebhookSnapshot) => WebhookDecision,
+  onFulfilled: OnFulfilled,
 ): Promise<ApplyWebhookResult> {
   return prisma.$transaction(async (tx) => {
     const created = await tx.paymentWebhookEvent.createMany({
@@ -378,7 +394,9 @@ export async function applyWebhook(
               where: { id: paymentRow.orderId },
               select: {
                 id: true,
+                number: true,
                 userId: true,
+                user: { select: { email: true } },
                 status: true,
                 totalAmount: true,
                 currency: true,
@@ -398,6 +416,8 @@ export async function applyWebhook(
             if (orderRow !== null) {
               order = {
                 id: orderRow.id,
+                number: orderRow.number,
+                buyerEmail: orderRow.user.email,
                 userId: orderRow.userId,
                 status: orderRow.status,
                 totalAmount: orderRow.totalAmount,
@@ -433,7 +453,7 @@ export async function applyWebhook(
       defaultCommissionBps: input.defaultCommissionBps,
     });
 
-    await applyDecision(tx, decision, { payment, order, callback: input.callback, payload: input.payload });
+    await applyDecision(tx, decision, { payment, order, callback: input.callback, payload: input.payload, onFulfilled });
 
     await tx.paymentWebhookEvent.update({
       where: { provider_externalId: { provider: PaymentProvider.LIQPAY, externalId: input.externalId } },
@@ -444,6 +464,6 @@ export async function applyWebhook(
       },
     });
 
-    return { duplicate: false, decision };
+    return { duplicate: false, decision, order };
   });
 }

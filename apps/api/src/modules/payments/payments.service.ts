@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { env } from '../../config/env.js';
 import { AppError } from '../../lib/errors.js';
 import { logger } from '../../lib/logger.js';
+import { sendPurchaseReceiptEmail } from '../../lib/mailer.js';
+import { notifyPurchaseCompleted } from '../notifications/notifications.service.js';
 import { resolveCommissionRateBps, splitPrice } from './commission.js';
 import {
   LIQPAY_API_VERSION,
@@ -25,7 +27,9 @@ import {
   logMalformedWebhook,
   logRejectedWebhook,
   type FulfilItem,
+  type OnFulfilled,
   type WebhookDecision,
+  type WebhookOrderSnapshot,
   type WebhookSnapshot,
 } from './payments.repository.js';
 import { webhookBodySchema } from './payments.validation.js';
@@ -167,6 +171,30 @@ export function decideWebhookOutcome(snapshot: WebhookSnapshot): WebhookDecision
 // Webhook entry point
 // ---------------------------------------------------------------------------
 
+const notifyFulfilledOrder: OnFulfilled = async (tx, { order, items }) => {
+  await notifyPurchaseCompleted(
+    {
+      buyerId: order.userId,
+      orderId: order.id,
+      items: items.map((item) => ({ courseId: item.courseId, courseTitle: item.titleSnapshot, authorId: item.authorId })),
+    },
+    tx,
+  );
+};
+
+function money(kopiykas: number, currency: string): string {
+  return `${formatAmount(kopiykas)} ${currency}`;
+}
+
+async function sendReceipt(order: WebhookOrderSnapshot): Promise<void> {
+  await sendPurchaseReceiptEmail({
+    email: order.buyerEmail,
+    orderNumber: order.number,
+    items: order.items.map((item) => ({ title: item.titleSnapshot, amount: money(item.priceAmount, order.currency) })),
+    totalAmount: money(order.totalAmount, order.currency),
+  });
+}
+
 export async function handleLiqpayWebhook(body: unknown): Promise<void> {
   const bodyResult = webhookBodySchema.safeParse(body);
   if (!bodyResult.success) {
@@ -214,6 +242,7 @@ export async function handleLiqpayWebhook(body: unknown): Promise<void> {
       defaultCommissionBps: env.PLATFORM_COMMISSION_BPS,
     },
     decideWebhookOutcome,
+    notifyFulfilledOrder,
   );
 
   if (result.duplicate) return;
@@ -224,4 +253,8 @@ export async function handleLiqpayWebhook(body: unknown): Promise<void> {
   } else if (decision.kind === 'success-no-fulfil') {
     logger.warn({ paymentId, reason: decision.failureReason }, 'LiqPay webhook success without fulfilment');
   }
+
+  // Sent after the commit and only for a fresh fulfilment: a retry lands in
+  // the duplicate or already-succeeded path and never reaches this line.
+  if (decision.kind === 'fulfil' && result.order !== null) await sendReceipt(result.order);
 }
