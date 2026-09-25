@@ -14,6 +14,7 @@ import BellIcon from '../../../assets/icons/bell.svg';
 import NotificationModal from './notification-modal/NotificationModal.jsx';
 
 import { useAuth } from '../../../context/auth-context.js';
+import { useCourseSuggestions } from '../../../hooks/useCourseSuggestions.js';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
+  const searchSuggestions = useCourseSuggestions(searchValue);
 
   const isAuthor = user?.roles?.includes('AUTHOR');
   const isStudent = user?.roles?.includes('STUDENT');
@@ -45,12 +47,13 @@ const Header = () => {
     }
 
     setIsMenuOpen(false);
+    navigate(routes.catalog({ q: search }));
+  };
 
-    navigate(
-      routes.catalog({
-        search,
-      }),
-    );
+  const handleSuggestionSelect = (suggestion) => {
+    setSearchValue(suggestion.title);
+    setIsMenuOpen(false);
+    navigate(routes.course(suggestion.slug || suggestion.id));
   };
 
   const getSpaceRoute = () => {
@@ -264,6 +267,8 @@ const Header = () => {
           <div className={styles.desktopSearch}>
             <Search
               value={searchValue}
+              suggestions={searchSuggestions}
+              onSuggestionSelect={handleSuggestionSelect}
               onChange={(event) => setSearchValue(event.target.value)}
               onKeyDown={handleSearch}
             />
@@ -304,6 +309,8 @@ const Header = () => {
               <div className={styles.mobileSearch}>
                 <Search
                   value={searchValue}
+                  suggestions={searchSuggestions}
+                  onSuggestionSelect={handleSuggestionSelect}
                   onChange={(event) => setSearchValue(event.target.value)}
                   onKeyDown={handleSearch}
                 />

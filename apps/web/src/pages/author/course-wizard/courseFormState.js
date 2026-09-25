@@ -8,6 +8,7 @@ const TRACKED_FIELDS = [
   'description',
   'outcomes',
   'grade',
+  'topicIds',
   'language',
   'priceAmount',
   'currency',
@@ -27,6 +28,7 @@ export const emptyFormState = () => ({
   description: '',
   outcomes: [''],
   grade: '',
+  topicIds: [],
   language: 'uk',
   priceUah: '0',
   status: 'draft',
@@ -43,6 +45,9 @@ export const toFormState = (course) => ({
   description: course.description ?? '',
   outcomes: course.outcomes?.length ? [...course.outcomes] : [''],
   grade: course.grade === null || course.grade === undefined ? '' : String(course.grade),
+  topicIds: Array.isArray(course.topics)
+    ? course.topics.map((binding) => binding.topic?.id ?? binding.id).filter(Boolean)
+    : [],
   language: course.language ?? 'uk',
   priceUah: typeof course.priceAmount === 'number' ? String(course.priceAmount / 100) : '0',
   status: (course.status ?? 'draft').toLowerCase(),
@@ -59,6 +64,9 @@ export const pickTrackedFields = (course) => ({
   description: course.description ?? '',
   outcomes: Array.isArray(course.outcomes) ? course.outcomes : [],
   grade: course.grade === null || course.grade === undefined ? null : course.grade,
+  topicIds: Array.isArray(course.topics)
+    ? course.topics.map((binding) => binding.topic?.id ?? binding.id).filter(Boolean)
+    : [],
   language: course.language ?? 'uk',
   priceAmount: typeof course.priceAmount === 'number' ? course.priceAmount : 0,
   currency: course.currency ?? 'UAH',
@@ -82,6 +90,7 @@ export const buildDiffableState = (formState) => ({
   description: formState.description.trim(),
   outcomes: formState.outcomes.map((line) => line.trim()).filter(Boolean),
   grade: formState.grade === '' ? null : Number(formState.grade),
+  topicIds: Array.isArray(formState.topicIds) ? formState.topicIds : [],
   language: formState.language,
   priceAmount: toKopecks(formState.priceUah),
   currency: 'UAH',

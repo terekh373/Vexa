@@ -1,3 +1,4 @@
+import { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 
 import searchIcon from '../../../assets/icons/search.svg';
@@ -25,7 +26,7 @@ const SearchWrapper = styled.div`
     return '';
   }}
 
-  img {
+  > img {
     position: absolute;
     z-index: 1;
     top: 50%;
@@ -68,7 +69,7 @@ const SearchWrapper = styled.div`
     max-width: 100%;
     height: 44px;
 
-    img {
+    > img {
       left: 14px;
       width: 16px;
       height: 16px;
@@ -87,7 +88,7 @@ const SearchWrapper = styled.div`
   @media (max-width: 540px) {
     height: 42px;
 
-    img {
+    > img {
       left: 12px;
       width: 16px;
       height: 16px;
@@ -104,7 +105,7 @@ const SearchWrapper = styled.div`
   @media (max-width: 360px) {
     height: 40px;
 
-    img {
+    > img {
       left: 12px;
       width: 15px;
       height: 15px;
@@ -118,6 +119,56 @@ const SearchWrapper = styled.div`
   }
 `;
 
+const Suggestions = styled.ul`
+  position: absolute;
+  z-index: 120;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 320px;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid var(--border-grey);
+  border-radius: 14px;
+  background: var(--white-color);
+  box-shadow: 0 16px 34px rgba(36, 22, 79, 0.16);
+`;
+
+const SuggestionButton = styled.button`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: ${({ $active }) => ($active ? 'var(--footer-bg-color)' : 'transparent')};
+  color: var(--main-dark-color);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--footer-bg-color);
+  }
+
+  span:first-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  span:last-child {
+    flex: none;
+    color: var(--secondary-grey);
+    font-size: 12px;
+  }
+`;
+
 export const Search = ({
   size = 'medium',
   type = 'text',
@@ -125,22 +176,103 @@ export const Search = ({
   placeholder = 'Пошук курсів...',
   onKeyDown,
   onChange,
+  onSuggestionSelect,
+  suggestions = [],
   required,
-}) => (
-  <SearchWrapper $size={size}>
-    <img
-      src={searchIcon}
-      alt=""
-      aria-hidden="true"
-    />
+}) => {
+  const listboxId = useId();
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
 
-    <input
-      type={type}
-      placeholder={placeholder}
-      value={value}
-      onKeyDown={onKeyDown}
-      onChange={onChange}
-      required={required}
-    />
-  </SearchWrapper>
-);
+  useEffect(() => {
+    setActiveIndex(-1);
+  }, [suggestions, value]);
+
+  const selectSuggestion = (suggestion) => {
+    setIsOpen(false);
+    setActiveIndex(-1);
+    onSuggestionSelect?.(suggestion);
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'ArrowDown' && suggestions.length > 0) {
+      event.preventDefault();
+      setIsOpen(true);
+      setActiveIndex((current) => (current + 1) % suggestions.length);
+      return;
+    }
+
+    if (event.key === 'ArrowUp' && suggestions.length > 0) {
+      event.preventDefault();
+      setIsOpen(true);
+      setActiveIndex((current) => (current <= 0 ? suggestions.length - 1 : current - 1));
+      return;
+    }
+
+    if (event.key === 'Enter' && isOpen && activeIndex >= 0) {
+      event.preventDefault();
+      selectSuggestion(suggestions[activeIndex]);
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      setIsOpen(false);
+      setActiveIndex(-1);
+      return;
+    }
+
+    onKeyDown?.(event);
+  };
+
+  return (
+    <SearchWrapper $size={size}>
+      <img
+        src={searchIcon}
+        alt=""
+        aria-hidden="true"
+      />
+
+      <input
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onKeyDown={handleKeyDown}
+        onChange={(event) => {
+          setIsOpen(true);
+          onChange?.(event);
+        }}
+        onFocus={() => setIsOpen(true)}
+        onBlur={() => window.setTimeout(() => setIsOpen(false), 100)}
+        required={required}
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded={isOpen && suggestions.length > 0}
+        aria-controls={listboxId}
+        aria-activedescendant={activeIndex >= 0 ? `${listboxId}-${activeIndex}` : undefined}
+      />
+
+      {isOpen && suggestions.length > 0 && (
+        <Suggestions id={listboxId} role="listbox">
+          {suggestions.map((suggestion, index) => (
+            <li
+              key={`${suggestion.type}-${suggestion.id}`}
+              id={`${listboxId}-${index}`}
+              role="option"
+              aria-selected={index === activeIndex}
+            >
+              <SuggestionButton
+                type="button"
+                $active={index === activeIndex}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => selectSuggestion(suggestion)}
+              >
+                <span>{suggestion.title}</span>
+                <span>{suggestion.type === 'material' ? 'Матеріал' : 'Курс'}</span>
+              </SuggestionButton>
+            </li>
+          ))}
+        </Suggestions>
+      )}
+    </SearchWrapper>
+  );
+};

@@ -1,7 +1,10 @@
+import { useEffect, useMemo, useState } from 'react';
+
 import styles from '../CourseWizard.module.css';
 import CoverField from './CoverField.jsx';
 
 const SHORT_DESCRIPTION_LIMIT = 400;
+const MAX_TOPICS = 10;
 const GRADES = Array.from({ length: 11 }, (_, index) => index + 1);
 
 const renderCategoryOptions = (categories) =>
@@ -33,6 +36,8 @@ const StepBasicInfo = ({
   onRemoveOutcome,
   categories,
   categoriesError,
+  curriculum,
+  curriculumError,
   fieldErrors,
   readOnly,
   coverName,
@@ -41,9 +46,48 @@ const StepBasicInfo = ({
   coverUploadDisabledHint,
   onCoverUploaded,
 }) => {
+  const selectedTopicIds = Array.isArray(formState.topicIds) ? formState.topicIds : [];
+
+  const selectedSubjectSlug = useMemo(() => {
+    for (const subject of curriculum) {
+      const hasSelectedTopic = subject.grades?.some((group) =>
+        group.topics?.some((topic) => selectedTopicIds.includes(topic.id)),
+      );
+
+      if (hasSelectedTopic) return subject.slug;
+    }
+
+    return '';
+  }, [curriculum, selectedTopicIds]);
+
+  const [curriculumSubjectSlug, setCurriculumSubjectSlug] = useState(selectedSubjectSlug);
+
+  useEffect(() => {
+    if (selectedSubjectSlug) {
+      setCurriculumSubjectSlug(selectedSubjectSlug);
+    }
+  }, [selectedSubjectSlug]);
+
+  const selectedSubject = curriculum.find((subject) => subject.slug === curriculumSubjectSlug);
+  const topicError = Object.entries(fieldErrors).find(([key]) => key.startsWith('topicIds'))?.[1];
+
   const handleField = (event) => {
     const { name, value } = event.target;
     onChange(name, value);
+  };
+
+  const handleSubjectChange = (event) => {
+    setCurriculumSubjectSlug(event.target.value);
+    onChange('topicIds', []);
+  };
+
+  const handleTopicToggle = (topicId) => {
+    const isSelected = selectedTopicIds.includes(topicId);
+    const nextTopicIds = isSelected
+      ? selectedTopicIds.filter((id) => id !== topicId)
+      : [...selectedTopicIds, topicId];
+
+    onChange('topicIds', nextTopicIds);
   };
 
   return (
@@ -185,6 +229,62 @@ const StepBasicInfo = ({
           ))}
         </select>
       </label>
+
+      <div className={styles.field}>
+        <div className={styles.labelRow}>
+          <span className={styles.label}>Теми шкільної програми</span>
+          <span className={styles.counter}>{selectedTopicIds.length}/{MAX_TOPICS}</span>
+        </div>
+
+        <select
+          className={styles.select}
+          value={curriculumSubjectSlug}
+          onChange={handleSubjectChange}
+          disabled={readOnly || curriculum.length === 0}
+        >
+          <option value="">Оберіть предмет</option>
+          {curriculum.map((subject) => (
+            <option key={subject.id} value={subject.slug}>
+              {subject.nameUk}
+            </option>
+          ))}
+        </select>
+
+        {curriculumError && <span className={styles.error}>{curriculumError}</span>}
+        {topicError && <span className={styles.error}>{topicError}</span>}
+
+        {selectedSubject && (
+          <div className={styles.topicGroups}>
+            {selectedSubject.grades.map((group) => (
+              <section className={styles.topicGroup} key={group.grade ?? 'outside'}>
+                <h4>{group.grade === null ? 'Поза програмою' : `${group.grade} клас`}</h4>
+                {group.topics.length > 0 ? (
+                  <div className={styles.topicOptions}>
+                    {group.topics.map((topic) => {
+                      const checked = selectedTopicIds.includes(topic.id);
+                      const limitReached = selectedTopicIds.length >= MAX_TOPICS && !checked;
+
+                      return (
+                        <label className={styles.topicOption} key={topic.id}>
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => handleTopicToggle(topic.id)}
+                            disabled={readOnly || limitReached}
+                          />
+                          <span>{topic.title}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className={styles.topicEmpty}>Тем поки немає.</p>
+                )}
+              </section>
+            ))}
+          </div>
+        )}
+      </div>
 
       <label className={styles.field}>
         <span className={styles.label}>Мова</span>

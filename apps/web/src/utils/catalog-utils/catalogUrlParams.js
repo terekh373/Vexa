@@ -22,6 +22,8 @@ export const getCatalogParams = (searchParams) => ({
   sort: searchParams.get('sort') || 'relevance',
   type: searchParams.get('type') || '',
   category: searchParams.get('category') || '',
+  subject: searchParams.get('subject') || '',
+  topic: searchParams.get('topic') || '',
   grade: searchParams.get('grade') || '',
   language: searchParams.get('language') || '',
   rating: searchParams.get('rating') || '',
@@ -35,6 +37,8 @@ export const getCatalogQuery = ({
   sort,
   type,
   category,
+  subject,
+  topic,
   grade,
   language,
   rating,
@@ -52,6 +56,8 @@ export const getCatalogQuery = ({
   if (q) query.q = q;
   if (type) query.type = type;
   if (category) query.category = category;
+  if (subject) query.subject = subject;
+  if (topic) query.topic = topic;
   if (grade) query.grade = Number(grade);
   if (language) query.language = language;
   if (rating) query.rating = Number(rating);
