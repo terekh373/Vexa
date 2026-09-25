@@ -1,5 +1,13 @@
 import apiClient from '../api/client.js';
 
+export const getCourseSuggestions = async (q) => {
+  const { data } = await apiClient.get('/courses/suggest', {
+    params: { q },
+  });
+
+  return Array.isArray(data?.items) ? data.items : [];
+};
+
 export const fetchCatalog = async (query = {}) => {
   const { data } = await apiClient.get('/courses', {
     params: query,
