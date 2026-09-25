@@ -68,6 +68,14 @@ export const routes = {
   becomeAuthor: (): string => build('/become-author'),
   vexaAi: (): string => build('/vexa-ai'),
 
+  schedule: (): string => build('/schedule'),
+
+  vacancies: (): string => build('/vacancies'),
+  allVacancies: (): string => build('/vacancies/all'),
+  vacancy: (id: string): string => build(`/vacancies/${id}`),
+
+  studentDashboard: (): string => build('/student'),
+
   /** Category landing page — separate from a filtered catalog for SEO. */
   category: (slug: string): string => build(`/categories/${slug}`),
 
@@ -115,6 +123,7 @@ export const routes = {
   orders: (): string => build('/orders'),
   order: (id: string): string => build(`/orders/${id}`),
   settings: (): string => build('/settings'),
+  profileEdit: (): string => build('/profile/edit'),
 
   /**
    * Course player. A top-level segment rather than /courses/:id/learn because
@@ -195,6 +204,13 @@ export const routePatterns = {
   playerLesson: '/learn/:courseId/:lessonId',
   authorCourseEdit: '/author/courses/:id/edit',
   adminModerationCourse: '/admin/moderation/:id',
+
+  studentDashboard: '/student',
+  profileEdit: '/profile/edit',
+  schedule: '/schedule',
+  vacancies: '/vacancies',
+  allVacancies: '/vacancies/all',
+  vacancy: '/vacancies/:id',
 } as const;
 
 /**
@@ -222,7 +238,26 @@ export const routeAccess = {
     '/offer',
     '/privacy',
   ],
-  student: ['/cart', '/checkout', '/learning', '/orders', '/settings', '/learn'],
-  author: ['/author'],
-  admin: ['/admin'],
+student: [
+  '/cart',
+  '/checkout',
+  '/learning',
+  '/orders',
+  '/settings',
+  '/learn',
+  '/student',
+  '/schedule',
+  '/profile',
+  '/profile/edit',
+],
+
+author: [
+  '/author',
+  '/settings',
+  '/schedule',
+  '/profile',
+  '/profile/edit',
+],
+
+admin: ['/admin'],
 } as const;
