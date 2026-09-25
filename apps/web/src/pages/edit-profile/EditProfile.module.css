@@ -1,5 +1,6 @@
 .page {
-  min-height: calc(100vh - 100px);
+  /* min-height: calc(100vh - 100px); */
+  flex: 1;
   padding: 48px 0 64px;
   background: var(--footer-bg-color);
 }

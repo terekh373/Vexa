@@ -2,6 +2,7 @@
   width: 100%;
   background: var(--footer-bg-color);
   height: 100%;
+  flex: 1;
 }
 
 .container {

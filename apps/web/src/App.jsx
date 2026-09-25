@@ -39,6 +39,8 @@ import Checkout from './pages/checkout/Checkout.jsx';
 import Orders from './pages/orders/Orders.jsx';
 import OrderDetails from './pages/order-details/OrderDetails.jsx';
 import Learning from './pages/learning/Learning.jsx';
+import LearningPlayer from './pages/learning/player/LearningPlayer.jsx';
+import LearningMaterials from './pages/learning/learning-materials/LearningMaterials.jsx';
 
 import StudentDashboard from './pages/student-dashboard/StudentDashboard.jsx';
 import Schedule from './pages/schedule/Schedule.jsx';
@@ -90,8 +92,10 @@ function App() {
           <Route path={routePatterns.orders} element={<Orders />} />
           <Route path={routePatterns.order} element={<OrderDetails />} />
           <Route path={routePatterns.learning} element={<Learning />} />
+          <Route path={routePatterns.player} element={<LearningPlayer />} />
+          <Route path={routePatterns.playerLesson} element={<LearningPlayer />} />
+          <Route path={routePatterns.learningMaterials} element={<LearningMaterials />} />
           <Route path={routePatterns.studentDashboard} element={<StudentDashboard />} />
-
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['AUTHOR']} />}>

@@ -2,6 +2,7 @@
   min-height: calc(100vh - 40vh);
   padding: 32px 0 64px;
   background: var(--footer-bg-color);
+   flex: 1;
 }
 
 .heading {

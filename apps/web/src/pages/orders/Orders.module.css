@@ -1,5 +1,6 @@
 .orders {
   padding: 32px 0 80px;
+   flex: 1;
 }
 
 .title {

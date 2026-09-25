@@ -11,34 +11,28 @@ const SearchWrapper = styled.div`
     if ($size === 'medium') {
       return `
         max-width: 586px;
-
-        input {
-          padding: 10px 16px 10px 40px;
-          font-size: 16px;
-          line-height: 24px;
-        }
+        height: 46px;
       `;
     }
 
     if ($size === 'large') {
       return `
         max-width: 1216px;
-
-        input {
-          padding: 12px 16px 12px 40px;
-          font-size: 16px;
-          line-height: 24px;
-        }
+        height: 48px;
       `;
     }
+
+    return '';
   }}
 
   img {
     position: absolute;
+    z-index: 1;
     top: 50%;
     left: 16px;
     width: 18px;
     height: 18px;
+    display: block;
     transform: translateY(-50%);
     pointer-events: none;
   }
@@ -46,68 +40,80 @@ const SearchWrapper = styled.div`
   input {
     display: block;
     width: 100%;
+    height: 100%;
     min-width: 0;
     box-sizing: border-box;
-    border: 1.5px solid #8a8f98;
+    padding: 0 16px 0 44px;
+    border: 1.5px solid var(--secondary-grey);
     border-radius: 16px;
     background: var(--main-bg-color);
     color: var(--main-dark-color);
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 24px;
     outline: none;
+  }
+
+  input::placeholder {
+    color: var(--secondary-grey);
+    opacity: 1;
   }
 
   input:focus {
     border-color: var(--purple-color);
   }
 
-  /* TABLET */
   @media (max-width: 1100px) {
     width: 100%;
     max-width: 100%;
-
-    input {
-      width: 100%;
-      padding: 10px 14px 10px 40px;
-      font-size: 15px;
-      line-height: 22px;
-    }
-
-    img {
-      left: 14px;
-      width: 18px;
-      height: 18px;
-    }
-  }
-
-  /* MOBILE */
-  @media (max-width: 540px) {
-    width: 100%;
-    max-width: 100%;
-
-    input {
-      padding: 10px 14px 10px 38px;
-      font-size: 14px;
-      line-height: 20px;
-      border-radius: 12px;
-    }
+    height: 44px;
 
     img {
       left: 14px;
       width: 16px;
       height: 16px;
     }
-  }
 
-  @media (max-width: 360px) {
     input {
-      padding: 9px 12px 9px 36px;
+      width: 100%;
+      height: 100%;
+      padding: 0 14px 0 40px;
+      border-radius: 14px;
       font-size: 14px;
       line-height: 20px;
     }
+  }
+
+  @media (max-width: 540px) {
+    height: 42px;
 
     img {
       left: 12px;
       width: 16px;
       height: 16px;
+    }
+
+    input {
+      padding: 0 12px 0 38px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 20px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    height: 40px;
+
+    img {
+      left: 12px;
+      width: 15px;
+      height: 15px;
+    }
+
+    input {
+      padding: 0 10px 0 36px;
+      font-size: 13px;
+      line-height: 18px;
     }
   }
 `;
