@@ -1,17 +1,17 @@
+import styles from './Preview.module.css'
+import {Container} from '../../layout/container/Container.jsx';
+import heroVisual from '../../../assets/images/hero-visual.png'
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@vexa/shared';
 
-import styles from './Preview.module.css';
-import { Container } from '../../layout/container/Container.jsx';
-import heroVisual from '../../../assets/images/hero-visual.png';
 import Button from '../../ui/buttons/Button.jsx';
 
 const Preview = () => {
   const navigate = useNavigate();
 
-  return (
-    <Container>
-      <section className={styles.container}>
+  return (  
+      <Container>
+       <section className={styles.container}>
         <div className={styles.description}>
           <h2>Навчайся</h2>
           <h2>Розвивайся</h2>
@@ -36,6 +36,8 @@ const Preview = () => {
               size="medium"
               onClick={() => navigate(routes.becomeAuthor())}
             />
+            {/* <Button title='Знайти курси' variant='primary' size='medium' onClick={() => navigate(routes.catalog())}/>
+            <Button title='Стати автором' variant='secondary' size='medium' /> */}
           </div>
         </div>
 

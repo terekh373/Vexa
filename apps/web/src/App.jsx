@@ -27,7 +27,6 @@ import Blog from './pages/footer/blog/Blog.jsx';
 import About from './pages/footer/about/About.jsx';
 import Contacts from './pages/footer/contacts/Contacts.jsx';
 import Categories from './pages/categories/Categories.jsx';
-import Profile from './pages/profile/Profile.jsx';
 import AdminLayout from './pages/admin/AdminLayout.jsx';
 import AdminModeration from './pages/admin/AdminModeration.jsx';
 import AdminModerationCourse from './pages/admin/AdminModerationCourse.jsx';
@@ -39,6 +38,16 @@ import Cart from './pages/cart/Cart.jsx';
 import Checkout from './pages/checkout/Checkout.jsx';
 import Orders from './pages/orders/Orders.jsx';
 import OrderDetails from './pages/order-details/OrderDetails.jsx';
+import Learning from './pages/learning/Learning.jsx';
+import LearningPlayer from './pages/learning/player/LearningPlayer.jsx';
+import LearningMaterials from './pages/learning/learning-materials/LearningMaterials.jsx';
+
+import StudentDashboard from './pages/student-dashboard/StudentDashboard.jsx';
+import Schedule from './pages/schedule/Schedule.jsx';
+import Vacancies from './pages/footer/vacancies/Vacancies.jsx';
+import AllVacancies from './pages/footer/vacancies/AllVacancies.jsx';
+import Vacancy from './pages/footer/vacancies/vacancy/Vacancy.jsx';
+import EditProfile from './pages/edit-profile/EditProfile.jsx';
 
 function App() {
   return (
@@ -66,7 +75,9 @@ function App() {
         <Route path="/categories" element={<Categories />} />
         <Route path="/authors" element={<About />} />
         <Route path="/ai" element={<VexaAI />} />
-        <Route path="/vacancies" element={<ComingSoon />} />
+        <Route path={routePatterns.vacancies} element={<Vacancies />} />
+        <Route path={routePatterns.allVacancies} element={<AllVacancies />} />
+        <Route path={routePatterns.vacancy} element={<Vacancy />} />
         <Route path="/press" element={<ComingSoon />} />
         {/* перемістити роут профілю та налаштувань с зони студента для перевірки фронту */}
 
@@ -75,14 +86,16 @@ function App() {
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
-          <Route path={routePatterns.learning} element={<Profile />} />
-          <Route path={routePatterns.settings} element={<Settings />} />
           <Route path={routePatterns.cart} element={<Cart />} />
           <Route path={routePatterns.checkoutSuccess} element={<CheckoutSuccess />} />
           <Route path={routePatterns.checkout} element={<Checkout />} />
           <Route path={routePatterns.orders} element={<Orders />} />
           <Route path={routePatterns.order} element={<OrderDetails />} />
-
+          <Route path={routePatterns.learning} element={<Learning />} />
+          <Route path={routePatterns.player} element={<LearningPlayer />} />
+          <Route path={routePatterns.playerLesson} element={<LearningPlayer />} />
+          <Route path={routePatterns.learningMaterials} element={<LearningMaterials />} />
+          <Route path={routePatterns.studentDashboard} element={<StudentDashboard />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['AUTHOR']} />}>
@@ -90,6 +103,17 @@ function App() {
           <Route path={routes.authorCourseNew()} element={<CourseWizard />} />
           <Route path={routePatterns.authorCourseEdit} element={<CourseWizard />} />
           <Route path={routePatterns.authorArea} element={<ComingSoon title="Кабінет автора" />} />
+   
+          <Route path={routePatterns.authorCourses} element={<AuthorCourses />} />
+          <Route path={routes.authorCourseNew()} element={<CourseWizard />} />
+          <Route path={routePatterns.authorCourseEdit} element={<CourseWizard />} />
+          <Route path={routePatterns.authorArea} element={<ComingSoon title="Кабінет автора" />} />
+        </Route>  
+
+        <Route element={<ProtectedRoute allowedRoles={['STUDENT', 'AUTHOR']} />}>
+          <Route path={routePatterns.profileEdit} element={<EditProfile />} />
+          <Route path={routePatterns.settings} element={<Settings />} />
+          <Route path={routePatterns.schedule} element={<Schedule />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>

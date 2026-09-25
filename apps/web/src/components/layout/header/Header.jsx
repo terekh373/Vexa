@@ -22,6 +22,7 @@ const Header = () => {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
 
   const isAuthor = user?.roles?.includes('AUTHOR');
   const isStudent = user?.roles?.includes('STUDENT');
@@ -30,6 +31,26 @@ const Header = () => {
   const goTo = (path) => {
     setIsMenuOpen(false);
     navigate(path);
+  };
+
+  const handleSearch = (event) => {
+    if (event.key !== 'Enter') {
+      return;
+    }
+
+    const search = searchValue.trim();
+
+    if (!search) {
+      return;
+    }
+
+    setIsMenuOpen(false);
+
+    navigate(
+      routes.catalog({
+        search,
+      }),
+    );
   };
 
   const getSpaceRoute = () => {
@@ -90,23 +111,20 @@ const Header = () => {
         Завдання
       </Link>
 
-      {/* <Link to={routes.authorDashboard()} className={styles.link}>
-        Повідомлення
-      </Link> */}
     </>
   );
 
   const studentNavigation = (
     <>
-      <Link to={routes.home()} className={styles.link}>
-        Головна
+      <Link to={routes.studentDashboard()} className={styles.link}>
+        Кабінет
       </Link>
 
       <Link to={routes.learning()} className={styles.link}>
         Мої курси
       </Link>
 
-      <Link to={routes.learning()} className={styles.link}>
+      <Link to={routes.schedule()} className={styles.link}>
         Розклад
       </Link>
 
@@ -249,7 +267,11 @@ const Header = () => {
           </nav>
 
           <div className={styles.desktopSearch}>
-            <Search />
+            <Search
+              value={searchValue}
+              onChange={(event) => setSearchValue(event.target.value)}
+              onKeyDown={handleSearch}
+            />
           </div>
 
           <div className={styles.actions}>
@@ -285,7 +307,11 @@ const Header = () => {
           {isMenuOpen && (
             <div className={styles.mobileMenu}>
               <div className={styles.mobileSearch}>
-                <Search />
+                <Search
+                  value={searchValue}
+                  onChange={(event) => setSearchValue(event.target.value)}
+                  onKeyDown={handleSearch}
+                />
               </div>
 
               <nav
@@ -298,33 +324,62 @@ const Header = () => {
               {!isLoading && (
                 <div className={styles.mobileActions}>
                   {user ? (
-                    <>
-                      {/* <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px', justifyContent: 'center' }}>
-                        <img 
-                          src={user?.avatarUrl || `https://ui-avatars.com/api/?name=${initials}&background=6236FF&color=fff&size=40`} 
-                          alt="Avatar" 
-                          style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                      <>
+                        <span className={styles.mobileUser}>
+                          {user.fullName || user.email}
+                        </span>
+
+                        <Button
+                          title="Мій простір"
+                          onClick={() => goTo(getSpaceRoute())}
                         />
-                        <span className={styles.mobileUser}>{user.fullName || user.email}</span>
-                      </div>
-                      <Button title="Налаштування" variant="secondary" onClick={() => goTo(routes.settings())} />
-                      <Button title="Мій простір" onClick={() => goTo(getSpaceRoute())} />
-                      <Button title="Вийти" variant="secondary" onClick={handleLogout} /> */}
-                      <span className={styles.mobileUser}>
-                        {user.fullName || user.email}
-                      </span>
 
-                      <Button
-                        title="Мій простір"
-                        onClick={() => goTo(getSpaceRoute())}
-                      />
+                        <Button
+                          title="Редагувати профіль"
+                          variant="secondary"
+                          onClick={() => goTo(routes.profileEdit())}
+                        />
 
-                      <Button
-                        title="Вийти"
-                        variant="secondary"
-                        onClick={handleLogout}
-                      />
-                    </>
+                        <Button
+                          title="Налаштування"
+                          variant="secondary"
+                          onClick={() => goTo(routes.settings())}
+                        />
+
+                        <Button
+                          title="Кошик"
+                          variant="secondary"
+                          onClick={() => goTo(routes.cart())}
+                        />
+
+                        <Button
+                          title="Мої замовлення"
+                          variant="secondary"
+                          onClick={() => goTo(routes.orders())}
+                        />
+
+                        {isAuthor && (
+                          <Button
+                            title="Кабінет автора"
+                            variant="secondary"
+                            onClick={() => goTo(routes.authorDashboard())}
+                          />
+                        )}
+
+                        {isAdmin && (
+                          <Button
+                            title="Адмін-панель"
+                            variant="secondary"
+                            onClick={() => goTo(routes.adminDashboard())}
+                          />
+                        )}
+
+                        <Button
+                          title="Вийти"
+                          variant="secondary"
+                          onClick={handleLogout}
+                        />
+                      </>
                   ) : (
                     guestActions
                   )}

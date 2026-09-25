@@ -103,7 +103,7 @@ const UserMenu = ({ user, onLogout }) => {
           <button
             type="button"
             className={styles.menuItem}
-            onClick={() => goTo(routes.settings())}
+            onClick={() => goTo(routes.profileEdit())}
             role="menuitem"
           >
             <img src={EditorIcon} alt='editor icon' className={styles.icon} />           
