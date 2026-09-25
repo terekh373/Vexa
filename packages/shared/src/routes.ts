@@ -189,6 +189,8 @@ export const routePatterns = {
   authorDashboard: '/author',
   authorCourses: '/author/courses',
   authorCourseNew: '/author/courses/new',
+  authorBalance: '/author/balance',
+  authorReviews: '/author/reviews',
   authorArea: '/author/*',
   adminDashboard: '/admin',
   adminModeration: '/admin/moderation',

@@ -34,6 +34,10 @@ import AdminUsers from './pages/admin/AdminUsers.jsx';
 import AdminCategories from './pages/admin/AdminCategories.jsx';
 import BecomeAuthorPage from './pages/author/BecomeAuthorPage.jsx';
 import AuthorProfilePage from './pages/author/AuthorProfilePage.jsx';
+import AuthorCabinetLayout from './pages/author/AuthorCabinetLayout.jsx';
+import AuthorDashboard from './pages/author/AuthorDashboard.jsx';
+import AuthorBalance from './pages/author/AuthorBalance.jsx';
+import AuthorReviews from './pages/author/AuthorReviews.jsx';
 import Cart from './pages/cart/Cart.jsx';
 import Checkout from './pages/checkout/Checkout.jsx';
 import Orders from './pages/orders/Orders.jsx';
@@ -99,21 +103,24 @@ function App() {
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['AUTHOR']} />}>
-          <Route path={routePatterns.authorCourses} element={<AuthorCourses />} />
+          <Route element={<AuthorCabinetLayout />}>
+            <Route path={routePatterns.authorDashboard} element={<AuthorDashboard />} />
+            <Route path={routePatterns.authorCourses} element={<AuthorCourses />} />
+            <Route path={routePatterns.authorBalance} element={<AuthorBalance />} />
+            <Route path={routePatterns.authorReviews} element={<AuthorReviews />} />
+          </Route>
           <Route path={routes.authorCourseNew()} element={<CourseWizard />} />
           <Route path={routePatterns.authorCourseEdit} element={<CourseWizard />} />
-          <Route path={routePatterns.authorArea} element={<ComingSoon title="Кабінет автора" />} />
-   
-          <Route path={routePatterns.authorCourses} element={<AuthorCourses />} />
-          <Route path={routes.authorCourseNew()} element={<CourseWizard />} />
-          <Route path={routePatterns.authorCourseEdit} element={<CourseWizard />} />
-          <Route path={routePatterns.authorArea} element={<ComingSoon title="Кабінет автора" />} />
-        </Route>  
+<Route
+  path={routePatterns.authorArea}
+  element={<Navigate to={routes.authorDashboard()} replace />}
+/>
+</Route>
 
-        <Route element={<ProtectedRoute allowedRoles={['STUDENT', 'AUTHOR']} />}>
-          <Route path={routePatterns.profileEdit} element={<EditProfile />} />
-          <Route path={routePatterns.settings} element={<Settings />} />
-          <Route path={routePatterns.schedule} element={<Schedule />} />
+<Route element={<ProtectedRoute allowedRoles={['STUDENT', 'AUTHOR']} />}>
+  <Route path={routePatterns.profileEdit} element={<EditProfile />} />
+  <Route path={routePatterns.settings} element={<Settings />} />
+  <Route path={routePatterns.schedule} element={<Schedule />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
