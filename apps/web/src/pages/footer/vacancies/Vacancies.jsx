@@ -124,14 +124,6 @@ const values = [
 const Vacancies = () => {
   const navigate = useNavigate();
 
-  const scrollToVacancies = () => {
-    document
-      .getElementById('vacancies')
-      ?.scrollIntoView({
-        behavior: 'smooth',
-      });
-  };
-
   return (
     <main className={styles.page}>
       <Container>

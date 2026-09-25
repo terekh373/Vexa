@@ -1,5 +1,4 @@
 import { useParams } from 'react-router-dom';
-import { routes } from '@vexa/shared';
 
 import { Container } from '../../../../components/layout/container/Container';
 import Breadcrumbs from '../../../../components/ui/breadcrumbs/Breadcrumbs';

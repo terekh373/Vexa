@@ -78,9 +78,6 @@ export const PopularCategories = () => {
     loadCategories();
   }, [loadCategories]);
 
-  const openCatalog = () => {
-    navigate(routes.catalog());
-  };
 
   const openCategory = (slug) => {
     navigate(routes.catalog({ category: slug }));
@@ -96,7 +93,6 @@ export const PopularCategories = () => {
         <OpenMore
           title='Популярні категорії'
           bttnTxt='Всі категорії'
-          // onClick={openCatalog}
           onClick={openCategories}
         />
 

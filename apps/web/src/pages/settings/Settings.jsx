@@ -8,9 +8,11 @@ import SettingsIcon from '../../assets/icons/user/settings.svg';
 import BellIcon from '../../assets/icons/user/bell.svg';
 import SafetyIcon from '../../assets/icons/user/safe.svg';
 import PrivateIcon from '../../assets/icons/user/private.svg';
+import { useAuth } from '../../context/auth-context.js';
 
 const Settings = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -66,12 +68,11 @@ const Settings = () => {
         response.status === 204 ||
         response.status === 200
       ) {
+        await logout();
         navigate(routes.login(), {
           replace: true,
           state: { passwordChanged: true },
         });
-
-        logout?.();
       }
       
     } catch (error) {
