@@ -11,9 +11,12 @@
   --accessory-purple: #4F1EE3;
   --adjuvant-purple: #4317C9;
   --error: #e5484d;
+  --success-color: #268744;
+  --success-bg-color: #edf8f0;
+  --error-dark-color: #c43b3b;
+  --error-border-color: #d32f2f;
+  --error-bg-color: #fff0f0;
+  --success-border-color: #2e7d32;
+  --success-option-bg-color: #edf7ed;
+  --warning-bg-color: #fff4e5;
 }
-
-/* div {
-  justify-content: space-between;
-  align-items: center;
-} */

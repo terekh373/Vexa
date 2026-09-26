@@ -1,0 +1,135 @@
+.program {
+  overflow: hidden;
+  border: 1px solid var(--accessory-grey);
+  border-radius: 20px;
+  background: var(--white-color);
+}
+
+.programHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px;
+  border-bottom: 1px solid var(--accessory-grey);
+}
+
+.programHeader h2 {
+  margin: 0;
+  color: var(--main-dark-color);
+  font-size: 20px;
+  line-height: 28px;
+}
+
+.module {
+  border-bottom: 1px solid var(--accessory-grey);
+}
+
+.module:last-child {
+  border-bottom: 0;
+}
+
+.module h3 {
+  margin: 0;
+  padding: 20px 24px 12px;
+  color: var(--main-dark-color);
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.lessons {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 12px;
+}
+
+.lesson {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 24px;
+  border: 0;
+  background: transparent;
+  color: var(--main-dark-color);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.lesson:hover:not(:disabled) {
+  background: var(--footer-bg-color);
+}
+
+.lesson:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.activeLesson {
+  background: var(--secondary-purple);
+}
+
+.activeLesson:hover:not(:disabled) {
+  background: var(--secondary-purple);
+}
+
+.lessonNumber {
+  display: flex;
+  flex: 0 0 28px;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-grey);
+  border-radius: 50%;
+  color: var(--main-dark-color);
+  font-size: 12px;
+}
+
+.completedLesson {
+  border-color: var(--purple-color);
+  background: var(--purple-color);
+  color: var(--white-color);
+}
+
+.lessonInfo {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lessonInfo strong {
+  color: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.lessonInfo small {
+  color: var(--secondary-grey);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+@media (max-width: 960px) {
+  .program {
+    width: 100%;
+  }
+}
+
+@media (max-width: 540px) {
+  .programHeader {
+    padding: 20px 16px;
+  }
+
+  .module h3 {
+    padding: 18px 16px 10px;
+  }
+
+  .lesson {
+    padding: 12px 16px;
+  }
+}
