@@ -8,6 +8,7 @@ import {
 
 import { AppError } from '../../lib/errors.js';
 import { prisma } from '../../lib/prisma.js';
+import { notifyNewReview } from '../notifications/notifications.service.js';
 import type {
   CreateCourseReviewInput,
   UpdateCourseReviewInput,
@@ -188,6 +189,7 @@ async function recalculateReviewRatings(
 const courseDetailsSelect = {
   id: true,
   authorId: true,
+  status: true,
   type: true,
   slug: true,
   title: true,
@@ -381,7 +383,7 @@ export async function getCourseDetails(
   const course = await prisma.course.findFirst({
     where: {
       ...identifier,
-      status: CourseStatus.PUBLISHED,
+      status: { in: [CourseStatus.PUBLISHED, CourseStatus.UNPUBLISHED] },
       deletedAt: null,
     },
 
@@ -396,9 +398,10 @@ export async function getCourseDetails(
     course.priceAmount === 0 ||
     currentUserId === course.authorId;
   let canReview = false;
+  let enrollment: { id: string; source: EnrollmentSource } | null = null;
 
   if (currentUserId !== undefined) {
-    const [currentUser, enrollment, existingReview] = await Promise.all([
+    const [currentUser, currentEnrollment, existingReview] = await Promise.all([
       prisma.user.findUnique({
         where: { id: currentUserId },
         select: { roles: true },
@@ -425,6 +428,7 @@ export async function getCourseDetails(
       }),
     ]);
 
+    enrollment = currentEnrollment;
     const hasReviewRole =
       currentUser?.roles.some((role) => REVIEW_ELIGIBLE_ROLES.has(role)) ?? false;
     const hasReviewEnrollment =
@@ -433,9 +437,18 @@ export async function getCourseDetails(
 
     hasAccess = hasAccess || enrollment !== null;
     canReview =
+      course.status === CourseStatus.PUBLISHED &&
       hasReviewRole &&
       hasReviewEnrollment &&
       existingReview === null;
+  }
+
+  if (
+    course.status === CourseStatus.UNPUBLISHED &&
+    currentUserId !== course.authorId &&
+    enrollment === null
+  ) {
+    return null;
   }
 
   return {
@@ -702,7 +715,7 @@ export async function createCourseReview(
         status: CourseStatus.PUBLISHED,
         deletedAt: null,
       },
-      select: { id: true },
+      select: { id: true, title: true },
     });
 
     if (course === null) {
@@ -745,6 +758,19 @@ export async function createCourseReview(
     });
 
     const rating = await recalculateReviewRatings(tx, courseId, lockedCourse.authorId);
+
+    if (lockedCourse.authorId !== userId) {
+      await notifyNewReview(
+        {
+          authorId: lockedCourse.authorId,
+          courseId,
+          courseTitle: course.title,
+          reviewId: review.id,
+          rating: review.rating,
+        },
+        tx,
+      );
+    }
 
     return {
       review: mapPublicReview(review),

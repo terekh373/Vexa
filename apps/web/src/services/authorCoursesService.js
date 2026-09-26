@@ -44,6 +44,11 @@ export const submitAuthorCourse = async (id) => {
   return data;
 };
 
+export const unpublishAuthorCourse = async (id) => {
+  const { data } = await apiClient.post(`/author/courses/${id}/unpublish`);
+  return data;
+};
+
 export const createAuthorModule = async (courseId, payload) => {
   const { data } = await apiClient.post(`/author/courses/${courseId}/modules`, payload);
   return data;
@@ -75,4 +80,24 @@ export const deleteAuthorLesson = async (lessonId) => {
 export const reorderAuthorCourse = async (courseId, payload) => {
   const { data } = await apiClient.patch(`/author/courses/${courseId}/reorder`, payload);
   return data;
+};
+
+export const attachMaterialFile = async (courseId, { fileId, title }) => {
+  const { data } = await apiClient.post(`/author/courses/${courseId}/files`, { fileId, title });
+  return data;
+};
+
+export const renameMaterialFile = async (courseId, courseFileId, title) => {
+  const { data } = await apiClient.patch(`/author/courses/${courseId}/files/${courseFileId}`, { title });
+  return data;
+};
+
+// `id` of every entry is the binding's id (courseFileId), not the file's id.
+export const reorderMaterialFiles = async (courseId, files) => {
+  const { data } = await apiClient.patch(`/author/courses/${courseId}/files/reorder`, { files });
+  return data;
+};
+
+export const deleteMaterialFile = async (courseId, courseFileId) => {
+  await apiClient.delete(`/author/courses/${courseId}/files/${courseFileId}`);
 };

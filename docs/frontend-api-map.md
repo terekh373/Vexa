@@ -33,6 +33,43 @@
 `401` — невірний email **або** пароль (одне повідомлення на оба випадки).
 
 
+### Вхід через Google OAuth 2.0
+
+`GET /api/auth/google` — браузерний redirect на Google. API створює випадковий
+`state`, зберігає його в Redis на 10 хвилин і передає Google для CSRF-захисту.
+Цей endpoint треба відкривати через `window.location`, а не XHR.
+
+Google повертає користувача на `GET /api/auth/google/callback`. API одноразово
+споживає `state`, обмінює authorization code на профіль Google (`sub`, `email`,
+`email_verified`, `name`) і **не** передає access/refresh токени через URL.
+Натомість створюється одноразовий внутрішній код на 60 секунд, після чого API
+редіректить на веб:
+
+    /auth/google/callback?code=<one-time-code>
+
+або при помилці:
+
+    /auth/google/callback?error=<error-code>
+
+Веб одразу викликає:
+
+`POST /api/auth/google/exchange`
+
+    { "code": "..." }
+
+Успіх → `200` і та сама форма `{ user, tokens }`, що у звичайного
+`POST /api/auth/login`. Код атомарно одноразовий: повторне використання → `404`.
+Заблокований користувач → `403`.
+
+Правило акаунтів: спочатку пошук за `google_id`; якщо не знайдено — за email.
+До існуючого акаунта Google прив'язується лише для підтвердженого Google email.
+Новий Google-користувач створюється з `password_hash = null`, стандартною роллю
+`STUDENT` і підтвердженим email. Акаунт з паролем і Google залишається одним.
+
+Змінні API: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`.
+Локальний callback: `http://localhost:3000/api/auth/google/callback`.
+
+
 ### Підтвердження email
 
 Після реєстрації сервер надсилає український HTML + text лист через Brevo з
@@ -123,6 +160,111 @@
 refresh-флоу). Акаунт без локального пароля (`passwordHash = null`) → `409`.
 Ендпоінт має таке саме обмеження частоти, як `/api/auth/login`.
 
+## Сповіщення
+
+Усі маршрути вимагають Bearer-токен і працюють тільки зі сповіщеннями
+поточного користувача. Чуже `id` не розкриває існування запису й повертає
+`404`.
+
+    GET   /api/me/notifications?page=1&limit=20
+    PATCH /api/me/notifications/:id/read
+    PATCH /api/me/notifications/read-all
+
+`GET /api/me/notifications` — найновіші спочатку. `limit` за замовчуванням
+`20`, максимум `50`. Відповідь:
+
+```json
+{
+  "items": [
+    {
+      "id": "uuid",
+      "type": "PURCHASE | MODERATION | PAYOUT | REVIEW | ACCOUNT | SYSTEM",
+      "title": "Новий продаж: «Математика, 7 клас»",
+      "body": "... | null",
+      "payload": { "href": "/author/balance", "courseId": "uuid" },
+      "readAt": null,
+      "createdAt": "2026-09-22T10:00:00.000Z"
+    }
+  ],
+  "unreadCount": 3,
+  "page": 1,
+  "limit": 20,
+  "total": 12,
+  "totalPages": 1
+}
+```
+
+`payload` — дані для переходу з дзвіночка. Якщо є `payload.href`, клієнт
+переходить за ним; для старих moderation-подій клієнт також підтримує
+`courseId`.
+
+`PATCH /api/me/notifications/:id/read` → `204`. Повторна позначка власного
+сповіщення теж `204`; чуже або неіснуюче → `404`.
+
+`PATCH /api/me/notifications/read-all` →
+`{ "updatedCount": 4 }` — кількість сповіщень, які щойно стали прочитаними.
+
+Події створюються сервером у тій самій транзакції, що й дія, яка їх
+спричинила: результат модерації, новий відгук, заявка на виплату і
+підтверджена оплата (вебхук LiqPay). Листи на email надсилаються окремо, вже
+після коміту, і збій поштового провайдера дію не скасовує — див. «Оплата
+(LiqPay sandbox)» і «Побічні ефекти переходу».
+
+### Профіль автора
+
+`POST /api/me/author-profile` — активувати роль автора для поточного користувача.
+Bearer-токен обов'язковий, окрема реєстрація не потрібна.
+
+Тіло:
+
+    { "displayName": "Оксана Петренко",
+      "headline": "Викладач математики",
+      "bio": "8 років досвіду..." }
+
+`displayName` обов'язковий (2–160 символів), `headline` і `bio` необов'язкові.
+Порожні необов'язкові поля клієнт може передати як `null`. Сервер в одній
+транзакції створює `author_profiles` та додає `AUTHOR` до `users.roles`.
+Успіх → `201`:
+
+    { "user": { "id", "email", "fullName", "roles": ["STUDENT", "AUTHOR"],
+                "emailVerified", "locale" },
+      "tokens": { "accessToken", "refreshToken", "expiresIn" },
+      "authorProfile": {
+        "userId", "displayName", "headline", "bio", "isVerified",
+        "ratingAvg", "reviewsCount", "studentsCount"
+      } }
+
+Нову пару токенів треба **одразу замінити** в клієнті: роль `AUTHOR` записана
+в access-токені, тому старий access-токен її не знає. Повторна активація →
+`409`; заблокований користувач → `403`.
+
+`PATCH /api/me/author-profile` — редагування `displayName`, `headline`, `bio`.
+Потрібне хоча б одне поле. Успіх → `200`, відповідь — `authorProfile` у формі
+вище без `user` і `tokens`. Якщо профіль автора не існує → `404`.
+
+`GET /api/authors/:id` — публічна сторінка автора, токен не потрібен. Якщо
+профілю автора немає → `404`. Відповідь `200`:
+
+```json
+{
+  "id": "uuid",
+  "displayName": "Оксана Петренко",
+  "headline": "Викладач математики",
+  "bio": "...",
+  "avatar": { "id": "uuid", "fileName": "avatar.jpg", "mimeType": "image/jpeg", "url": "..." },
+  "isVerified": false,
+  "ratingAvg": 4.8,
+  "reviewsCount": 27,
+  "studentsCount": 340,
+  "courses": []
+}
+```
+
+`courses[]` має ту саму форму картки, що `GET /api/courses`: `cover`, `author`,
+`category`, `price`, `rating`, лічильники й `publishedAt`. Повертаються **лише**
+курси/матеріали зі статусом `PUBLISHED`; чернетки, модерація, відхилені та
+зняті з публікації у портфоліо не потрапляють.
+
 
 ## Підтримка
 
@@ -168,6 +310,49 @@ rate limit (5 звернень на годину з одного ключа/IP).
 
 Тип відповіді — `CategoryTreeResponse` у `@vexa/shared`.
 
+## Шкільна програма
+
+`GET /api/curriculum`
+
+Публічний ендпоінт, без токена. Повертає дерево «предмет → клас → тема».
+Предмети відсортовані за `nameUk`; класи — за зростанням, група
+`grade: null` (поза шкільною програмою, наприклад підготовка до НМТ) іде
+останньою; теми — за `sortOrder`, далі за `title`.
+
+Відповідь `200`:
+
+    { "items": [
+        { "id": "uuid", "slug": "matematyka", "nameUk": "Математика",
+          "grades": [
+            { "grade": 9,
+              "topics": [
+                { "id": "uuid", "title": "Квадратні рівняння", "sortOrder": 1 }
+              ] },
+            { "grade": null, "topics": [] }
+          ] }
+      ] }
+
+- Предмет без тем повертається з `grades: []`.
+- Порожня база → `{ "items": [] }`, статус `200`.
+- Відповідь кешується на сервері на 5 хвилин (Redis, fail-open). Адмінського
+  керування програмою немає, тож нові дані з'являються після завершення
+  кешу. Клієнту кешувати окремо не потрібно.
+
+Тип відповіді — `CurriculumResponse` у `@vexa/shared`.
+
+### Навігація «предмет → клас → тема»
+
+Дерево будується прямо з відповіді, окремих запитів на кожен рівень немає.
+Посилання на каталог ведуть так:
+
+- предмет або клас у предметі — `routes.catalog({ subject: subject.slug })` і
+  `routes.catalog({ subject: subject.slug, grade })`; клас фільтрує поле
+  `grade` курсу;
+- тема — `routes.catalog({ topic: topic.id })`.
+
+Групу `grade: null` показувати окремим блоком («Поза програмою»); посилання
+для неї — лише на теми, без параметра `grade`.
+
 ## Курси
 
 ### Каталог
@@ -181,7 +366,11 @@ Query-параметри:
 - `q` — текстовий пошук за назвою, описом і тегами.
 - `type` — `course` або `material`.
 - `category` — slug або id категорії. Враховуються також дочірні категорії.
-- `grade` — клас від `1` до `11`.
+- `subject` — slug предмета шкільної програми (`GET /api/curriculum`).
+  Невідомий slug → порожній список, не помилка.
+- `topic` — id теми шкільної програми. Не uuid → `400`.
+- `grade` — клас від `1` до `11`. Фільтрує клас курсу (`courses.grade`), тому
+  зв'язка «предмет → клас» — це `?subject=...&grade=...`.
 - `priceMin` — мінімальна ціна у копійках.
 - `priceMax` — максимальна ціна у копійках.
 - `rating` — мінімальний рейтинг від `1` до `5`.
@@ -206,10 +395,37 @@ Query-параметри:
 }
 ```
 
+### Підказки пошуку
+
+`GET /api/courses/suggest?q=`
+
+Доступний без авторизації. Автодоповнення для рядка пошуку: назви опублікованих
+курсів і матеріалів, що містять запит.
+
+- `q` — від `2` до `120` символів (після обрізання пробілів). Коротший або
+  відсутній `q` → `400`; інші параметри не приймаються.
+- Повертає не більше `8` результатів. Спершу назви, що починаються із запиту,
+  далі — за схожістю та популярністю.
+- Стійкий до одруківок: `квадратни` знайде «Квадратні рівняння…».
+- Викликати з debounce приблизно `250` мс, щоб не надсилати запит на кожну
+  літеру.
+
+Відповідь `200` (тип `CourseSuggestResponse` у `@vexa/shared`):
+
+    { "items": [
+        { "id": "uuid", "slug": "kvadratni-rivnyannya-9-klas",
+          "title": "Квадратні рівняння для 9 класу", "type": "course" }
+      ] }
+
+`type` — `course` або `material`. Порожній результат → `{ "items": [] }`.
+
 ### Сторінка курсу
 
-`GET /api/courses/:idOrSlug` — доступний без токена (`optionalAuth`). З
-Bearer-токеном додатково рахується `hasAccess` за `Enrollment` користувача.
+`GET /api/courses/:idOrSlug` — доступний без токена (`optionalAuth`) для
+опублікованого курсу. З Bearer-токеном додатково рахується `hasAccess` за
+`Enrollment` користувача. Курс у статусі `UNPUBLISHED` повертається лише його
+автору або користувачу з активним `Enrollment`; для гостя та інших
+користувачів такий самий запит повертає `404`.
 
 Верхній рівень відповіді:
 
@@ -328,8 +544,49 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
 існує або ще не підтверджений. Обкладинки курсів і аватари для показу в
 каталозі беруть з `coverUrl`/`avatar.url` сторінки курсу, не з цього ендпоінта.
 
+Для відео цей ендпоінт завжди повертає `409`: відео лише стрімиться (ТЗ 20.2).
+Плеєр отримує посилання через `GET /api/learn/lessons/:lessonId`.
+
 Типи запитів/відповідей — `CreateUploadUrlRequest`, `CreateUploadUrlResponse`,
 `FileDto`, `DownloadUrlResponse` у `@vexa/shared`.
+
+### Відео уроку (Cloudflare Stream)
+
+Відео йде з браузера напряму в Cloudflare Stream, повз API. Лише `AUTHOR`.
+
+**1.** `POST /api/files/video-upload-url` — Bearer, лише `AUTHOR`.
+
+    { "originalName": "lesson.mp4",
+      "mimeType": "video/mp4",
+      "sizeBytes": 52428800 }
+
+- `mimeType` — `video/mp4`, `video/quicktime` або `video/webm`.
+- `sizeBytes` — точний `File.size`, не більше **200 МБ**. Довші відео потребують
+  tus, його не підтримуємо; тривалість — до години.
+
+Відповідь `201`: `{ "fileId", "uploadUrl" }`. `uploadUrl` одноразовий.
+
+`400` — недозволений тип або розмір; `403` — не автор; `503` — відео не
+налаштоване на сервері або Stream недоступний.
+
+**2.** `POST <uploadUrl>` — `multipart/form-data`, поле `file`, без
+`Authorization`, напряму в Stream.
+
+    const form = new FormData();
+    form.append('file', file);
+    await fetch(uploadUrl, { method: 'POST', body: form });
+
+**3.** `POST /api/files/:fileId/confirm` — Bearer, той самий автор.
+
+- `200` — відео готове (`file.isReady: true`).
+- `202` — Stream ще обробляє відео (`file.isReady: false`). Повторювати запит
+  кожні ~5 с; зупинитися приблизно через 5 хв і показати «відео обробляється».
+- `409` «Video has not been uploaded yet» — завантаження не завершилося.
+- `409` «Video processing failed» — причина в `error.details`; завантажити інший
+  файл.
+
+**4.** Прив'язка: `PATCH /api/author/lessons/:id` з `{ "videoFileId": "<fileId>" }`
+— лише для готового файлу (інакше `404`). Тривалість уроку береться з відео.
 
 ## Кабінет автора (конструктор курсу)
 
@@ -337,6 +594,12 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
 **і** роль `AUTHOR`. **Роль `ADMIN` сюди не пускається.** Без токена — `401`;
 з роллю `STUDENT` або `ADMIN` — `403`.
 
+    GET    /api/author/dashboard          ?period=7d|30d|90d|all
+    GET    /api/author/balance
+    GET    /api/author/balance/entries    ?page=1&limit=20
+    POST   /api/author/payouts
+    GET    /api/author/payouts            ?page=1&limit=20
+    GET    /api/author/reviews            ?page=1&limit=20
     POST   /api/author/courses
     GET    /api/author/courses            ?status=DRAFT|MODERATION|PUBLISHED|REJECTED|UNPUBLISHED
     GET    /api/author/courses/:id
@@ -354,9 +617,124 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
     POST   /api/author/quizzes/:id/questions
     PATCH  /api/author/questions/:id
     DELETE /api/author/questions/:id
+    POST   /api/author/courses/:id/files
+    PATCH  /api/author/courses/:id/files/reorder
+    PATCH  /api/author/courses/:id/files/:courseFileId
+    DELETE /api/author/courses/:id/files/:courseFileId
     PATCH  /api/author/courses/:id/reorder
     POST   /api/author/courses/:id/submit
+    POST   /api/author/courses/:id/unpublish
     POST   /api/author/reviews/:id/reply
+
+### Дашборд, баланс, виплати та відгуки автора
+
+Усі суми нижче — **цілі копійки**. Форматування у гривні робить клієнт.
+
+`GET /api/author/dashboard?period=7d|30d|90d|all`
+
+Відповідь `200`:
+
+    {
+      "period": "30d",
+      "salesCount": 12,
+      "revenueAmount": 245000,
+      "studentsCount": 9,
+      "ratingAvg": 4.75,
+      "reviewsCount": 8,
+      "coursesByStatus": {
+        "DRAFT": 1,
+        "MODERATION": 0,
+        "PUBLISHED": 3,
+        "REJECTED": 0,
+        "UNPUBLISHED": 1
+      },
+      "currency": "UAH"
+    }
+
+`salesCount` і `revenueAmount` рахуються лише за оплаченими `order_items` автора
+у вибраному періоді; `studentsCount` — унікальні активні зарахування за цей
+період; рейтинг — лише опубліковані відгуки за період. `coursesByStatus`
+показує поточний стан усіх не видалених курсів автора.
+
+`GET /api/author/balance`
+
+    {
+      "availableAmount": 180000,
+      "pendingAmount": 0,
+      "withdrawnAmount": 50000,
+      "currency": "UAH",
+      "payoutMinAmount": 50000,
+      "updatedAt": "2026-09-23T12:00:00.000Z"
+    }
+
+Якщо запису балансу ще немає, усі суми повертаються як `0`, валюта — `UAH`.
+`payoutMinAmount` приходить із `PAYOUT_MIN_AMOUNT` серверного конфігу.
+
+`GET /api/author/balance/entries?page=1&limit=20` — історія ledger. Відповідь:
+
+    {
+      "items": [
+        {
+          "id": "uuid",
+          "type": "SALE",
+          "amount": 8500,
+          "comment": "Продаж «Курс»",
+          "createdAt": "...",
+          "orderItem": { "id": "uuid", "titleSnapshot": "Курс" },
+          "payout": null
+        }
+      ],
+      "page": 1, "limit": 20, "total": 1, "totalPages": 1
+    }
+
+`POST /api/author/payouts`
+
+    { "amount": 50000, "method": "CARD", "destination": "4444 3333 2222 1111" }
+
+`method`: `CARD | IBAN`. `amount` має бути integer, не менше
+`payoutMinAmount` і не більше `availableAmount`. Успіх → `201`:
+
+    {
+      "id": "uuid",
+      "amount": 50000,
+      "currency": "UAH",
+      "method": "CARD",
+      "destinationMasked": "**** 1111",
+      "status": "REQUESTED",
+      "comment": null,
+      "processedAt": null,
+      "createdAt": "..."
+    }
+
+Повні реквізити після валідації **не зберігаються**: у БД лишається тільки
+`destinationMasked` з останніми 4 символами. Створення заявки атомарно зменшує
+`availableAmount` і додає `balance_entries` типу `PAYOUT` з від'ємною сумою.
+Паралельні заявки не можуть вивести баланс у мінус. Нижче мінімуму → `400`;
+сума більша за доступну → `409`. Після успіху автор отримує email і внутрішнє
+сповіщення; збій email не відкочує заявку.
+
+`GET /api/author/payouts?page=1&limit=20` — історія заявок у форматі
+`{ items, page, limit, total, totalPages }`; кожний елемент має ту саму форму,
+що відповідь `POST /api/author/payouts`.
+
+`GET /api/author/reviews?page=1&limit=20` — опубліковані відгуки на курси
+автора:
+
+    {
+      "items": [
+        {
+          "id": "uuid", "rating": 5, "text": "...",
+          "authorReply": null, "authorRepliedAt": null, "hasReply": false,
+          "createdAt": "...", "updatedAt": "...",
+          "user": { "id": "uuid", "fullName": "Учень" },
+          "course": { "id": "uuid", "title": "Курс", "slug": "course" }
+        }
+      ],
+      "page": 1, "limit": 20, "total": 1, "totalPages": 1
+    }
+
+Відповідь на відгук залишається окремим
+`POST /api/author/reviews/:id/reply`.
 
 ### Відповіді автора на відгуки
 
@@ -384,6 +762,31 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
 - Схеми `.strict()` — **зайве поле в тілі повертає `400`, а не ігнорується**.
   Критично для форм: не надсилати нічого, чого немає у списку вище.
 
+#### Теми шкільної програми курсу
+
+Автор прив'язує курс до тем програми (`GET /api/curriculum`) через
+`PATCH /api/author/courses/:id`:
+
+    { "topicIds": ["uuid", "uuid"] }
+
+- `topicIds` — до `10` унікальних id тем, усі з **одного предмета**. Список
+  замінює попередній набір цілком.
+- Порожній масив `[]` знімає всі теми курсу.
+- Поле можна надсилати разом з іншими або окремо. Без `topicIds` теми курсу
+  не змінюються.
+- Як і інші зміни, працює лише для курсу у редагованому статусі
+  (`DRAFT`, `REJECTED`, `UNPUBLISHED`); інакше `409`.
+- `GET /api/author/courses/:id` повертає обрані теми в `topics`:
+
+      "topics": [
+        { "topic": { "id": "uuid", "title": "Квадратні рівняння", "grade": 9,
+                     "subject": { "id": "uuid", "slug": "matematyka", "nameUk": "Математика" } } }
+      ]
+
+- Помилки `400` з `details`: повтор id (`field: "topicIds.1"`), більше `10` id,
+  не uuid, тема не існує (`Одна або кілька тем не існують`), теми з різних
+  предметів (`Теми мають належати одному предмету`).
+
 ### Модуль і урок
 
 Модуль (`.../modules`): `title`, `sortOrder`.
@@ -395,7 +798,7 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
 
 ### Тести (`QUIZ`)
 
-Усі маршрути нижче доступні лише ролі `AUTHOR` і перевіряють, що урок/тест/питання належить курсу поточного автора. Чужий ресурс повертає `403`.
+Усі маршрути нижче доступні лише ролі `AUTHOR` і перевіряють, що урок/тест/питання належить курсу поточного автора. Чужий ресурс повертає `403`. Тести редагуються в `DRAFT`, `REJECTED` та `UNPUBLISHED` — так само, як уроки; в інших статусах — `409`.
 
 - `POST /api/author/lessons/:id/quiz` — створити тест для `QUIZ`-уроку. Тіло: `passScore` (`0..100`, default `60`), `attemptsAllowed` (`integer >= 1` або `null`).
 - `PATCH /api/author/quizzes/:id` — змінити `passScore` / `attemptsAllowed`.
@@ -421,11 +824,82 @@ slug). Query: `page` (за замовчуванням `1`), `limit` (за зам
 - Плоский `lessons[]` — перенесення уроку між модулями (drag & drop).
 - Дублікат `id` у межах одного запиту → `400`.
 
+### Файли матеріалу (MATERIAL)
+
+Курс з `type = MATERIAL` наповнюється файлами, а не уроками. Порядок дій:
+
+1. Завантажити файл як `ATTACHMENT` через `POST /api/files/upload-url` і
+   `confirm` (див. розділ «Файли»).
+2. Прив'язати його: `POST /api/author/courses/:id/files`.
+
+Маршрути:
+
+- `POST /api/author/courses/:id/files` — тіло `{ "fileId": "uuid", "title": "Конспект" }`
+  (`title`: `1..180` символів після trim). `201`. `sortOrder` призначається
+  автоматично — наступний після останнього.
+- `PATCH /api/author/courses/:id/files/:courseFileId` — тіло `{ "title" }`. `200`.
+- `PATCH /api/author/courses/:id/files/reorder` — тіло
+  `{ "files": [ { "id": "courseFileId", "sortOrder": 0 } ] }`; `id` — це `id`
+  прив'язки (не `fileId`), дублікат `id` → `400`. `200`, відповідь — масив
+  усіх файлів матеріалу в новому порядку.
+- `DELETE /api/author/courses/:id/files/:courseFileId` — `204`. Видаляється
+  лише прив'язка, сам файл лишається.
+
+Відповідь `POST` і `PATCH` (і елементи масиву `reorder`):
+
+    { "id": "uuid", "fileId": "uuid", "title": "Конспект", "sortOrder": 0,
+      "file": { "id": "uuid", "kind": "ATTACHMENT", "originalName": "notes.pdf",
+                "mimeType": "application/pdf", "isReady": true } }
+
+Помилки:
+
+- `404 Course not found` — курс не існує, чужий або видалений;
+- `409` — курс не в `DRAFT` / `REJECTED` / `UNPUBLISHED`;
+- `409 Files can be attached only to a MATERIAL` — курс має тип `COURSE`;
+- `404 File not found` — файл чужий, не `ATTACHMENT`, ще не готовий або видалений;
+- `409 File is already attached` — файл уже прив'язаний до цього курсу;
+- `404 Course file not found` — прив'язка не належить цьому курсу.
+
+`GET /api/author/courses/:id` повертає масив `courseFiles` (за `sortOrder`, потім
+за часом створення) з тими самими полями, що й відповідь `POST`.
+
 ### Подача на модерацію
 
-`POST /api/author/courses/:id/submit` — переводить курс `draft → moderation`.
-Повний життєвий цикл статусів: `draft → moderation → published / rejected →
-unpublished`.
+`POST /api/author/courses/:id/submit` — переводить `DRAFT`, `REJECTED` або
+`UNPUBLISHED` у `MODERATION`.
+
+`POST /api/author/courses/:id/unpublish` — лише власник курсу; переводить
+`PUBLISHED → UNPUBLISHED`, тіло не потрібне. У `moderation_log` створюється
+запис `action = UNPUBLISHED`, а `moderatorId` містить id автора. Повторний
+виклик для курсу не в `PUBLISHED` повертає `409`. Після зняття курс можна
+редагувати й повторно подати на модерацію; видалення як і раніше дозволене
+лише для `DRAFT` та `REJECTED`.
+
+Перед переведенням у `MODERATION` сервер перевіряє повноту курсу:
+
+- `COURSE` — щонайменше один урок;
+- урок `VIDEO` — завантажене й оброблене відео;
+- урок `QUIZ` — тест хоча б з одним питанням, і в кожному питанні є правильна відповідь;
+- `MATERIAL` — хоча б один готовий файл.
+
+Якщо чогось бракує, відповідь `400` (`VALIDATION_ERROR`), статус не змінюється:
+
+    { "error": { "code": "VALIDATION_ERROR",
+                 "message": "Course is not ready for moderation",
+                 "details": [
+                   { "field": "lessons.<lessonId>.video",
+                     "message": "Урок «Вступ»: відео не завантажене або ще обробляється" },
+                   { "field": "lessons.<lessonId>.quiz.questions.<questionId>",
+                     "message": "Урок «Тест 1»: у питанні немає правильної відповіді" } ] } }
+
+Можливі `field`: `lessons`, `lessons.<id>.video`, `lessons.<id>.quiz`,
+`lessons.<id>.quiz.questions.<questionId>`, `courseFiles`. Порада для UI:
+показувати кожну проблему біля відповідного уроку (або блоку файлів) за
+`field`, а не одним списком помилок.
+
+Повний життєвий цикл статусів: `DRAFT → MODERATION → PUBLISHED / REJECTED →
+UNPUBLISHED → MODERATION`. Покупці з активним `Enrollment` не втрачають
+доступ до `UNPUBLISHED` курсу, але в каталозі він не показується.
 
 ## Адміністрування — модерація курсів
 
@@ -566,8 +1040,10 @@ fullName, email }` і `moderationHistory` — останні 20 записів �
    - `REJECT` → `Курс «<title>» відхилено`, текст — `comment`;
    - `unpublish` → `Курс «<title>» знято з публікації`, текст — `comment`.
 
-Листи не надсилаються — лише запис у `Notification`, показ на клієнті —
-задача сторінки сповіщень.
+Після коміту транзакції `moderate` надсилає автору лист на email: `APPROVE` —
+«курс схвалено», `REJECT` — «курс відхилено» з коментарем модератора.
+`unpublish` листа не надсилає — лише сповіщення. Збій поштового провайдера
+логується і відповідь `200` не змінює.
 
 ## Адміністрування — користувачі та категорії
 
@@ -732,8 +1208,8 @@ Query-параметри:
     GET    /api/me/orders/:id
 
 **Цей крок не відкриває доступ до курсу.** Доступ (`Enrollment`) з'являється
-лише після підтвердження оплати вебхуком — окрема задача. `POST /api/orders`
-тільки фіксує, що і за скільки купується.
+лише після підтвердження оплати вебхуком — див. «Оплата (LiqPay sandbox)»
+нижче. `POST /api/orders` тільки фіксує, що і за скільки купується.
 
 ### Кошик
 
@@ -854,6 +1330,443 @@ Query-параметри:
 форматувати лише при відображенні, ніколи не зберігати й не передавати
 дробове число.
 
+### Оплата (LiqPay sandbox)
+
+`POST /api/orders/:id/checkout` — почати оплату замовлення. Права ті самі,
+що й в решти маршрутів цього розділу (`STUDENT`, `AUTHOR`, `ADMIN`, Bearer
+обов'язковий). Відповідь `200`:
+
+```json
+{
+  "paymentId": "uuid",
+  "checkoutUrl": "https://www.liqpay.ua/api/3/checkout",
+  "data": "base64-рядок",
+  "signature": "base64-рядок"
+}
+```
+
+- `401` — без токена.
+- `404` — замовлення не знайдено або воно чуже (невідрізнимо від неіснуючого).
+- `409` — замовлення не в статусі `PENDING` (вже оплачене, скасоване тощо).
+
+Повторний виклик для того самого замовлення, поки платіж ще не завершився,
+повертає той самий `paymentId` — новий платіж не створюється.
+
+Як відправити: HTML-форма, що постить `data` і `signature` прямо на LiqPay,
+без проміжного запиту з фронту:
+
+```html
+<form method="POST" action="{checkoutUrl}" accept-charset="utf-8">
+  <input type="hidden" name="data" value="{data}" />
+  <input type="hidden" name="signature" value="{signature}" />
+  <button type="submit">Оплатити</button>
+</form>
+```
+
+Після оплати LiqPay повертає користувача на `routes.checkoutSuccess(orderId)`
+(`/checkout/success/:orderId`). Ця сторінка нічого не знає про результат
+оплати сама по собі — доступ відкриває вебхук, а не редирект. Фронт має
+опитувати `GET /api/me/orders/:id` кожні ~2 секунди, поки `status ===
+"PENDING"`, і зупинитись максимум після ~30 секунд:
+
+- `"PAID"` — оплата пройшла, показати успіх і посилання на курс;
+- `"FAILED"` — оплату відхилено, запропонувати спробувати ще раз;
+- `"CANCELLED"` — замовлення скасоване (наприклад, користувач створив нове),
+  оплата за цим замовленням більше не приймається;
+- якщо після ~30 секунд статус усе ще `"PENDING"` — показати «оплата
+  обробляється», без помилки.
+
+Параметрам самого URL (query-рядку) довіряти не можна — LiqPay не підписує
+`result_url`, тож єдине надійне джерело статусу — `GET /api/me/orders/:id`.
+
+`POST /api/payments/webhook` — лише для LiqPay, фронт його ніколи не
+викликає напряму.
+
+Коли вебхук підтверджує оплату й відкриває доступ, у тій самій транзакції
+створюються сповіщення `type: "PURCHASE"`: одне покупцю
+(`payload: { href: "/orders", orderId }`) і по одному автору на кожну позицію
+замовлення (`payload: { href: "/author/balance", orderId, courseId }`). Після
+коміту покупцю надсилається лист-чек: номер замовлення, курси з цінами, сума.
+Повторний або запізнілий вебхук за тією самою оплатою нових сповіщень і листів
+не створює; неуспішна оплата — ні сповіщень, ні листа. Збій поштового
+провайдера логується і відповідь вебхука не змінює.
+
+Тестові картки sandbox: `4242 4242 4242 4242` — успіх, `4000 0000 0000 0002`
+— відмова. Термін дії — будь-яка майбутня дата, CVV — будь-які 3 цифри.
+
+Комісія рахується один раз, у момент обробки вебхука: округлення вниз, на
+користь автора. Покупцю поля комісії (`commissionRateBps`,
+`commissionAmount`, `authorAmount`) ніколи не повертаються — так само, як і
+в `POST /api/orders`.
+
+## Навчання (плеєр)
+
+### Вміст уроку
+
+`GET /api/learn/lessons/:lessonId` — Bearer; ролі `STUDENT`, `AUTHOR`, `ADMIN`.
+
+**Доступ перевіряється на кожен запит**, окремою чистою функцією
+(`decideLessonAccess`), правила застосовуються по черзі, перше, що
+спрацювало, — перемагає:
+
+1. Адмін бачить усе (`access: "ADMIN"`).
+2. Автор курсу бачить усе своє (`access: "AUTHOR"`).
+3. Активний `Enrollment` (без `revokedAt`) дає доступ незалежно від статусу
+   курсу (`access: "ENROLLED"`) — покупка не втрачається, коли курс потім
+   знімають з публікації. Закрити куплений доступ може лише
+   `Enrollment.revokedAt`.
+4. Якщо курс не в статусі `PUBLISHED` і жодне з правил 1–3 не спрацювало —
+   `404`, як і `GET /api/courses/:idOrSlug`: для такого користувача курсу
+   не існує.
+5. Безкоштовне прев'ю опублікованого курсу — `access: "PREVIEW"`.
+6. Інакше — `403`.
+
+Поле `access` визначає, що показувати навколо плеєра: при
+`access === "PREVIEW"` елементи прогресу (позначки "переглянуто", прогрес-бар
+курсу тощо) не показуються — у користувача ще немає `Enrollment`, писати
+прогрес нема куди.
+
+Приклад відповіді `200`:
+
+    {
+      "access": "ENROLLED",
+      "lesson": {
+        "id": "uuid",
+        "courseId": "uuid",
+        "moduleId": "uuid",
+        "type": "VIDEO",
+        "title": "string",
+        "position": 0,
+        "isPreview": false,
+        "durationSec": 612,
+        "text": null,
+        "video": { "status": "READY", "hlsUrl": "https://...", "expiresIn": 1212, "durationSec": 612 },
+        "materials": [
+          { "id": "uuid", "fileId": "uuid", "name": "Конспект.pdf", "format": "pdf", "mimeType": "application/pdf", "sizeBytes": "1204224" }
+        ],
+        "quiz": null
+      }
+    }
+
+- `position` = `Lesson.sortOrder`, `isPreview` = `Lesson.isFreePreview` — ті
+  самі імена, що й у публічному `GET /api/courses/:idOrSlug`.
+- `text` — вміст `TEXT`-уроку, або `null`.
+- `video` — `null`, якщо в уроку немає відео. Інакше `video.status`:
+  - `"READY"` — відео на Cloudflare Stream і підпис налаштована на сервері:
+    `hlsUrl` і `expiresIn` справжні, плеєр може відтворювати;
+  - `"PROCESSING"` — файл ще не готовий (`File.isReady = false`):
+    `hlsUrl`/`expiresIn` — `null`, показати "відео обробляється";
+  - `"UNAVAILABLE"` — підпис не налаштована на сервері або відео не на
+    Cloudflare Stream: `hlsUrl`/`expiresIn` — `null`, показати заглушку
+    "відео тимчасово недоступне", це не помилка користувача.
+
+  **`hlsUrl` не кешувати** — посилання живе `expiresIn` секунд від моменту
+  відповіді. Якщо плеєр під час відтворення отримав `403` від CDN (посилання
+  протухло) — повторно запросити цей самий ендпоінт і продовжити з поточної
+  позиції відтворення, а не перезавантажувати урок з нуля.
+- `materials` — вкладення уроку, та сама форма, що й `content.materials`
+  сторінки курсу (`format` — розширення імені файлу в нижньому регістрі або
+  `null`). Підписаних посилань тут немає: за посиланням на конкретний файл
+  клієнт звертається до `GET /api/files/:fileId/download-url` у момент кліку,
+  а не заздалегідь.
+- `quiz` — `null`, якщо в уроку немає тесту. Питання й варіанти віддаються
+  без ознаки правильної відповіді (`isCorrect` немає в жодному полі) —
+  відповіді перевіряє сервер, див. "Спроба тесту".
+
+**Урок безкоштовного курсу без запису повертає `403`** (окрім безкоштовного
+прев'ю): для безкоштовного курсу спершу створюється запис через
+`POST /api/learn/courses/:courseId/enroll`, див. "Безкоштовний запис".
+
+Помилки:
+
+- `400` — `lessonId` не є UUID;
+- `401` — немає токена;
+- `403` — курс опублікований, але доступу немає (не куплено, не прев'ю);
+- `404` — урок не існує, або курс для цього користувача не існує (не
+  опублікований і немає ні ролі, ні активного запису).
+
+### Мої курси й матеріали
+
+`GET /api/me/enrollments` — Bearer; ролі `STUDENT`, `AUTHOR`, `ADMIN`.
+
+Query-параметр `type` (необов'язковий): `COURSE` або `MATERIAL`. Будь-яке
+інше значення чи невідомий параметр — `400`. Пагінації немає: у користувача
+десятки записів, не тисячі.
+
+Яка сторінка що викликає:
+
+- `/learning` — `?type=COURSE`;
+- `/learning/materials` — `?type=MATERIAL`.
+
+У відповідь потрапляють активні записи (`revokedAt = null`) на курси, що не
+видалені. Статус курсу не фільтрується: покупка переживає зняття з
+публікації, тож у `course.status` може бути й `UNPUBLISHED`. Порядок — від
+останнього оновленого запису.
+
+Приклад відповіді `200`:
+
+    {
+      "items": [
+        {
+          "id": "enrollment-uuid",
+          "source": "PURCHASE",
+          "enrolledAt": "2026-09-23T10:00:00.000Z",
+          "course": {
+            "id": "uuid",
+            "slug": "string",
+            "title": "string",
+            "type": "COURSE",
+            "status": "PUBLISHED",
+            "cover": { "url": "https://..." },
+            "category": { "id": "uuid", "slug": "string", "name": "Математика" },
+            "author": { "id": "uuid", "name": "string" }
+          },
+          "progress": {
+            "state": "IN_PROGRESS",
+            "percent": 33,
+            "completedLessons": 1,
+            "totalLessons": 3,
+            "continueLesson": { "id": "uuid", "title": "string" },
+            "completedAt": null
+          },
+          "materials": null
+        }
+      ]
+    }
+
+- `enrolledAt` — дата створення запису.
+- `course.cover` — `null`, якщо обкладинки немає; `cover.url` може бути `null`,
+  якщо на сервері не налаштований публічний базовий URL.
+- `course.author.name` — відображуване ім'я профілю автора, а за його
+  відсутності — повне ім'я користувача. `course.category.name` — українська
+  назва категорії.
+- `progress` — для `COURSE`; для `MATERIAL` — `null`.
+  - `state`: `NOT_STARTED` — показати "Почати"; `IN_PROGRESS` — "Продовжити"
+    і прогрес-бар; `COMPLETED` — позначку "Пройдено".
+  - `percent` округлений вниз: `100` лише коли пройдено всі уроки. Рахується
+    за актуальною програмою, видалені уроки не враховуються.
+  - `completedAt` — дата першого завершення курсу, `null`, якщо курс ще не
+    завершували. Ця дата не перераховується, коли в курс додають нові уроки.
+  - `continueLesson` — перший за порядком непройдений урок, `null`, якщо
+    пройдено все або уроків немає.
+- Кнопка "Продовжити" веде на
+  `routes.playerLesson(course.id, progress.continueLesson.id)`; якщо
+  `continueLesson` дорівнює `null` — на `routes.player(course.id)`.
+- `materials` — для `MATERIAL`; для `COURSE` — `null`. `filesCount` — кількість
+  готових файлів, `totalSizeBytes` — сумарний розмір рядком, `formats` —
+  унікальні розширення в нижньому регістрі за алфавітом. Сам файл
+  завантажується через `GET /api/files/:fileId/download-url`.
+
+Помилки:
+
+- `400` — невідомий параметр або значення `type`;
+- `401` — немає токена.
+
+### Програма курсу
+
+`GET /api/learn/courses/:courseId` — Bearer; ролі `STUDENT`, `AUTHOR`,
+`ADMIN`. Викликається бічною панеллю плеєра.
+
+Доступ визначається на кожен запит тими самими правилами 1–4, що й для уроку
+(`decideCourseAccess`):
+
+- запис, автор курсу або адмін — повна програма (`access: "ENROLLED"`,
+  `"AUTHOR"` або `"ADMIN"`);
+- будь-який інший користувач опублікованого курсу — `access: "PREVIEW"`:
+  програма видна, але уроки, що не є безкоштовним прев'ю, мають
+  `isLocked: true`, а `progress` дорівнює `null`;
+- неопублікований курс для користувача без запису, ролі автора чи адміна — `404`.
+
+Прогрес повертається завжди, коли в користувача є активний запис — у тому
+числі в адміна чи автора.
+
+Приклад відповіді `200`:
+
+    {
+      "access": "ENROLLED",
+      "course": { "id": "uuid", "slug": "string", "title": "string", "type": "COURSE", "status": "PUBLISHED" },
+      "progress": {
+        "state": "IN_PROGRESS",
+        "percent": 33,
+        "completedLessons": 1,
+        "totalLessons": 3,
+        "continueLesson": { "id": "uuid", "title": "string" },
+        "completedAt": null
+      },
+      "modules": [
+        {
+          "id": "uuid",
+          "title": "string",
+          "position": 0,
+          "lessons": [
+            { "id": "uuid", "type": "VIDEO", "title": "string", "position": 0, "isPreview": true, "durationSec": 612, "isLocked": false, "isCompleted": true }
+          ]
+        }
+      ],
+      "materials": [
+        { "id": "uuid", "fileId": "uuid", "title": "string", "name": "Конспект.pdf", "format": "pdf", "mimeType": "application/pdf", "sizeBytes": "1204224" }
+      ]
+    }
+
+- `position` = `sortOrder`, `isPreview` = `isFreePreview` — ті самі імена, що
+  й у `GET /api/learn/lessons/:lessonId` та публічному
+  `GET /api/courses/:idOrSlug`.
+- `isLocked` — урок закритий (лише в режимі `PREVIEW`); `isCompleted` — урок
+  пройдений. Для користувача без запису `isCompleted` завжди `false`.
+- `progress` — той самий об'єкт, що й у списку "Мої курси": для `COURSE` із
+  записом, інакше `null`.
+- `materials` — файли курсу (`id` — це `CourseFile.id`); для `COURSE`
+  зазвичай порожній масив. Файл завантажується через
+  `GET /api/files/:fileId/download-url` за `fileId`.
+- Вміст уроку (текст, відео, вкладення, тест) програма **не містить** — його
+  можна отримати лише через `GET /api/learn/lessons/:lessonId`.
+- Позначка проходження уроку й тести — див. "Позначка проходження уроку" та
+  "Спроба тесту".
+
+Помилки:
+
+- `400` — `courseId` не є UUID;
+- `401` — немає токена;
+- `404` — курсу не існує, або для цього користувача його не існує
+  (не опублікований і немає ні ролі, ні активного запису).
+
+### Безкоштовний запис
+
+`POST /api/learn/courses/:courseId/enroll` — Bearer; ролі `STUDENT`, `AUTHOR`,
+`ADMIN`. Тіла немає.
+
+Створює `Enrollment` із `source = "FREE"` лише для опублікованого курсу з
+`priceAmount === 0`. Платний курс відкривається тільки вебхуком оплати.
+
+**Кнопка "Почати навчання" для курсу з `price.amount === 0` завжди спершу
+викликає цей ендпоінт.** `hasAccess` сторінки курсу для безкоштовного курсу
+дорівнює `true` ще до запису, а плеєр і прогрес вимагають запис. Виклик
+ідемпотентний, тож його безпечно повторювати; після відповіді клієнт
+переходить у плеєр.
+
+Приклад відповіді `201` (або `200`, якщо запис уже був):
+
+    {
+      "enrollment": { "id": "uuid", "source": "FREE", "enrolledAt": "2026-09-24T10:00:00.000Z" },
+      "created": true
+    }
+
+- `201`, `created: true` — запис створено, або відновлено раніше скасований
+  (тоді `source` стає `FREE`);
+- `200`, `created: false` — активний запис уже був, нічого не змінилося.
+  Для вже купленого курсу `source` лишається `"PURCHASE"`;
+- одночасні повторні виклики створюють один запис;
+- лічильники студентів курсу й автора перераховуються.
+
+Помилки:
+
+- `400` — `courseId` не є UUID;
+- `401` — немає токена;
+- `404` — курсу не існує, він видалений або не опублікований;
+- `409` — `Author cannot enroll in own course` (автор курсу) або
+  `Course is not free` (платний курс).
+
+### Позначка проходження уроку
+
+`POST /api/learn/lessons/:lessonId/complete` — Bearer; ролі `STUDENT`,
+`AUTHOR`, `ADMIN`. Тіла немає.
+
+Потрібен активний запис на курс. Автор і адмін без запису отримують `403`:
+дивитися курс їм можна, вести прогрес — ні. Кнопка "Далі" для всіх уроків,
+крім `QUIZ`, викликає цей ендпоінт. Урок `QUIZ` із тестом позначається
+пройденим лише успішною спробою тесту.
+
+Повторна позначка ідемпотентна: дата проходження уроку не змінюється.
+Сервер перераховує `progressPercent`, `completedAt` (дата першого завершення
+курсу) і `lastLessonId` записи в тій самій транзакції.
+
+Приклад відповіді `200`:
+
+    {
+      "lessonId": "uuid",
+      "isCompleted": true,
+      "progress": {
+        "state": "IN_PROGRESS",
+        "percent": 66,
+        "completedLessons": 2,
+        "totalLessons": 3,
+        "continueLesson": { "id": "uuid", "title": "string" },
+        "completedAt": null
+      }
+    }
+
+`progress` має ту саму форму, що у "Мої курси й матеріали" та "Програма
+курсу". **Після позначки клієнт бере `progress` з відповіді і не робить
+повторного запиту програми.**
+
+Помилки:
+
+- `400` — `lessonId` не є UUID;
+- `401` — немає токена;
+- `403` — немає активного запису (`Progress is tracked only for enrolled
+  learners`);
+- `404` — урок не існує, або курс для цього користувача не існує
+  (не опублікований і немає ні ролі, ні запису);
+- `409` — урок `QUIZ` з тестом (`Quiz lessons are completed by passing the quiz`).
+
+### Спроба тесту
+
+`POST /api/learn/quizzes/:quizId/attempts` — Bearer; ролі `STUDENT`, `AUTHOR`,
+`ADMIN`. `quizId` — `lesson.quiz.id` з відповіді `GET /api/learn/lessons/:lessonId`.
+
+Потрібен активний запис на курс (правило доступу те саме, що й для позначки
+проходження). Тіло:
+
+    { "answers": [ { "questionId": "uuid", "optionIds": ["uuid"] } ] }
+
+`answers` — до 200 елементів, може бути порожнім; `optionIds` — до 50 uuid.
+Питання без відповіді вважається неправильним. Питання зараховується, лише
+якщо обрано **точно** множину правильних варіантів (без часткових балів, і для
+`SINGLE`, і для `MULTIPLE`). Бали — сума `points` правильних питань, `percent`
+округлений вниз, тест здано, коли `percent >= passScore`.
+
+Приклад відповіді `201`:
+
+    {
+      "attempt": {
+        "id": "uuid", "score": 1, "maxScore": 2, "percent": 50, "passScore": 60, "isPassed": false,
+        "attemptsUsed": 1, "attemptsAllowed": 2, "finishedAt": "2026-09-24T10:00:00.000Z"
+      },
+      "questions": [
+        { "questionId": "uuid", "isCorrect": true, "selectedOptionIds": ["uuid"], "correctOptionIds": null }
+      ],
+      "progress": {
+        "state": "IN_PROGRESS",
+        "percent": 33,
+        "completedLessons": 1,
+        "totalLessons": 3,
+        "continueLesson": { "id": "uuid", "title": "string" },
+        "completedAt": null
+      }
+    }
+
+- `correctOptionIds` приходять **лише після здачі або коли спроби
+  вичерпано** (`attemptsUsed >= attemptsAllowed`); до того в усіх питань
+  `null`, і клієнт показує лише `isCorrect` по кожному питанню.
+  `attemptsAllowed: null` — спроб необмежено.
+- Успішна спроба позначає урок `QUIZ` пройденим; неуспішна прогрес уроку не
+  змінює. **Клієнт бере `progress` з відповіді, без повторного запиту
+  програми.**
+- `timeLimitSec` — це таймер на клієнті: сервер час не перевіряє, бо спроба
+  надсилається одним запитом.
+
+Помилки:
+
+- `400` — `quizId` не є UUID, тіло не проходить валідацію, або відповіді
+  некоректні (`Invalid answers`, `details[].field` вказує шлях, наприклад
+  `answers.0.optionIds.1`): питання чи варіант не з цього тесту, повтор питання
+  чи варіанта, кілька варіантів у питанні `SINGLE`;
+- `401` — немає токена;
+- `403` — немає активного запису;
+- `404` — тесту не існує, або курс для цього користувача не існує;
+- `409` — `Quiz has no questions` або `No attempts left` (ліміт спроб
+  вичерпано, у тому числі при одночасних запитах).
+
 ## Маршрути фронтенду
 
 | URL | Сторінка | Доступ |
@@ -861,6 +1774,8 @@ Query-параметри:
 | `/` | Головна | гість |
 | `/courses` | Каталог | гість |
 | `/courses/:id` | Сторінка курсу | гість |
+| `/authors/:id` | Публічний профіль автора | гість |
+| `/become-author` | Активація / редагування профілю автора | авторизований користувач |
 | `/login`, `/register` | Авторизація | гість |
 | `/cart`, `/checkout` | Кошик, оплата | учень |
 | `/learn/:courseId/:lessonId` | Плеєр | учень |

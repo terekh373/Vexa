@@ -241,3 +241,356 @@
     margin: 0 !important;
   }
 }
+.pageWrapper {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    padding: 40px 0;
+  }
+  
+  .container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+  
+  .backBtn {
+    background: none;
+    border: none;
+    color: #6236FF;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 24px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+  }
+  
+  .backBtn:hover {
+    text-decoration: underline;
+  }
+  
+  .layout {
+    display: grid;
+    grid-template-columns: 280px 240px 1fr;
+    gap: 32px;
+    align-items: flex-start;
+  }
+  
+
+  .title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #111;
+    margin: 0 0 8px 0;
+  }
+  
+  .subtitle {
+    font-size: 15px;
+    color: #555;
+    margin: 0 0 32px 0;
+  }
+  
+  .imgWrapper {
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  }
+  
+  .illustration {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+  }
+  
+  .navCol {
+    padding-top: 80px; 
+  }
+  
+  .navList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .navItem, .activeItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .navItem {
+    color: #555;
+    background: transparent;
+  }
+  
+  .navItem:hover {
+    background: #fff;
+    color: #111;
+  }
+  
+  .activeItem {
+    color: #6236FF;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  }
+  
+  .icon {
+    font-size: 18px;
+  }
+  
+  .contentCol {
+    padding-top: 10px;
+  }
+  
+  .settingsCard {
+    background: #fff;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  }
+  
+  .sectionTitle {
+    font-size: 20px;
+    font-weight: 700;
+    color: #6236FF;
+    margin: 0 0 8px 0;
+  }
+  
+  .sectionDesc {
+    font-size: 14px;
+    color: #888;
+    margin: 0 0 24px 0;
+  }
+  
+  .optionList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .optionRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid #eef0f5;
+    border-radius: 12px;
+  }
+  
+  .optionRow strong {
+    display: block;
+    font-size: 14px;
+    color: #111;
+    margin-bottom: 4px;
+  }
+  
+  .optionRow p {
+    margin: 0;
+    font-size: 13px;
+    color: #888;
+  }
+
+  .toggle {
+    width: 44px;
+    height: 24px;
+    background-color: #d1d5db;
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .toggleOn {
+    background-color: #6236FF;
+  }
+  
+  .toggleKnob {
+    width: 20px;
+    height: 20px;
+    background-color: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  
+  .toggleOn .toggleKnob {
+    transform: translateX(20px);
+  }
+  
+  .changePasswordBtn {
+    background: transparent;
+    color: #6236FF;
+    border: 1px solid #6236FF;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .changePasswordBtn:hover {
+    background: #f4f3ff;
+  }
+  
+  .formActions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 32px;
+  }
+  
+  .cancelBtn {
+    padding: 14px;
+    background: transparent;
+    color: #6236FF;
+    border: 1px solid #6236FF;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  
+  .cancelBtn:hover { background: #f4f3ff; }
+  
+  .saveBtn {
+    padding: 14px;
+    background: #6236FF;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  
+  .saveBtn:hover { background: #5027D9; }
+  
+  .dangerZone {
+    margin-top: 32px;
+    padding: 20px;
+    border: 1px dashed #ffccc7;
+    background: #fff2f0;
+    border-radius: 12px;
+  }
+  
+  .dangerTitle {
+    color: #ff4d4f;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 4px;
+  }
+  
+  .dangerZone p {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+  }
+
+  .profileForm, .securityForm {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .avatarSection {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 12px;
+  }
+  
+  .avatarPreview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #eef0f5;
+  }
+  
+  .photoHint {
+    font-size: 12px;
+    color: #888;
+    margin-top: 8px;
+  }
+  
+  .inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .inputGroup label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+  }
+  
+  .input {
+    padding: 12px 16px;
+    border: 1px solid #eef0f5;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  
+  .input:focus {
+    border-color: #6236FF;
+  }
+  
+  .errorText {
+    color: #ff4d4f;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  .changePhotoBtn {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #f4f3ff;
+    color: #6236FF;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .changePhotoBtn:hover {
+    background: #e6e2ff;
+  }
+  
+  .successAlert {
+    padding: 12px 16px;
+    background: #f6ffed;
+    border: 1px solid #b7eb8f;
+    color: #52c41a;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  
+  .errorAlert {
+    padding: 12px 16px;
+    background: #fff2f0;
+    border: 1px solid #ffccc7;
+    color: #ff4d4f;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }

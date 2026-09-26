@@ -24,6 +24,7 @@ import {
   NotificationType,
   ProgressStatus,
 } from '@prisma/client';
+import { AppError } from '../src/lib/errors.js';
 import { hashPassword } from '../src/modules/auth/password.service.js';
 
 const prisma = new PrismaClient();
@@ -70,6 +71,29 @@ const id = {
   topics: {
     presentPerfect: '31000000-0000-4000-8000-000000000001',
     quadratic: '31000000-0000-4000-8000-000000000002',
+    fractions: '31000000-0000-4000-8000-000000000003',
+    decimals: '31000000-0000-4000-8000-000000000004',
+    proportions: '31000000-0000-4000-8000-000000000005',
+    triangles: '31000000-0000-4000-8000-000000000006',
+    quadrilaterals: '31000000-0000-4000-8000-000000000007',
+    pythagoras: '31000000-0000-4000-8000-000000000008',
+    inequalities: '31000000-0000-4000-8000-000000000009',
+    equationSystems: '31000000-0000-4000-8000-000000000010',
+    trigFunctions: '31000000-0000-4000-8000-000000000011',
+    trigFormulas: '31000000-0000-4000-8000-000000000012',
+    derivative: '31000000-0000-4000-8000-000000000013',
+    basicVocabulary: '31000000-0000-4000-8000-000000000014',
+    presentSimple: '31000000-0000-4000-8000-000000000015',
+    irregularVerbs: '31000000-0000-4000-8000-000000000016',
+    pastSimple: '31000000-0000-4000-8000-000000000017',
+    articles: '31000000-0000-4000-8000-000000000018',
+    comparatives: '31000000-0000-4000-8000-000000000019',
+    passiveVoice: '31000000-0000-4000-8000-000000000020',
+    modalVerbs: '31000000-0000-4000-8000-000000000021',
+    conditionals: '31000000-0000-4000-8000-000000000022',
+    reportedSpeech: '31000000-0000-4000-8000-000000000023',
+    readingComprehension: '31000000-0000-4000-8000-000000000024',
+    essayWriting: '31000000-0000-4000-8000-000000000025',
   },
   files: {
     coverMath: '40000000-0000-4000-8000-000000000001',
@@ -193,7 +217,8 @@ async function seedUsers(): Promise<void> {
   }
 }
 
-async function seedTaxonomy(): Promise<void> {
+/** Catalog categories. Reference data, seeded in every mode. */
+async function seedCategories(): Promise<void> {
   const categories = [
     { id: id.categories.school, parentId: null, slug: 'shkilni-predmety', nameUk: 'Шкільні предмети', sortOrder: 1 },
     { id: id.categories.english, parentId: id.categories.school, slug: 'anhliiska-mova', nameUk: 'Англійська мова', sortOrder: 1 },
@@ -210,7 +235,10 @@ async function seedTaxonomy(): Promise<void> {
       create: category,
     });
   }
+}
 
+/** School curriculum reference book (subjects, grades, topics). Reference data, seeded in every mode. */
+async function seedCurriculumTaxonomy(): Promise<void> {
   const subjects = [
     { id: id.subjects.english, slug: 'anhliiska-mova', nameUk: 'Англійська мова' },
     { id: id.subjects.math, slug: 'matematyka', nameUk: 'Математика' },
@@ -226,6 +254,31 @@ async function seedTaxonomy(): Promise<void> {
   const topics = [
     { id: id.topics.presentPerfect, subjectId: id.subjects.english, grade: 7, title: 'Present Perfect', sortOrder: 1 },
     { id: id.topics.quadratic, subjectId: id.subjects.math, grade: 9, title: 'Квадратні рівняння', sortOrder: 1 },
+
+    { id: id.topics.fractions, subjectId: id.subjects.math, grade: 6, title: 'Звичайні дроби', sortOrder: 1 },
+    { id: id.topics.decimals, subjectId: id.subjects.math, grade: 6, title: 'Десяткові дроби', sortOrder: 2 },
+    { id: id.topics.proportions, subjectId: id.subjects.math, grade: 6, title: 'Відношення і пропорції', sortOrder: 3 },
+    { id: id.topics.triangles, subjectId: id.subjects.math, grade: 8, title: 'Трикутники', sortOrder: 1 },
+    { id: id.topics.quadrilaterals, subjectId: id.subjects.math, grade: 8, title: 'Чотирикутники', sortOrder: 2 },
+    { id: id.topics.pythagoras, subjectId: id.subjects.math, grade: 8, title: 'Теорема Піфагора', sortOrder: 3 },
+    { id: id.topics.inequalities, subjectId: id.subjects.math, grade: 9, title: 'Нерівності', sortOrder: 2 },
+    { id: id.topics.equationSystems, subjectId: id.subjects.math, grade: 9, title: 'Системи рівнянь', sortOrder: 3 },
+    { id: id.topics.trigFunctions, subjectId: id.subjects.math, grade: 10, title: 'Тригонометричні функції', sortOrder: 1 },
+    { id: id.topics.trigFormulas, subjectId: id.subjects.math, grade: 10, title: 'Тригонометричні формули', sortOrder: 2 },
+    { id: id.topics.derivative, subjectId: id.subjects.math, grade: 10, title: 'Похідна функції', sortOrder: 3 },
+
+    { id: id.topics.basicVocabulary, subjectId: id.subjects.english, grade: 5, title: 'Базова лексика: перші слова', sortOrder: 1 },
+    { id: id.topics.presentSimple, subjectId: id.subjects.english, grade: 5, title: 'Present Simple', sortOrder: 2 },
+    { id: id.topics.irregularVerbs, subjectId: id.subjects.english, grade: 5, title: 'Неправильні дієслова', sortOrder: 3 },
+    { id: id.topics.pastSimple, subjectId: id.subjects.english, grade: 7, title: 'Past Simple', sortOrder: 2 },
+    { id: id.topics.articles, subjectId: id.subjects.english, grade: 7, title: 'Артиклі', sortOrder: 3 },
+    { id: id.topics.comparatives, subjectId: id.subjects.english, grade: 7, title: 'Ступені порівняння прикметників', sortOrder: 4 },
+    { id: id.topics.passiveVoice, subjectId: id.subjects.english, grade: 8, title: 'Passive Voice', sortOrder: 1 },
+    { id: id.topics.modalVerbs, subjectId: id.subjects.english, grade: 8, title: 'Модальні дієслова', sortOrder: 2 },
+    { id: id.topics.conditionals, subjectId: id.subjects.english, grade: 8, title: 'Умовні речення', sortOrder: 3 },
+    { id: id.topics.reportedSpeech, subjectId: id.subjects.english, grade: 9, title: 'Reported Speech', sortOrder: 1 },
+    { id: id.topics.readingComprehension, subjectId: id.subjects.english, grade: 9, title: 'Розуміння прочитаного тексту', sortOrder: 2 },
+    { id: id.topics.essayWriting, subjectId: id.subjects.english, grade: 9, title: 'Написання есе', sortOrder: 3 },
   ];
   for (const topic of topics) {
     await prisma.curriculumTopic.upsert({
@@ -234,6 +287,35 @@ async function seedTaxonomy(): Promise<void> {
       create: topic,
     });
   }
+}
+
+/**
+ * Bootstrap admin account for a fresh production database. Reuses the same
+ * argon2 helper as registration — no separate hashing path to keep in sync.
+ */
+async function seedProductionAdmin(): Promise<void> {
+  const email = process.env.ADMIN_EMAIL;
+  const password = process.env.ADMIN_PASSWORD;
+
+  if (!email || !password) {
+    throw AppError.validation(
+      'ADMIN_EMAIL and ADMIN_PASSWORD must both be set when SEED_MODE=production',
+    );
+  }
+
+  const passwordHash = await hashPassword(password);
+
+  await prisma.user.upsert({
+    where: { email },
+    update: { passwordHash },
+    create: {
+      email,
+      passwordHash,
+      fullName: 'Administrator',
+      roles: [UserRole.ADMIN],
+      emailVerifiedAt: new Date(),
+    },
+  });
 }
 
 async function seedFiles(): Promise<void> {
@@ -725,8 +807,19 @@ async function seedInProgressStudent(): Promise<void> {
 }
 
 async function main(): Promise<void> {
+  const seedMode = process.env.SEED_MODE === 'production' ? 'production' : 'demo';
+
+  if (seedMode === 'production') {
+    await seedCategories();
+    await seedCurriculumTaxonomy();
+    await seedProductionAdmin();
+    console.log('Seed done (production mode): categories, curriculum reference data, and admin account only.');
+    return;
+  }
+
   await seedUsers();
-  await seedTaxonomy();
+  await seedCategories();
+  await seedCurriculumTaxonomy();
   await seedFiles();
   await seedCourseWithPlayer();
   await seedDownloadableMaterial();

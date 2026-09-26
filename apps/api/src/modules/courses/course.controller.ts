@@ -2,8 +2,11 @@ import type { RequestHandler } from 'express';
 
 import { AppError } from '../../lib/errors.js';
 
-import { getCatalog } from './catalog.service.js';
-import { courseCatalogQuerySchema } from './catalog.validation.js';
+import { getCatalog, getCourseSuggestions } from './catalog.service.js';
+import {
+  courseCatalogQuerySchema,
+  courseSuggestQuerySchema,
+} from './catalog.validation.js';
 
 import {
   createCourseReview,
@@ -37,6 +40,27 @@ export const catalogController: RequestHandler = async (
   }
 
   const result = await getCatalog(query.data);
+
+  res.json(result);
+};
+
+export const suggestController: RequestHandler = async (
+  req,
+  res,
+) => {
+  const query = courseSuggestQuerySchema.safeParse(req.query);
+
+  if (!query.success) {
+    throw AppError.validation(
+      'Invalid suggest query',
+      query.error.issues.map((issue) => ({
+        field: issue.path.join('.'),
+        message: issue.message,
+      })),
+    );
+  }
+
+  const result = await getCourseSuggestions(query.data);
 
   res.json(result);
 };

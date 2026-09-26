@@ -13,6 +13,12 @@ const TRACKED_FIELDS = [
   'currency',
 ];
 
+// Mirrors assertEditable in apps/api/src/modules/author/author.service.ts.
+// The server stays the source of truth; this only hides actions it would reject.
+export const EDITABLE_STATUSES = ['draft', 'rejected', 'unpublished'];
+
+export const isEditableStatus = (status) => EDITABLE_STATUSES.includes(status);
+
 export const emptyFormState = () => ({
   type: 'COURSE',
   title: '',
@@ -24,6 +30,7 @@ export const emptyFormState = () => ({
   language: 'uk',
   priceUah: '0',
   status: 'draft',
+  rejectionReason: '',
 });
 
 // Maps a course DTO (from create/get/patch response) to the editable form
@@ -39,6 +46,7 @@ export const toFormState = (course) => ({
   language: course.language ?? 'uk',
   priceUah: typeof course.priceAmount === 'number' ? String(course.priceAmount / 100) : '0',
   status: (course.status ?? 'draft').toLowerCase(),
+  rejectionReason: course.rejectionReason ?? '',
 });
 
 // Maps a course DTO to the subset of API fields the wizard diffs against,

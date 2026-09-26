@@ -7,8 +7,6 @@ import styles from './Footer.module.css';
 import { Container } from '../container/Container';
 import { Logo } from '../../ui/logo/Logo.jsx';
 
-
-
 const footerColumns = [
   {
     id: 'platform',
@@ -36,6 +34,23 @@ const footerColumns = [
       { to: routes.privacy(), label: 'Політика конфіденційності' },
       { to: routes.cookies(), label: 'Політика cookie' },
       { to: routes.contentRules(), label: 'Правила розміщення контенту' },
+    ],
+  },
+  {
+    id: 'cooperation',
+    title: 'Співпраця',
+    links: [
+      { to: routes.becomeAuthor(), label: 'Стати автором' },
+      { to: '/partners', label: 'Для партнерів' },
+      { to: '/brands', label: 'Для брендів' },
+    ],
+  },
+  {
+    id: 'brands',
+    title: 'Бренди',
+    links: [
+      { to: '/advertising', label: 'Рекламні можливості' },
+      { to: '/projects', label: 'Спільні проєкти' },
     ],
   },
 ];

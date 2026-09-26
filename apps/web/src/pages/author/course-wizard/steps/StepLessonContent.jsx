@@ -1,8 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useFileUpload } from '../../../../hooks/useFileUpload.js';
+import { clearPendingVideo } from '../../../../hooks/useVideoUpload.js';
+import { ATTACHMENT_ACCEPT } from '../../../../services/filesService.js';
 import { apiFieldErrors } from '../courseFormState.js';
 import styles from '../CourseWizard.module.css';
+
+import LessonQuizEditor from './LessonQuizEditor.jsx';
+import LessonVideoField from './LessonVideoField.jsx';
 
 const snapshotOf = (lesson) => ({
   type: lesson.type,
@@ -69,7 +74,7 @@ const AttachmentUploader = ({ attachments, onAdd, onRemove, disabled }) => {
       <input
         ref={inputRef}
         type="file"
-        accept="image/png,image/jpeg,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip"
+        accept={ATTACHMENT_ACCEPT}
         className={styles.hiddenFileInput}
         onChange={handleSelect}
         disabled={disabled || isUploading}
@@ -95,7 +100,7 @@ const AttachmentUploader = ({ attachments, onAdd, onRemove, disabled }) => {
   );
 };
 
-const StepLessonContent = ({ modules, readOnly, onUpdateLesson }) => {
+const StepLessonContent = ({ modules, readOnly, onUpdateLesson, onRefresh }) => {
   const lessons = useMemo(
     () =>
       modules.flatMap((module) =>
@@ -165,6 +170,10 @@ const StepLessonContent = ({ modules, readOnly, onUpdateLesson }) => {
     setDraft((current) => ({ ...current, fileIds: current.fileIds.filter((id) => id !== fileId) }));
   };
 
+  // The type travels with the binding because the draft may not have saved it yet.
+  const handleBindVideo = (file) =>
+    onUpdateLesson(selectedLesson.id, { type: 'VIDEO', videoFileId: file.id });
+
   const handleSave = async () => {
     const patch = buildPatch(draft, savedSnapshot);
     setSaveError('');
@@ -176,9 +185,19 @@ const StepLessonContent = ({ modules, readOnly, onUpdateLesson }) => {
       return;
     }
 
+    // The server deletes the quiz when a QUIZ lesson changes type, so ask first.
+    if (patch.type && patch.type !== 'QUIZ' && selectedLesson.type === 'QUIZ' && selectedLesson.quiz) {
+      const confirmed = window.confirm(
+        'Тест цього уроку буде видалено разом з усіма питаннями. Продовжити?',
+      );
+      if (!confirmed) return;
+    }
+
     try {
       setSaving(true);
       await onUpdateLesson(selectedLesson.id, patch);
+      // Switching away from VIDEO abandons any video still being processed.
+      if (patch.type && patch.type !== 'VIDEO') clearPendingVideo(selectedLesson.id);
       setSavedSnapshot(draft);
       setSaveMessage('Збережено.');
     } catch (error) {
@@ -231,12 +250,8 @@ const StepLessonContent = ({ modules, readOnly, onUpdateLesson }) => {
         >
           <option value="TEXT">Текст</option>
           <option value="FILE">Файл</option>
-          <option value="VIDEO" disabled>
-            Відео (з'явиться пізніше)
-          </option>
-          <option value="QUIZ" disabled>
-            Тест (з'явиться пізніше)
-          </option>
+          <option value="VIDEO">Відео</option>
+          <option value="QUIZ">Тест</option>
         </select>
       </label>
 
@@ -271,6 +286,27 @@ const StepLessonContent = ({ modules, readOnly, onUpdateLesson }) => {
           disabled={readOnly}
         />
       )}
+
+      {draft.type === 'VIDEO' && (
+        <LessonVideoField
+          key={selectedLesson.id}
+          lesson={selectedLesson}
+          readOnly={readOnly}
+          onBind={handleBindVideo}
+        />
+      )}
+
+      {draft.type === 'QUIZ' &&
+        (selectedLesson.type !== 'QUIZ' ? (
+          <p className={styles.placeholder}>Збережіть урок з типом «Тест», щоб додати питання.</p>
+        ) : (
+          <LessonQuizEditor
+            key={selectedLesson.id}
+            lesson={selectedLesson}
+            readOnly={readOnly}
+            onChanged={onRefresh}
+          />
+        ))}
 
       {saveMessage && <p className={styles.success}>{saveMessage}</p>}
       {saveError && <p className={styles.formError}>{saveError}</p>}

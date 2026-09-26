@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { routePatterns, routes } from '@vexa/shared';
 
 import './App.css';
@@ -14,6 +14,7 @@ import RegisterPage from './pages/register/RegisterPage.jsx';
 import VerifyEmailPage from './pages/verify-email/VerifyEmailPage.jsx';
 import ForgotPasswordPage from './pages/forgot-password/ForgotPasswordPage.jsx';
 import ResetPasswordPage from './pages/reset-password/ResetPasswordPage.jsx';
+import GoogleCallbackPage from './pages/google-callback/GoogleCallbackPage.jsx';
 import Settings from './pages/settings/Settings.jsx';
 import NotFound from './pages/not-found/NotFound.jsx';
 import ComingSoon from './pages/stubs/ComingSoon.jsx';
@@ -32,6 +33,17 @@ import ContentRules from './pages/ContentRules/ContentRules.jsx';
 import Privacy from './pages/Privacy/Privacy.jsx';
 import Cookies from './pages/Cookies/Cookies.jsx';
 import Support from './pages/Support/Support.jsx';
+import AdminLayout from './pages/admin/AdminLayout.jsx';
+import AdminModeration from './pages/admin/AdminModeration.jsx';
+import AdminModerationCourse from './pages/admin/AdminModerationCourse.jsx';
+import AdminUsers from './pages/admin/AdminUsers.jsx';
+import AdminCategories from './pages/admin/AdminCategories.jsx';
+import BecomeAuthorPage from './pages/author/BecomeAuthorPage.jsx';
+import AuthorProfilePage from './pages/author/AuthorProfilePage.jsx';
+import Cart from './pages/cart/Cart.jsx';
+import Checkout from './pages/checkout/Checkout.jsx';
+import Orders from './pages/orders/Orders.jsx';
+import OrderDetails from './pages/order-details/OrderDetails.jsx';
 
 function App() {
   return (
@@ -41,6 +53,7 @@ function App() {
         <Route path={routePatterns.catalog} element={<Catalog />} />
         <Route path={routePatterns.forAuthors} element={<ForAuthors />} />
         <Route path={routePatterns.course} element={<Course />} />
+        <Route path={routePatterns.authorProfile} element={<AuthorProfilePage />} />
         <Route path={routePatterns.vexaAi} element={<VexaAI />} />
         <Route path={routePatterns.login} element={<LoginPage />} />
         <Route path={routePatterns.register} element={<RegisterPage />} />
@@ -53,6 +66,8 @@ function App() {
         <Route path="/cookies" element={<Cookies />} />
         <Route path="/support" element={<Support />} />
 
+        <Route path={routePatterns.googleCallback} element={<GoogleCallbackPage />} />
+
         <Route path="/veterans" element={<ForVeterans />} />
         <Route path="/faq" element={<Questions />} />
         <Route path="/blog" element={<Blog />} />
@@ -63,13 +78,19 @@ function App() {
         <Route path="/ai" element={<VexaAI />} />
         <Route path="/vacancies" element={<ComingSoon />} />
         <Route path="/press" element={<ComingSoon />} />
-        {/* перемістити роут профілю та налаштувань с зони студента для перевірки фронту */}
+
+        <Route element={<ProtectedRoute />}>
+          <Route path={routePatterns.becomeAuthor} element={<BecomeAuthorPage />} />
+        </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
           <Route path={routePatterns.learning} element={<Profile />} />
           <Route path={routePatterns.settings} element={<Settings />} />
-          <Route path={routePatterns.orders} element={<ComingSoon title="Замовлення" />} />
+          <Route path={routePatterns.cart} element={<Cart />} />
           <Route path={routePatterns.checkoutSuccess} element={<CheckoutSuccess />} />
+          <Route path={routePatterns.checkout} element={<Checkout />} />
+          <Route path={routePatterns.orders} element={<Orders />} />
+          <Route path={routePatterns.order} element={<OrderDetails />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['AUTHOR']} />}>
@@ -80,7 +101,13 @@ function App() {
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-          <Route path={routePatterns.adminArea} element={<ComingSoon title="Адмін-панель" />} />
+          <Route path={routePatterns.adminDashboard} element={<Navigate to={routes.adminModeration()} replace />} />
+          <Route element={<AdminLayout />}>
+            <Route path={routePatterns.adminModeration} element={<AdminModeration />} />
+            <Route path={routePatterns.adminModerationCourse} element={<AdminModerationCourse />} />
+            <Route path={routePatterns.adminUsers} element={<AdminUsers />} />
+            <Route path={routePatterns.adminCategories} element={<AdminCategories />} />
+          </Route>
         </Route>
 
         <Route path="*" element={<NotFound />} />

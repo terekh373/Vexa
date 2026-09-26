@@ -13,6 +13,7 @@ export type ErrorCode =
   | 'NOT_FOUND'
   | 'CONFLICT'
   | 'TOO_MANY_REQUESTS'
+  | 'SERVICE_UNAVAILABLE'
   | 'INTERNAL_ERROR';
 
 /** Field-level validation problem, shaped for direct use by form UIs. */
@@ -55,5 +56,10 @@ export class AppError extends Error {
 
   static conflict(message: string, details?: ErrorDetail[]): AppError {
     return new AppError(409, 'CONFLICT', message, details);
+  }
+
+  /** A dependency (e.g. the video service) is missing or not answering. */
+  static serviceUnavailable(message: string): AppError {
+    return new AppError(503, 'SERVICE_UNAVAILABLE', message);
   }
 }

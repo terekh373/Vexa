@@ -54,8 +54,26 @@
   flex-shrink: 0;
 }
 
+.notificationButton {
+  background: transparent;
+  border: none;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.notificationButton:active {
+  transform: scale(0.97);
+}
+
 .userMenuWrap {
   position: relative;
+}
+
+.notificationSlot {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .userMenuButton {
@@ -133,10 +151,14 @@
     padding: 16px 0;
   }
 
+  .notificationSlot {
+    margin-left: auto;
+  }
+
   .burger {
     width: 40px;
     height: 40px;
-    margin-left: auto;
+    margin-left: 0;
     padding: 8px;
     display: flex;
     flex-direction: column;

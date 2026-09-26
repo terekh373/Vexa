@@ -24,6 +24,10 @@ export interface CatalogQuery {
   q?: string;
   type?: 'course' | 'material';
   category?: string;
+  /** Curriculum subject slug. */
+  subject?: string;
+  /** Curriculum topic id. */
+  topic?: string;
   grade?: number;
   priceMin?: number;
   priceMax?: number;
@@ -61,6 +65,7 @@ export const routes = {
 
   catalog: (query: CatalogQuery = {}): string => build(`/courses${toQueryString(query)}`),
   forAuthors: (): string => build('/for-authors'),
+  becomeAuthor: (): string => build('/become-author'),
   vexaAi: (): string => build('/vexa-ai'),
 
   /** Category landing page — separate from a filtered catalog for SEO. */
@@ -92,6 +97,7 @@ export const routes = {
   forgotPassword: (): string => build('/forgot-password'),
   resetPassword: (token: string): string => build(`/reset-password?token=${token}`),
   verifyEmail: (token: string): string => build(`/verify-email?token=${token}`),
+  googleCallback: (): string => build('/auth/google/callback'),
 
   // --- Purchase -------------------------------------------------------------
   cart: (): string => build('/cart'),
@@ -157,9 +163,12 @@ export const routePatterns = {
   home: '/',
   catalog: '/courses',
   forAuthors: '/for-authors',
+  becomeAuthor: '/become-author',
   vexaAi: '/vexa-ai',
   course: '/courses/:idOrSlug',
   category: '/categories/:slug',
+  cart: '/cart',
+  checkout: '/checkout',
   curriculumSubject: '/curriculum/:subjectSlug',
   curriculumGrade: '/curriculum/:subjectSlug/:grade',
   authorProfile: '/authors/:idOrSlug',
@@ -168,6 +177,7 @@ export const routePatterns = {
   forgotPassword: '/forgot-password',
   resetPassword: '/reset-password',
   verifyEmail: '/verify-email',
+  googleCallback: '/auth/google/callback',
   learning: '/learning',
   orders: '/orders',
   settings: '/settings',
@@ -176,6 +186,9 @@ export const routePatterns = {
   authorCourseNew: '/author/courses/new',
   authorArea: '/author/*',
   adminDashboard: '/admin',
+  adminModeration: '/admin/moderation',
+  adminUsers: '/admin/users',
+  adminCategories: '/admin/categories',
   adminArea: '/admin/*',
   order: '/orders/:id',
   checkoutSuccess: '/checkout/success/:orderId',
@@ -208,11 +221,13 @@ export const routeAccess = {
     '/categories',
     '/curriculum',
     '/authors',
+    '/become-author',
     '/login',
     '/register',
     '/forgot-password',
     '/reset-password',
     '/verify-email',
+    '/auth/google/callback',
     '/faq',
     '/support',
     '/offer',

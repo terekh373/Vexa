@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { registerSchema, routes } from '@vexa/shared';
 
 import { useAuth } from '../../context/auth-context.js';
+import { API } from '../../api/config.js';
 import styles from '../auth/AuthForm.module.css';
 
 const mapIssues = (issues) =>
@@ -41,6 +42,10 @@ const RegisterPage = () => {
     }));
     setErrors((current) => ({ ...current, [name]: undefined }));
     setFormError('');
+  };
+
+  const startGoogleLogin = () => {
+    window.location.assign(`${API.replace(/\/$/, '')}/auth/google`);
   };
 
   const handleSubmit = async (event) => {
@@ -87,6 +92,12 @@ const RegisterPage = () => {
           <h1 className={styles.title}>Реєстрація</h1>
           <p className={styles.subtitle}>Створіть акаунт Vexa та підтвердьте email.</p>
         </div>
+
+        <button className={styles.submit} type="button" onClick={startGoogleLogin}>
+          Увійти через Google
+        </button>
+
+        <p className={styles.subtitle} style={{ textAlign: 'center', margin: '14px 0' }}>або</p>
 
         <form className={styles.form} onSubmit={handleSubmit} noValidate>
           <label className={styles.field}>

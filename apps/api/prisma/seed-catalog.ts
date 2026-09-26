@@ -35,6 +35,29 @@ const categories = {
   health: '20000000-0000-4000-8000-000000000005',
 } as const;
 
+/** Curriculum topic ids from prisma/seed.ts. */
+const topics = {
+  presentPerfect: '31000000-0000-4000-8000-000000000001',
+  quadratic: '31000000-0000-4000-8000-000000000002',
+  fractions: '31000000-0000-4000-8000-000000000003',
+  triangles: '31000000-0000-4000-8000-000000000006',
+  quadrilaterals: '31000000-0000-4000-8000-000000000007',
+  trigFunctions: '31000000-0000-4000-8000-000000000011',
+  trigFormulas: '31000000-0000-4000-8000-000000000012',
+  basicVocabulary: '31000000-0000-4000-8000-000000000014',
+  pastSimple: '31000000-0000-4000-8000-000000000017',
+} as const;
+
+/** Demo course `n` -> topics it teaches. */
+const courseTopics: { n: number; topicIds: string[] }[] = [
+  { n: 1, topicIds: [topics.quadratic] },
+  { n: 2, topicIds: [topics.triangles, topics.quadrilaterals] },
+  { n: 3, topicIds: [topics.trigFunctions, topics.trigFormulas] },
+  { n: 4, topicIds: [topics.fractions] },
+  { n: 5, topicIds: [topics.basicVocabulary] },
+  { n: 6, topicIds: [topics.pastSimple, topics.presentPerfect] },
+];
+
 interface DemoCourse {
   /** Two-digit suffix of the fixed UUID, unique within this file. */
   n: number;
@@ -196,6 +219,16 @@ async function main(): Promise<void> {
       update: payload,
       create: { id: uuid(c.n), ...payload },
     });
+  }
+
+  for (const { n, topicIds } of courseTopics) {
+    for (const topicId of topicIds) {
+      await prisma.courseTopic.upsert({
+        where: { courseId_topicId: { courseId: uuid(n), topicId } },
+        update: {},
+        create: { courseId: uuid(n), topicId },
+      });
+    }
   }
 
   const published = await prisma.course.count({

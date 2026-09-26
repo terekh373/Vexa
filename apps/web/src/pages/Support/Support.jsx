@@ -13,7 +13,7 @@ const Support = () => {
         setStatus('success');
         setFormData({ name: '', email: '', message: '' });
       }, 1000);
-    } catch (error) {
+    } catch {
       setStatus('error');
     }
   };

@@ -3,6 +3,20 @@ import { Router } from 'express';
 import { authenticate } from '../../middleware/authenticate.js';
 import { requireRoles } from '../../middleware/requireRoles.js';
 import {
+  authorBalanceEntriesHandler,
+  authorBalanceHandler,
+  authorDashboardHandler,
+  authorPayoutsHandler,
+  authorReviewsHandler,
+  createAuthorPayoutHandler,
+} from './author.finance.controller.js';
+import {
+  addCourseFileHandler,
+  deleteCourseFileHandler,
+  reorderCourseFilesHandler,
+  updateCourseFileHandler,
+} from './author.material.controller.js';
+import {
   createQuestionHandler,
   createQuizHandler,
   deleteQuestionHandler,
@@ -21,6 +35,7 @@ import {
   listCoursesHandler,
   reorderCourseHandler,
   submitCourseHandler,
+  unpublishCourseHandler,
   updateCourseHandler,
   updateLessonHandler,
   updateModuleHandler,
@@ -31,6 +46,13 @@ export const authorRouter: Router = Router();
 
 authorRouter.use(authenticate, requireRoles(UserRole.AUTHOR));
 
+authorRouter.get('/dashboard', authorDashboardHandler);
+authorRouter.get('/balance', authorBalanceHandler);
+authorRouter.get('/balance/entries', authorBalanceEntriesHandler);
+authorRouter.post('/payouts', createAuthorPayoutHandler);
+authorRouter.get('/payouts', authorPayoutsHandler);
+authorRouter.get('/reviews', authorReviewsHandler);
+
 authorRouter.post('/courses', createCourseHandler);
 authorRouter.get('/courses', listCoursesHandler);
 authorRouter.get('/courses/:id', getCourseHandler);
@@ -40,6 +62,11 @@ authorRouter.delete('/courses/:id', deleteCourseHandler);
 authorRouter.post('/courses/:id/modules', createModuleHandler);
 authorRouter.patch('/modules/:id', updateModuleHandler);
 authorRouter.delete('/modules/:id', deleteModuleHandler);
+
+authorRouter.post('/courses/:id/files', addCourseFileHandler);
+authorRouter.patch('/courses/:id/files/reorder', reorderCourseFilesHandler);
+authorRouter.patch('/courses/:id/files/:courseFileId', updateCourseFileHandler);
+authorRouter.delete('/courses/:id/files/:courseFileId', deleteCourseFileHandler);
 
 authorRouter.post('/modules/:id/lessons', createLessonHandler);
 authorRouter.patch('/lessons/:id', updateLessonHandler);
@@ -54,5 +81,6 @@ authorRouter.delete('/questions/:id', deleteQuestionHandler);
 
 authorRouter.patch('/courses/:id/reorder', reorderCourseHandler);
 authorRouter.post('/courses/:id/submit', submitCourseHandler);
+authorRouter.post('/courses/:id/unpublish', unpublishCourseHandler);
 
 authorRouter.post('/reviews/:id/reply', replyToReviewHandler);

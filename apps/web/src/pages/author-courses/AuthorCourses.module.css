@@ -37,7 +37,9 @@
 .retryButton,
 .cancelButton,
 .confirmDeleteButton,
-.deleteButton {
+.confirmUnpublishButton,
+.deleteButton,
+.unpublishButton {
   border-radius: 14px;
   font: inherit;
   font-weight: 600;
@@ -267,7 +269,8 @@
 }
 
 .editButton,
-.deleteButton {
+.deleteButton,
+.unpublishButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -296,8 +299,19 @@
   background: #fff2f2;
 }
 
+.unpublishButton {
+  border: 1px solid #8a5a00;
+  background: #fffaf0;
+  color: #7a4f00;
+}
+
+.unpublishButton:hover {
+  background: #fff3d6;
+}
+
 .editButton:disabled,
-.deleteButton:disabled {
+.deleteButton:disabled,
+.unpublishButton:disabled {
   border-color: var(--accessory-grey);
   background: #f7f7f8;
   color: var(--secondary-grey);
@@ -347,7 +361,8 @@
 }
 
 .cancelButton,
-.confirmDeleteButton {
+.confirmDeleteButton,
+.confirmUnpublishButton {
   padding: 11px 18px;
 }
 
@@ -363,8 +378,15 @@
   color: var(--white-color);
 }
 
+.confirmUnpublishButton {
+  border: 1px solid #8a5a00;
+  background: #8a5a00;
+  color: var(--white-color);
+}
+
 .cancelButton:disabled,
-.confirmDeleteButton:disabled {
+.confirmDeleteButton:disabled,
+.confirmUnpublishButton:disabled {
   cursor: wait;
   opacity: 0.6;
 }

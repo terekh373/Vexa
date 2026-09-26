@@ -1,0 +1,175 @@
+.overlay {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgb(0 0 0 / 35%);
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: 40px 32px 32px;
+  text-align: center;
+  background: var(--main-bg-color);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 15%);
+}
+
+.close {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: var(--main-dark-color);
+  font-size: 28px;
+  line-height: 1;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.close:hover {
+  opacity: 0.6;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  font-size: 30px;
+  background: #f2edff;
+  border-radius: 50%;
+}
+
+.title {
+  margin: 0 0 12px;
+  color: var(--main-dark-color);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 700;
+}
+
+.text {
+  max-width: 320px;
+  margin: 0 auto 24px;
+  color: var(--main-dark-color);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.button {
+  min-width: 140px;
+  padding: 12px 24px;
+  color:var(--white-color);
+  font-size: 16px;
+  font-weight: 600;
+  background: var(--purple-color);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.button:hover {
+  opacity: 0.9;
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 540px) {
+  .modal {
+    padding: 36px 20px 24px;
+  }
+
+  .title {
+    font-size: 20px;
+    line-height: 28px;
+  }
+
+  .text {
+    font-size: 14px;
+    line-height: 22px;
+  }
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  background: #f2edff;
+  border-radius: 50%;
+}
+
+.bell {
+  width: 32px;
+  height: 32px;
+  transform-origin: 50% 10%;
+  animation: bell-ring 1s ease-in-out;
+}
+
+@keyframes bell-ring {
+  0% {
+    transform: rotate(0);
+  }
+
+  10% {
+    transform: rotate(18deg);
+  }
+
+  20% {
+    transform: rotate(-16deg);
+  }
+
+  30% {
+    transform: rotate(14deg);
+  }
+
+  40% {
+    transform: rotate(-12deg);
+  }
+
+  50% {
+    transform: rotate(9deg);
+  }
+
+  60% {
+    transform: rotate(-7deg);
+  }
+
+  70% {
+    transform: rotate(5deg);
+  }
+
+  80% {
+    transform: rotate(-3deg);
+  }
+
+  100% {
+    transform: rotate(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bell {
+    animation: none;
+  }
+}

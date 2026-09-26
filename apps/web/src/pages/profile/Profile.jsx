@@ -133,6 +133,9 @@ const Profile = () => {
             </div>
           </div>
           
+          <button className={styles.settingsBtn} onClick={() => navigate(routePatterns.settings)}>
+            ⚙️ Налаштування
+          </button>
         </div>
       </header>
 

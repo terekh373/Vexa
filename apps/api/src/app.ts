@@ -16,12 +16,16 @@ import { authRouter } from './modules/auth/auth.routes.js';
 import { courseRouter } from './modules/courses/course.routes.js';
 import { authorRouter } from './modules/author/author.routes.js';
 import { categoriesRouter } from './modules/categories/categories.routes.js';
+import { curriculumRouter } from './modules/curriculum/curriculum.routes.js';
 import { filesRouter } from './modules/files/files.routes.js';
 import { adminRouter } from './modules/admin/admin.routes.js';
 import { cartRouter } from './modules/cart/cart.routes.js';
 import { meOrdersRouter, ordersRouter } from './modules/orders/orders.routes.js';
 import { meRouter } from './modules/me/me.routes.js';
 import { supportRouter } from './modules/support/support.routes.js';
+import { authorsRouter } from './modules/authors/authors.routes.js';
+import { paymentsRouter } from './modules/payments/payments.routes.js';
+import { learningRouter, meEnrollmentsRouter } from './modules/learning/learning.routes.js';
 function parseOrigins(value: string): string[] {
   return value
     .split(',')
@@ -59,13 +63,18 @@ export function createApp(): Express {
   app.use('/api/author', authorRouter);
   app.use('/api/courses', courseRouter);
   app.use('/api/categories', categoriesRouter);
+  app.use('/api/curriculum', curriculumRouter);
   app.use('/api/files', filesRouter);
   app.use('/api/admin', adminRouter);
   app.use('/api/cart', cartRouter);
   app.use('/api/orders', ordersRouter);
+  app.use('/api/payments', paymentsRouter);
+  app.use('/api/learn', learningRouter);
   app.use('/api/me/orders', meOrdersRouter);
+  app.use('/api/me/enrollments', meEnrollmentsRouter);
   app.use('/api/me', meRouter);
   app.use('/api/support', supportRouter);
+  app.use('/api/authors', authorsRouter);
   app.use('/api', healthRouter);
   // 404 fallback. Express 5 rejects the old `app.all('*')` form — a bare
   // app.use() after all routes is the supported equivalent.
