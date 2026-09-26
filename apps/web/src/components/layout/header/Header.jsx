@@ -122,8 +122,8 @@ const Header = () => {
         Мої курси
       </Link>
 
-      <Link to={routes.schedule()} className={styles.link}>
-        Розклад
+      <Link to={routes.learningMaterials()} className={styles.link}>
+        Мої матеріали
       </Link>
 
       <Link to={routes.catalog()} className={styles.link}>

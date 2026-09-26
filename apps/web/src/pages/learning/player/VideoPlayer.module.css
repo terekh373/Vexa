@@ -1,0 +1,50 @@
+.wrapper {
+  width: 100%;
+}
+
+.player {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--main-dark-color);
+}
+
+.video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--main-dark-color);
+}
+
+.state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  padding: 32px;
+  border: 1px solid var(--accessory-grey);
+  border-radius: 16px;
+  background: var(--footer-bg-color);
+  color: var(--secondary-grey);
+  text-align: center;
+}
+
+.refreshing {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 50%);
+  color: var(--white-color);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.error {
+  margin: 12px 0 0;
+  color: var(--error);
+  font-size: 14px;
+  line-height: 20px;
+}
