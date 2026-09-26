@@ -36,7 +36,7 @@ services:
   # Local stand-in for Cloudflare R2. Same S3 API, so the API code is identical
   # in dev and prod — only S3_* variables differ. Console: http://localhost:9001
   minio:
-    image: minio/minio:latest
+    image: quay.io/minio/minio:latest
     restart: unless-stopped
     command: ["server", "/data", "--console-address", ":9001"]
     environment:
@@ -56,7 +56,7 @@ services:
   # One-shot: creates the bucket the API expects, then exits. Idempotent —
   # `mb --ignore-existing` is a no-op on every later `docker compose up`.
   minio-init:
-    image: minio/mc:latest
+    image: quay.io/minio/mc:latest
     depends_on:
       minio:
         condition: service_healthy

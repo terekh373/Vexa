@@ -46,6 +46,11 @@ import OrderDetails from './pages/order-details/OrderDetails.jsx';
 import Learning from './pages/learning/Learning.jsx';
 import LearningPlayer from './pages/learning/player/LearningPlayer.jsx';
 import LearningMaterials from './pages/learning/learning-materials/LearningMaterials.jsx';
+import Offer from './pages/Offer/Offer.jsx';
+import ContentRules from './pages/ContentRules/ContentRules.jsx';
+import Privacy from './pages/Privacy/Privacy.jsx';
+import Cookies from './pages/Cookies/Cookies.jsx';
+import Support from './pages/Support/Support.jsx';
 
 import StudentDashboard from './pages/student-dashboard/StudentDashboard.jsx';
 import Schedule from './pages/schedule/Schedule.jsx';
@@ -71,9 +76,14 @@ function App() {
         <Route path={routePatterns.verifyEmail} element={<VerifyEmailPage />} />
         <Route path={routePatterns.forgotPassword} element={<ForgotPasswordPage />} />
         <Route path={routePatterns.resetPassword} element={<ResetPasswordPage />} />
+        <Route path="/offer" element={<Offer />} />
+        <Route path="/content-rules" element={<ContentRules />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/cookies" element={<Cookies />} />
+        <Route path="/support" element={<Support />} />
+
         <Route path={routePatterns.googleCallback} element={<GoogleCallbackPage />} />
 
-        {/* сделать роутинг */}
         <Route path="/veterans" element={<ForVeterans />} />
         <Route path="/faq" element={<Questions />} />
         <Route path="/blog" element={<Blog />} />
@@ -86,7 +96,6 @@ function App() {
         <Route path={routePatterns.allVacancies} element={<AllVacancies />} />
         <Route path={routePatterns.vacancy} element={<Vacancy />} />
         <Route path="/press" element={<ComingSoon />} />
-        {/* перемістити роут профілю та налаштувань с зони студента для перевірки фронту */}
 
         <Route element={<ProtectedRoute />}>
           <Route path={routePatterns.becomeAuthor} element={<BecomeAuthorPage />} />

@@ -156,6 +156,10 @@ export const routes = {
   support: (): string => build('/support'),
   offer: (): string => build('/offer'),
   privacy: (): string => build('/privacy'),
+  cookies: (): string => build('/cookies'),
+  contentRules: (): string => build('/content-rules'),
+  about: (): string => build('/about'),
+  contacts: (): string => build('/contacts'),
   notFound: (): string => build('/404'),
 } as const;
 
@@ -238,6 +242,10 @@ export const routeAccess = {
     '/support',
     '/offer',
     '/privacy',
+    '/cookies',
+    '/content-rules',
+    '/about',
+    '/contacts',
   ],
 student: [
   '/cart',

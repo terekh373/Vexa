@@ -588,3 +588,66 @@
 .settingsBtn:hover {
   background: #e2dcfa;
 }
+
+/* --- Мобільна адаптація --- */
+@media screen and (max-width: 992px) {
+
+  .grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px;
+  }
+  
+  .leftCol, 
+  .rightCol {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+
+  .calGrid {
+    overflow-x: auto !important;
+    padding-bottom: 12px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .bottomSplit {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px;
+  }
+
+  .heroBottom {
+    flex-direction: column !important;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .heroImgBox {
+    width: 100% !important;
+  }
+
+  .heroActions {
+    flex-direction: column !important;
+  }
+
+  .btnContinue, 
+  .btnRemoveMain {
+    width: 100% !important;
+  }
+
+  .userInfo {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px;
+  }
+
+  .avatarWrapper {
+    flex-shrink: 0 !important;
+  }
+
+  .header h1 {
+    font-size: 28px !important;
+    line-height: 1.2 !important;
+  }
+}
