@@ -1,8 +1,16 @@
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+
 import { routes } from '@vexa/shared';
 
 import { Container } from '../../components/layout/container/Container.jsx';
 import Breadcrumbs from '../../components/ui/breadcrumbs/Breadcrumbs.jsx';
+import Button from '../../components/ui/buttons/Button.jsx';
+
+import {
+  getCategories,
+  getCoursesCountByCategory,
+} from '../../services/coursesService.js';
 
 import heroImage from '../../assets/images/categories/categories-hero.png';
 
@@ -21,123 +29,142 @@ import technologiesIcon from '../../assets/icons/categories/technologies.svg';
 
 import styles from './Categories.module.css';
 
-const categories = [
-  {
-    id: 1,
-    title: 'Програмування',
-    coursesCount: 2560,
-    slug: 'programming',
-    icon: programmingIcon,
-  },
-  {
-    id: 2,
-    title: 'Дизайн',
-    coursesCount: 1340,
-    slug: 'design',
-    icon: designIcon,
-  },
-  {
-    id: 3,
-    title: 'Маркетинг',
-    coursesCount: 980,
-    slug: 'marketing',
-    icon: marketingIcon,
-  },
-  {
-    id: 4,
-    title: 'Бізнес',
-    coursesCount: 860,
-    slug: 'business',
-    icon: businessIcon,
-  },
-  {
-    id: 5,
-    title: 'Особистий розвиток',
-    coursesCount: 720,
-    slug: 'personal-development',
-    icon: personalDevelopmentIcon,
-  },
-  {
-    id: 6,
-    title: 'Фото і відео',
-    coursesCount: 640,
-    slug: 'photo-and-video',
-    icon: photoIcon,
-  },
-  {
-    id: 7,
-    title: 'Музика',
-    coursesCount: 520,
-    slug: 'music',
-    icon: musicIcon,
-  },
-  {
-    id: 8,
-    title: "Здоров’я і спорт",
-    coursesCount: 410,
-    slug: 'health-and-sport',
-    icon: sportIcon,
-  },
-  {
-    id: 9,
-    title: 'Мови',
-    coursesCount: 1250,
-    slug: 'languages',
-    icon: languagesIcon,
-  },
-  {
-    id: 10,
-    title: 'Творчість',
-    coursesCount: 590,
-    slug: 'creativity',
-    icon: creativityIcon,
-  },
-  {
-    id: 11,
-    title: 'Навчання і наука',
-    coursesCount: 830,
-    slug: 'education-and-science',
-    icon: scienceIcon,
-  },
-  {
-    id: 12,
-    title: 'IT та технології',
-    coursesCount: 1150,
-    slug: 'it-and-technologies',
-    icon: technologiesIcon,
-  },
-];
 
-const formatCoursesCount = (count) =>
-  new Intl.NumberFormat('uk-UA').format(count);
+const categoryIcons = {
+  // реальные категории с API
+  'shkilni-predmety': scienceIcon,
+  'pidhotovka-nmt': programmingIcon,
+  'sport-i-zdorovia': sportIcon,
 
-const CategoryCard = ({ category }) => (
-  <Link
-    className={styles.categoryCard}
-    to={routes.category(category.slug)}
-  >
-    <img
-      className={styles.categoryIcon}
-      src={category.icon}
-      alt=""
-      aria-hidden="true"
-    />
+  // оставляем остальные на случай,
+  // если эти категории появятся на сервере
+  programming: programmingIcon,
+  design: designIcon,
+  marketing: marketingIcon,
+  business: businessIcon,
+  'personal-development': personalDevelopmentIcon,
+  'photo-and-video': photoIcon,
+  music: musicIcon,
+  'health-and-sport': sportIcon,
+  languages: languagesIcon,
+  creativity: creativityIcon,
+  'education-and-science': scienceIcon,
+  'it-and-technologies': technologiesIcon,
+};
 
-    <h2>{category.title}</h2>
 
-    <div className={styles.cardFooter}>
-      <span>
-        {formatCoursesCount(category.coursesCount)} курсів
-      </span>
+const formatCoursesCount = (count = 0) => {
+  return new Intl.NumberFormat('uk-UA').format(count);
+};
 
-      <span className={styles.arrow} aria-hidden="true">
-        ›
-      </span>
-    </div>
-  </Link>
-);
+
+const CategoryCard = ({ category }) => {
+  const icon = categoryIcons[category.slug] ?? technologiesIcon;
+
+  return (
+    <Link
+      className={styles.categoryCard}
+      to={routes.catalog({
+        category: category.slug,
+      })}
+    >
+      <img
+        className={styles.categoryIcon}
+        src={icon}
+        alt=""
+        aria-hidden="true"
+      />
+
+      <h2>{category.nameUk}</h2>
+
+      <div className={styles.cardFooter}>
+        <span>
+          {formatCoursesCount(category.coursesCount)} курсів
+        </span>
+
+        <span
+          className={styles.arrow}
+          aria-hidden="true"
+        >
+          ›
+        </span>
+      </div>
+    </Link>
+  );
+};
+
 
 const Categories = () => {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+
+  const loadCategories = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+
+    try {
+      // Получаем категории с сервера
+      const data = await getCategories();
+
+      const rootCategories = Array.isArray(data?.items)
+        ? data.items
+            .filter((category) => category.parentId === null)
+            .sort(
+              (a, b) =>
+                (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
+            )
+        : [];
+
+      // Для каждой категории получаем реальное
+      // количество курсов через total
+      const categoriesWithCount = await Promise.all(
+        rootCategories.map(async (category) => {
+          try {
+            const coursesCount =
+              await getCoursesCountByCategory(
+                category.slug,
+              );
+
+            return {
+              ...category,
+              coursesCount,
+            };
+          } catch (error) {
+            console.error(
+              `Failed to load courses count for ${category.slug}:`,
+              error,
+            );
+
+            return {
+              ...category,
+              coursesCount: 0,
+            };
+          }
+        }),
+      );
+
+      setCategories(categoriesWithCount);
+    } catch (error) {
+      console.error(
+        'Failed to load categories:',
+        error,
+      );
+
+      setCategories([]);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
+
+
   return (
     <div className={styles.categoriesPage}>
       <Container>
@@ -152,14 +179,16 @@ const Categories = () => {
             <h1>Всі категорії</h1>
 
             <p>
-              Оберіть напрямок, який цікавить вас найбільше, та
-              знаходьте найкращі курси для розвитку і досягнення
-              ваших цілей.
+              Оберіть напрямок, який цікавить вас найбільше,
+              та знаходьте найкращі курси для розвитку і
+              досягнення ваших цілей.
             </p>
 
-            <span className={styles.found}>
-              Знайдено категорій {categories.length}
-            </span>
+            {!loading && !error && (
+              <span className={styles.found}>
+                Знайдено категорій {categories.length}
+              </span>
+            )}
           </div>
 
           <div className={styles.heroImageWrapper}>
@@ -171,20 +200,61 @@ const Categories = () => {
           </div>
         </section>
 
-        <section
-          className={styles.categoriesGrid}
-          aria-label="Категорії курсів"
-        >
-          {categories.map((category) => (
-            <CategoryCard
-              key={category.id}
-              category={category}
+
+        {loading && (
+          <div className={styles.state}>
+            Завантажуємо категорії...
+          </div>
+        )}
+
+
+        {!loading && error && (
+          <div
+            className={styles.state}
+            role="alert"
+          >
+            <p>
+              Не вдалося завантажити категорії.
+            </p>
+
+            <Button
+              title="Спробувати ще"
+              size="small"
+              variant="secondary"
+              onClick={loadCategories}
             />
-          ))}
-        </section>
+          </div>
+        )}
+
+
+        {!loading &&
+          !error &&
+          categories.length === 0 && (
+            <div className={styles.state}>
+              Категорій поки немає.
+            </div>
+          )}
+
+
+        {!loading &&
+          !error &&
+          categories.length > 0 && (
+            <section
+              className={styles.categoriesGrid}
+              aria-label="Категорії курсів"
+            >
+              {categories.map((category) => (
+                <CategoryCard
+                  key={category.id}
+                  category={category}
+                />
+              ))}
+            </section>
+          )}
       </Container>
     </div>
   );
 };
+
 
 export default Categories;

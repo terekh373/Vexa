@@ -6,6 +6,7 @@ import Layout from './components/layout/Layout.jsx';
 import ProtectedRoute from './components/auth/ProtectedRoute.jsx';
 import Home from './pages/home/Home.jsx';
 import Catalog from './pages/catalog/Catalog.jsx';
+import Curriculum from './pages/curriculum/Curriculum.jsx';
 import ForAuthors from './pages/for-authors/ForAuthors.jsx';
 import Course from './pages/course/Course.jsx';
 import VexaAI from './pages/vexa-ai/VexaAI.jsx';
@@ -27,12 +28,6 @@ import Blog from './pages/footer/blog/Blog.jsx';
 import About from './pages/footer/about/About.jsx';
 import Contacts from './pages/footer/contacts/Contacts.jsx';
 import Categories from './pages/categories/Categories.jsx';
-import Profile from './pages/profile/Profile.jsx';
-import Offer from './pages/Offer/Offer.jsx';
-import ContentRules from './pages/ContentRules/ContentRules.jsx';
-import Privacy from './pages/Privacy/Privacy.jsx';
-import Cookies from './pages/Cookies/Cookies.jsx';
-import Support from './pages/Support/Support.jsx';
 import AdminLayout from './pages/admin/AdminLayout.jsx';
 import AdminModeration from './pages/admin/AdminModeration.jsx';
 import AdminModerationCourse from './pages/admin/AdminModerationCourse.jsx';
@@ -40,10 +35,24 @@ import AdminUsers from './pages/admin/AdminUsers.jsx';
 import AdminCategories from './pages/admin/AdminCategories.jsx';
 import BecomeAuthorPage from './pages/author/BecomeAuthorPage.jsx';
 import AuthorProfilePage from './pages/author/AuthorProfilePage.jsx';
+import AuthorCabinetLayout from './pages/author/AuthorCabinetLayout.jsx';
+import AuthorDashboard from './pages/author/AuthorDashboard.jsx';
+import AuthorBalance from './pages/author/AuthorBalance.jsx';
+import AuthorReviews from './pages/author/AuthorReviews.jsx';
 import Cart from './pages/cart/Cart.jsx';
 import Checkout from './pages/checkout/Checkout.jsx';
 import Orders from './pages/orders/Orders.jsx';
 import OrderDetails from './pages/order-details/OrderDetails.jsx';
+import Learning from './pages/learning/Learning.jsx';
+import LearningPlayer from './pages/learning/player/LearningPlayer.jsx';
+import LearningMaterials from './pages/learning/learning-materials/LearningMaterials.jsx';
+
+import StudentDashboard from './pages/student-dashboard/StudentDashboard.jsx';
+import Schedule from './pages/schedule/Schedule.jsx';
+import Vacancies from './pages/footer/vacancies/Vacancies.jsx';
+import AllVacancies from './pages/footer/vacancies/AllVacancies.jsx';
+import Vacancy from './pages/footer/vacancies/vacancy/Vacancy.jsx';
+import EditProfile from './pages/edit-profile/EditProfile.jsx';
 
 function App() {
   return (
@@ -51,6 +60,8 @@ function App() {
       <Route path={routePatterns.home} element={<Layout />}>
         <Route index element={<Home />} />
         <Route path={routePatterns.catalog} element={<Catalog />} />
+        <Route path={routePatterns.curriculumSubject} element={<Curriculum />} />
+        <Route path={routePatterns.curriculumGrade} element={<Curriculum />} />
         <Route path={routePatterns.forAuthors} element={<ForAuthors />} />
         <Route path={routePatterns.course} element={<Course />} />
         <Route path={routePatterns.authorProfile} element={<AuthorProfilePage />} />
@@ -76,7 +87,9 @@ function App() {
         <Route path="/categories" element={<Categories />} />
         <Route path="/authors" element={<About />} />
         <Route path="/ai" element={<VexaAI />} />
-        <Route path="/vacancies" element={<ComingSoon />} />
+        <Route path={routePatterns.vacancies} element={<Vacancies />} />
+        <Route path={routePatterns.allVacancies} element={<AllVacancies />} />
+        <Route path={routePatterns.vacancy} element={<Vacancy />} />
         <Route path="/press" element={<ComingSoon />} />
 
         <Route element={<ProtectedRoute />}>
@@ -84,20 +97,37 @@ function App() {
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
-          <Route path={routePatterns.learning} element={<Profile />} />
-          <Route path={routePatterns.settings} element={<Settings />} />
           <Route path={routePatterns.cart} element={<Cart />} />
           <Route path={routePatterns.checkoutSuccess} element={<CheckoutSuccess />} />
           <Route path={routePatterns.checkout} element={<Checkout />} />
           <Route path={routePatterns.orders} element={<Orders />} />
           <Route path={routePatterns.order} element={<OrderDetails />} />
+          <Route path={routePatterns.learning} element={<Learning />} />
+          <Route path={routePatterns.player} element={<LearningPlayer />} />
+          <Route path={routePatterns.playerLesson} element={<LearningPlayer />} />
+          <Route path={routePatterns.learningMaterials} element={<LearningMaterials />} />
+          <Route path={routePatterns.studentDashboard} element={<StudentDashboard />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['AUTHOR']} />}>
-          <Route path={routePatterns.authorCourses} element={<AuthorCourses />} />
+          <Route element={<AuthorCabinetLayout />}>
+            <Route path={routePatterns.authorDashboard} element={<AuthorDashboard />} />
+            <Route path={routePatterns.authorCourses} element={<AuthorCourses />} />
+            <Route path={routePatterns.authorBalance} element={<AuthorBalance />} />
+            <Route path={routePatterns.authorReviews} element={<AuthorReviews />} />
+          </Route>
           <Route path={routes.authorCourseNew()} element={<CourseWizard />} />
           <Route path={routePatterns.authorCourseEdit} element={<CourseWizard />} />
-          <Route path={routePatterns.authorArea} element={<ComingSoon title="Кабінет автора" />} />
+<Route
+  path={routePatterns.authorArea}
+  element={<Navigate to={routes.authorDashboard()} replace />}
+/>
+</Route>
+
+<Route element={<ProtectedRoute allowedRoles={['STUDENT', 'AUTHOR']} />}>
+  <Route path={routePatterns.profileEdit} element={<EditProfile />} />
+  <Route path={routePatterns.settings} element={<Settings />} />
+  <Route path={routePatterns.schedule} element={<Schedule />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>

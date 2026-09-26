@@ -1,0 +1,140 @@
+.calendar {
+  width: 100%;
+  min-height: 286px;
+  padding: 24px;
+  box-sizing: border-box;
+  border: 1px solid var(--accessory-grey);
+  border-radius: 16px;
+  background: var(--white-color);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  margin-bottom: 20px;
+}
+
+.header h2 {
+  margin: 0;
+  color: var(--main-dark-color);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.range {
+  min-width: 140px;
+  color: var(--purple-color);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--purple-color);
+  font-family: inherit;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.arrow:hover {
+  color: var(--accessory-purple);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 82px;
+  min-width: 0;
+  padding: 10px 6px;
+  flex-direction: column;
+  box-sizing: border-box;
+  border: 1px solid var(--secondary-purple);
+  border-radius: 12px;
+  background: var(--white-color);
+  text-align: center;
+}
+
+.day.today {
+  border-color: var(--purple-color);
+  background: var(--footer-bg-color);
+}
+
+.day strong {
+  margin-bottom: 5px;
+  color: var(--main-dark-color);
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.day span {
+  color: var(--secondary-grey);
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+@media (max-width: 1200px) {
+  .calendar {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 540px) {
+  .calendar {
+    padding: 18px;
+  }
+
+  .navigation {
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .range {
+    min-width: 0;
+    font-size: 13px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .day {
+    height: 76px;
+  }
+}

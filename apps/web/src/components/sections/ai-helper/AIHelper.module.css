@@ -2,73 +2,111 @@
   display: flex;
   justify-content: space-between;
   align-items: stretch;
+  gap: clamp(32px, 6vw, 100px);
+  width: 100%;
   margin-bottom: 48px;
 }
 
 .descriptionContainer {
-  width: 50%;
+  flex: 1 1 50%;
+  min-width: 0;
+
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
 .descriptionContainer h2 {
+  width: 100%;
+  max-width: 640px;
+
+  margin: 0 0 12px;
+
   color: var(--purple-color);
   font-size: 40px;
   font-weight: 700;
   line-height: 48px;
-  margin-bottom: 12px;
-  width: 640px;
 }
 
 .intro {
+  width: 100%;
+  max-width: 700px;
+
+  margin: 0 0 32px;
+
   color: var(--secondary-grey);
   font-size: 18px;
   font-weight: 400;
   line-height: 30px;
-  margin-bottom: 12px;
-  width: 700px;
-  margin-bottom: 32px;
 }
 
 .descriptionContainer div {
-  width: 500px;
-
-  h4 {
-    color: var(--main-dark-color);
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 30px;
-    margin-bottom: 8px;
-  }
-
-  p {
-    color: var(--main-dark-color);
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 24px;
-    margin-bottom: 8px;
-  }
+  width: 100%;
+  max-width: 500px;
   margin-bottom: 24px;
 }
 
-.img {
-  width: 620px;
-  height: auto;
-  object-fit: cover;
-  align-self: stretch;
-  border-radius: 32px;
+.descriptionContainer div h4 {
+  margin: 0 0 8px;
+
+  color: var(--main-dark-color);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 30px;
+}
+
+.descriptionContainer div p {
+  margin: 0 0 8px;
+
+  color: var(--main-dark-color);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
 }
 
 .descriptionContainer div:last-child {
   margin-bottom: 0;
 }
 
+.img {
+  flex: 1 1 50%;
+  min-width: 0;
+
+  display: block;
+
+  width: 100%;
+  max-width: 620px;
+  height: auto;
+
+  object-fit: cover;
+  border-radius: 32px;
+}
+
+@media (max-width: 1200px) {
+  .container {
+    gap: 48px;
+  }
+
+  .descriptionContainer h2 {
+    font-size: 36px;
+    line-height: 44px;
+  }
+
+  .intro {
+    font-size: 17px;
+    line-height: 28px;
+  }
+
+  .img {
+    max-width: 520px;
+  }
+}
+
 @media (max-width: 960px) {
   .container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 24px 32px;
   }
 
   .descriptionContainer {
@@ -76,35 +114,56 @@
   }
 
   .descriptionContainer h2 {
-    width: 100%;
     grid-column: 1 / -1;
+
+    width: 100%;
+    max-width: none;
+
+    margin-bottom: 0;
+
+    font-size: 32px;
+    line-height: 40px;
   }
 
   .descriptionContainer .intro {
-    width: 100%;
     grid-column: 1 / -1;
+
+    width: 100%;
+    max-width: none;
+    margin-bottom: 8px;
+
+    font-size: 16px;
+    line-height: 26px;
   }
 
   .descriptionContainer div {
-    width: 100%;
     grid-column: 1;
+
+    width: 100%;
+    max-width: none;
+    margin-bottom: 0;
   }
 
   .img {
-    width: 100%;
-    height: auto;
     grid-column: 2;
     grid-row: 3 / 6;
+
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    min-height: 100%;
+
+    object-fit: cover;
     align-self: stretch;
+    border-radius: 24px;
   }
 }
 
-@media (max-width: 540px) {
+@media (max-width: 700px) {
   .container {
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    padding: 32px 0;
+    gap: 32px;
   }
 
   .descriptionContainer {
@@ -114,24 +173,82 @@
 
   .descriptionContainer h2 {
     width: 100%;
+    max-width: none;
+
+    font-size: 30px;
+    line-height: 38px;
+  }
+
+  .intro {
+    width: 100%;
+    max-width: none;
+
+    font-size: 16px;
+    line-height: 26px;
+  }
+
+  .descriptionContainer div {
+    width: 100%;
+    max-width: none;
+    margin-bottom: 20px;
+  }
+
+  .img {
+    width: 100%;
+    max-width: none;
+    height: auto;
+    min-height: 0;
+
+    object-fit: contain;
+  }
+}
+
+@media (max-width: 540px) {
+  .container {
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+
+  .descriptionContainer h2 {
+    margin-bottom: 12px;
+
     font-size: 28px;
     line-height: 36px;
   }
 
   .intro {
-    width: 100%;
+    margin-bottom: 24px;
+
     font-size: 16px;
     line-height: 24px;
   }
 
   .descriptionContainer div {
-    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .descriptionContainer div h4 {
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  .descriptionContainer div p {
+    font-size: 15px;
+    line-height: 24px;
   }
 
   .img {
-    width: 100%;
-    height: auto;
-    align-self: center;
-    border-radius: 24px;
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 390px) {
+  .descriptionContainer h2 {
+    font-size: 26px;
+    line-height: 34px;
+  }
+
+  .container {
+    gap: 20px;
   }
 }

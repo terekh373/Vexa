@@ -223,6 +223,67 @@
   color: var(--secondary-grey);
 }
 
+
+.topicGroups {
+  max-height: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px;
+  overflow-y: auto;
+  border: 1px solid var(--border-grey);
+  border-radius: 12px;
+  background: var(--footer-bg-color);
+}
+
+.topicGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.topicGroup h4 {
+  margin: 0;
+  color: var(--main-dark-color);
+  font-size: 14px;
+}
+
+.topicOptions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.topicOption {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 10px;
+  border: 1px solid var(--border-grey);
+  border-radius: 10px;
+  background: var(--white-color);
+  color: var(--main-dark-color);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.topicOption input {
+  flex: none;
+  margin-top: 2px;
+}
+
+.topicOption span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.topicEmpty {
+  margin: 0;
+  color: var(--secondary-grey);
+  font-size: 13px;
+}
+
 .priceField {
   display: flex;
   align-items: center;
@@ -529,6 +590,16 @@
 }
 
 @media (max-width: 540px) {
+
+  .topicGroups {
+    max-height: 320px;
+    padding: 12px;
+  }
+
+  .topicOptions {
+    grid-template-columns: 1fr;
+  }
+
   .card {
     padding: 22px 18px;
   }
