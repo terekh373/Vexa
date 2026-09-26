@@ -46,6 +46,11 @@ import OrderDetails from './pages/order-details/OrderDetails.jsx';
 import Learning from './pages/learning/Learning.jsx';
 import LearningPlayer from './pages/learning/player/LearningPlayer.jsx';
 import LearningMaterials from './pages/learning/learning-materials/LearningMaterials.jsx';
+import Offer from './pages/Offer/Offer.jsx';
+import ContentRules from './pages/ContentRules/ContentRules.jsx';
+import Privacy from './pages/Privacy/Privacy.jsx';
+import Cookies from './pages/Cookies/Cookies.jsx';
+import Support from './pages/Support/Support.jsx';
 
 import StudentDashboard from './pages/student-dashboard/StudentDashboard.jsx';
 import Schedule from './pages/schedule/Schedule.jsx';
