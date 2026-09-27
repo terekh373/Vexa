@@ -9,7 +9,6 @@ import Catalog from './pages/catalog/Catalog.jsx';
 import Curriculum from './pages/curriculum/Curriculum.jsx';
 import ForAuthors from './pages/for-authors/ForAuthors.jsx';
 import Course from './pages/course/Course.jsx';
-import VexaAI from './pages/vexa-ai/VexaAI.jsx';
 import LoginPage from './pages/login/LoginPage.jsx';
 import RegisterPage from './pages/register/RegisterPage.jsx';
 import VerifyEmailPage from './pages/verify-email/VerifyEmailPage.jsx';
@@ -70,7 +69,6 @@ function App() {
         <Route path={routePatterns.forAuthors} element={<ForAuthors />} />
         <Route path={routePatterns.course} element={<Course />} />
         <Route path={routePatterns.authorProfile} element={<AuthorProfilePage />} />
-        <Route path={routePatterns.vexaAi} element={<VexaAI />} />
         <Route path={routePatterns.login} element={<LoginPage />} />
         <Route path={routePatterns.register} element={<RegisterPage />} />
         <Route path={routePatterns.verifyEmail} element={<VerifyEmailPage />} />
@@ -91,7 +89,6 @@ function App() {
         <Route path="/contacts" element={<Contacts />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/authors" element={<About />} />
-        <Route path="/ai" element={<VexaAI />} />
         <Route path={routePatterns.vacancies} element={<Vacancies />} />
         <Route path={routePatterns.allVacancies} element={<AllVacancies />} />
         <Route path={routePatterns.vacancy} element={<Vacancy />} />
@@ -123,16 +120,16 @@ function App() {
           </Route>
           <Route path={routes.authorCourseNew()} element={<CourseWizard />} />
           <Route path={routePatterns.authorCourseEdit} element={<CourseWizard />} />
-<Route
-  path={routePatterns.authorArea}
-  element={<Navigate to={routes.authorDashboard()} replace />}
-/>
-</Route>
+          <Route
+            path={routePatterns.authorArea}
+            element={<Navigate to={routes.authorDashboard()} replace />}
+          />
+        </Route>
 
-<Route element={<ProtectedRoute allowedRoles={['STUDENT', 'AUTHOR']} />}>
-  <Route path={routePatterns.profileEdit} element={<EditProfile />} />
-  <Route path={routePatterns.settings} element={<Settings />} />
-  <Route path={routePatterns.schedule} element={<Schedule />} />
+        <Route element={<ProtectedRoute allowedRoles={['STUDENT', 'AUTHOR']} />}>
+          <Route path={routePatterns.profileEdit} element={<EditProfile />} />
+          <Route path={routePatterns.settings} element={<Settings />} />
+          <Route path={routePatterns.schedule} element={<Schedule />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>

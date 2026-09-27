@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@vexa/shared';
-import { changePassword } from '../../api/userApi.js';
+import { changePassword, updateProfile, uploadAvatar } from '../../api/userApi.js';
+import VerificationBanner from '../../components/auth/VerificationBanner/VerificationBanner.jsx';
 
 import styles from './Settings.module.css';
 import SettingsIcon from '../../assets/icons/user/settings.svg';
@@ -12,22 +13,70 @@ import { useAuth } from '../../context/auth-context.js';
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, updateUser, logout } = useAuth();
+  
+  const [activeTab, setActiveTab] = useState('profile');
 
+  // --- Profile State ---
+  const [fullName, setFullName] = useState(user?.fullName || user?.name || '');
+  const [avatarPreview, setAvatarPreview] = useState(user?.avatarUrl || null);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
+  const [profileSuccessMsg, setProfileSuccessMsg] = useState('');
+  const [profileErrorMsg, setProfileErrorMsg] = useState('');
+
+  // --- Security State ---
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
   });
 
-  const [currentPasswordError, setCurrentPasswordError] =
-    useState('');
+  const [currentPasswordError, setCurrentPasswordError] = useState('');
+  const [generalPasswordError, setGeneralPasswordError] = useState('');
+  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
 
-  const [generalPasswordError, setGeneralPasswordError] =
-    useState('');
+  // --- Profile Handlers ---
+  const handleAvatarChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+      setProfileSuccessMsg('');
+      setProfileErrorMsg('');
+    }
+  };
 
-  const [isLoading, setIsLoading] = useState(false);
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
+    setIsProfileLoading(true);
+    setProfileSuccessMsg('');
+    setProfileErrorMsg('');
 
+    try {
+      let avatarUrl = user?.avatarUrl;
+
+      if (avatarFile) {
+        avatarUrl = await uploadAvatar(avatarFile);
+      }
+
+      const updatedUser = await updateProfile({
+        fullName,
+        avatarUrl,
+      });
+
+      updateUser(updatedUser || { fullName, avatarUrl });
+      setProfileSuccessMsg('Зміни успішно збережено!');
+      setAvatarFile(null);
+    } catch (error) {
+      console.error('Помилка збереження профілю:', error);
+      setProfileErrorMsg(error?.response?.data?.message || 'Помилка при оновленні даних профілю');
+    } finally {
+      setIsProfileLoading(false);
+    }
+  };
+
+  // --- Security Handlers ---
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -42,21 +91,15 @@ const Settings = () => {
 
   const handleSavePassword = async (event) => {
     event.preventDefault();
-
     setCurrentPasswordError('');
     setGeneralPasswordError('');
 
-    if (
-      passwordData.newPassword !==
-      passwordData.confirmPassword
-    ) {
-      setGeneralPasswordError(
-        'Нові паролі не збігаються'
-      );
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setGeneralPasswordError('Нові паролі не збігаються');
       return;
     }
 
-    setIsLoading(true);
+    setIsPasswordLoading(true);
 
     try {
       const response = await changePassword({
@@ -64,10 +107,7 @@ const Settings = () => {
         newPassword: passwordData.newPassword,
       });
 
-      if (
-        response.status === 204 ||
-        response.status === 200
-      ) {
+      if (response.status === 204 || response.status === 200) {
         await logout();
         navigate(routes.login(), {
           replace: true,
@@ -76,23 +116,16 @@ const Settings = () => {
       }
       
     } catch (error) {
-      console.error(
-        'Помилка зміни пароля:',
-        error
-      );
-
+      console.error('Помилка зміни пароля:', error);
       if (error?.response?.status === 400) {
         setCurrentPasswordError(
-          error?.response?.data?.message ||
-            'Невірний поточний пароль'
+          error?.response?.data?.message || 'Невірний поточний пароль'
         );
       } else {
-        setGeneralPasswordError(
-          'Не вдалося змінити пароль. Спробуйте пізніше.'
-        );
+        setGeneralPasswordError('Не вдалося змінити пароль. Спробуйте пізніше.');
       }
     } finally {
-      setIsLoading(false);
+      setIsPasswordLoading(false);
     }
   };
 
@@ -102,10 +135,11 @@ const Settings = () => {
       newPassword: '',
       confirmPassword: '',
     });
-
     setCurrentPasswordError('');
     setGeneralPasswordError('');
   };
+
+  const initials = (fullName || 'Студент').substring(0, 2).toUpperCase();
 
   return (
     <section className={styles.page}>
@@ -141,7 +175,17 @@ const Settings = () => {
 
               <button
                 type="button"
-                className={styles.active}
+                className={activeTab === 'profile' ? styles.active : ''}
+                onClick={() => setActiveTab('profile')}
+              >
+                <span className={styles.icon}>⚙️</span> 
+                <span>Профіль</span>
+              </button>
+
+              <button
+                type="button"
+                className={activeTab === 'security' ? styles.active : ''}
+                onClick={() => setActiveTab('security')}
               >
                 <img src={SafetyIcon} alt='' />
                 <span>Безпека</span>
@@ -155,91 +199,144 @@ const Settings = () => {
           </aside>
 
           <main className={styles.content}>
-            <h2>Безпека</h2>
+            {activeTab === 'profile' && (
+              <>
+                <h2>Профіль</h2>
+                <p className={styles.description}>Оновіть своє ім'я та аватар</p>
 
-            <p className={styles.description}>
-              Змініть пароль для захисту акаунта
-            </p>
+                <VerificationBanner inline={true} />
 
-            {generalPasswordError && (
-              <div className={styles.error}>
-                {generalPasswordError}
-              </div>
+                {profileSuccessMsg && <div className={styles.successAlert}>{profileSuccessMsg}</div>}
+                {profileErrorMsg && <div className={styles.errorAlert}>{profileErrorMsg}</div>}
+
+                <form onSubmit={handleSaveProfile} className={styles.profileForm}>
+                  <div className={styles.avatarSection}>
+                    <img 
+                      src={avatarPreview || `https://ui-avatars.com/api/?name=${initials}&background=6236FF&color=fff&size=100`} 
+                      alt="Avatar" 
+                      className={styles.avatarPreview} 
+                    />
+                    <div>
+                      <label className={styles.changePhotoBtn}>
+                        Змінити фото
+                        <input 
+                          type="file" 
+                          hidden 
+                          accept="image/png, image/jpeg, image/webp" 
+                          onChange={handleAvatarChange} 
+                        />
+                      </label>
+                      <p className={styles.photoHint}>PNG, JPG або WebP, до 5 МБ</p>
+                    </div>
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label className={styles.field}>
+                      <span>Ім'я та Прізвище</span>
+                      <input 
+                        type="text" 
+                        value={fullName} 
+                        onChange={(e) => setFullName(e.target.value)} 
+                        required
+                      />
+                    </label>
+                  </div>
+
+                  <div className={styles.actions}>
+                    <button 
+                      type="button" 
+                      className={styles.cancelButton} 
+                      onClick={() => navigate(-1)}
+                    >
+                      Скасувати
+                    </button>
+                    <button 
+                      type="submit" 
+                      className={styles.saveButton} 
+                      disabled={isProfileLoading}
+                    >
+                      {isProfileLoading ? 'Збереження...' : 'Зберегти зміни'}
+                    </button>
+                  </div>
+                </form>
+              </>
             )}
 
-            <form
-              onSubmit={handleSavePassword}
-              className={styles.form}
-            >
-              <label className={styles.field}>
-                <span>Поточний пароль</span>
+            {activeTab === 'security' && (
+              <>
+                <h2>Безпека</h2>
+                <p className={styles.description}>Змініть пароль для захисту акаунта</p>
 
-                <input
-                  name="currentPassword"
-                  type="password"
-                  value={passwordData.currentPassword}
-                  onChange={handleChange}
-                  required
-                  autoComplete="current-password"
-                />
-
-                {currentPasswordError && (
-                  <small className={styles.errorText}>
-                    {currentPasswordError}
-                  </small>
+                {generalPasswordError && (
+                  <div className={styles.error}>
+                    {generalPasswordError}
+                  </div>
                 )}
-              </label>
 
-              <label className={styles.field}>
-                <span>Новий пароль</span>
+                <form onSubmit={handleSavePassword} className={styles.form}>
+                  <label className={styles.field}>
+                    <span>Поточний пароль</span>
+                    <input
+                      name="currentPassword"
+                      type="password"
+                      value={passwordData.currentPassword}
+                      onChange={handleChange}
+                      required
+                      autoComplete="current-password"
+                    />
+                    {currentPasswordError && (
+                      <small className={styles.errorText}>
+                        {currentPasswordError}
+                      </small>
+                    )}
+                  </label>
 
-                <input
-                  name="newPassword"
-                  type="password"
-                  value={passwordData.newPassword}
-                  onChange={handleChange}
-                  required
-                  minLength={8}
-                  autoComplete="new-password"
-                />
-              </label>
+                  <label className={styles.field}>
+                    <span>Новий пароль</span>
+                    <input
+                      name="newPassword"
+                      type="password"
+                      value={passwordData.newPassword}
+                      onChange={handleChange}
+                      required
+                      minLength={8}
+                      autoComplete="new-password"
+                    />
+                  </label>
 
-              <label className={styles.field}>
-                <span>
-                  Підтвердження нового пароля
-                </span>
+                  <label className={styles.field}>
+                    <span>Підтвердження нового пароля</span>
+                    <input
+                      name="confirmPassword"
+                      type="password"
+                      value={passwordData.confirmPassword}
+                      onChange={handleChange}
+                      required
+                      minLength={8}
+                      autoComplete="new-password"
+                    />
+                  </label>
 
-                <input
-                  name="confirmPassword"
-                  type="password"
-                  value={passwordData.confirmPassword}
-                  onChange={handleChange}
-                  required
-                  minLength={8}
-                  autoComplete="new-password"
-                />
-              </label>
+                  <div className={styles.actions}>
+                    <button
+                      type="button"
+                      className={styles.cancelButton}
+                      onClick={handleCancel}
+                    >
+                      Скасувати
+                    </button>
 
-              <div className={styles.actions}>
-                <button
-                  type="button"
-                  className={styles.cancelButton}
-                  onClick={handleCancel}
-                >
-                  Скасувати
-                </button>
-
-                <button
-                  type="submit"
-                  className={styles.saveButton}
-                  disabled={isLoading}
-                >
-                  {isLoading
-                    ? 'Зміна пароля...'
-                    : 'Змінити пароль'}
-                </button>
-              </div>
-            </form>
+                    <button
+                      type="submit"
+                      className={styles.saveButton}
+                      disabled={isPasswordLoading}
+                    >
+                      {isPasswordLoading ? 'Зміна пароля...' : 'Змінити пароль'}
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
           </main>
         </div>
       </div>

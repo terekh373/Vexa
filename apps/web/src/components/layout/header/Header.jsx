@@ -12,6 +12,7 @@ import { Container } from '../container/Container.jsx';
 import UserMenu from './user-menu/UserMenu.jsx';
 import BellIcon from '../../../assets/icons/bell.svg';
 import NotificationModal from './notification-modal/NotificationModal.jsx';
+import VerificationBanner from '../../auth/VerificationBanner/VerificationBanner.jsx';
 
 import { useAuth } from '../../../context/auth-context.js';
 import { useCourseSuggestions } from '../../../hooks/useCourseSuggestions.js';
@@ -84,10 +85,6 @@ const Header = () => {
 
       <Link to={routes.forAuthors()} className={styles.link}>
         Для авторів
-      </Link>
-
-      <Link to={routes.vexaAi()} className={styles.link}>
-        Vexa AI
       </Link>
     </>
   );
@@ -212,6 +209,7 @@ const Header = () => {
 
   return (
     <header className={styles.header}>
+      <VerificationBanner />
       <Container>
         <div className={styles.container}>
           <div className={styles.logo}>

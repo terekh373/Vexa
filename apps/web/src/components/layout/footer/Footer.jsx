@@ -7,6 +7,11 @@ import styles from './Footer.module.css';
 import { Container } from '../container/Container';
 import { Logo } from '../../ui/logo/Logo.jsx';
 
+import facebook from '../../../assets/socialmedia/fb.svg';
+import instagram from '../../../assets/socialmedia/inst.svg';
+import tiktok from '../../../assets/socialmedia/tt.svg';
+import telegram from '../../../assets/socialmedia/tg.svg';
+
 const footerColumns = [
   {
     id: 'platform',
@@ -14,7 +19,7 @@ const footerColumns = [
     links: [
       { to: routes.catalog(), label: 'Каталог курсів' },
       { to: routes.forAuthors(), label: 'Для авторів' },
-      { to: routes.faq(), label: 'FAQ' },
+      { to: '/faq?role=student', label: 'FAQ для покупців' },
     ],
   },
   {
@@ -41,6 +46,7 @@ const footerColumns = [
     title: 'Співпраця',
     links: [
       { to: routes.becomeAuthor(), label: 'Стати автором' },
+      { to: '/faq?role=author', label: 'FAQ для авторів' },
       { to: '/partners', label: 'Для партнерів' },
       { to: '/brands', label: 'Для брендів' },
     ],
@@ -118,7 +124,7 @@ const Footer = () => {
         </div>
 
         <div className={styles.subfooter}>
-          {/* <div className={styles.row}>
+          <div className={styles.row}>
             <Link to="/facebook">
               <img src={facebook} alt="" aria-hidden="true" />
             </Link>
@@ -131,7 +137,7 @@ const Footer = () => {
             <Link to="/telegram">
               <img src={telegram} alt="" aria-hidden="true" />
             </Link>
-          </div> */}
+          </div>
 
           <div className={styles.copyright}>
             © 2026 Vexa. Усі права захищені

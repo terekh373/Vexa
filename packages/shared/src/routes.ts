@@ -209,6 +209,15 @@ export const routePatterns = {
   playerLesson: '/learn/:courseId/:lessonId',
   authorCourseEdit: '/author/courses/:id/edit',
   adminModerationCourse: '/admin/moderation/:id',
+  // --- Static Patterns ---
+  faq: '/faq',
+  support: '/support',
+  offer: '/offer',
+  privacy: '/privacy',
+  cookies: '/cookies',
+  contentRules: '/content-rules',
+  about: '/about',
+  contacts: '/contacts',
 
   studentDashboard: '/student',
   profileEdit: '/profile/edit',
