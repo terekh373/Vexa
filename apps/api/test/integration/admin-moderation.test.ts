@@ -284,4 +284,48 @@ describe('admin course moderation integration', () => {
     expect(sentMessages[0]?.subject).toContain('відхилено');
     expect(sentMessages[0]?.text).toContain(comment);
   });
+
+  it('emails the author the unpublish comment; a repeat unpublish sends nothing', async () => {
+    const fixture = await seedFixture();
+    const course = await createCourse(fixture, { status: CourseStatus.PUBLISHED, publishedAt: new Date() });
+    const comment = 'Порушення <правил> розміщення контенту';
+
+    const res = await request(app)
+      .post(`/api/admin/courses/${course.id}/unpublish`)
+      .set('Authorization', `Bearer ${fixture.adminToken}`)
+      .send({ comment });
+    expect(res.status).toBe(200);
+
+    expect(sentMessages).toHaveLength(1);
+    expect(sentMessages[0]?.to[0]?.email).toBe('author@example.com');
+    expect(sentMessages[0]?.subject).toContain('знято з публікації');
+    expect(sentMessages[0]?.text).toContain(course.title);
+    expect(sentMessages[0]?.text).toContain(comment);
+    expect(sentMessages[0]?.html).toContain('&lt;правил&gt;');
+
+    const repeat = await request(app)
+      .post(`/api/admin/courses/${course.id}/unpublish`)
+      .set('Authorization', `Bearer ${fixture.adminToken}`)
+      .send({ comment });
+    expect(repeat.status).toBe(409);
+    expect(sentMessages).toHaveLength(1);
+  });
+
+  it('unpublishes the course even when the email provider fails', async () => {
+    const fixture = await seedFixture();
+    const course = await createCourse(fixture, { status: CourseStatus.PUBLISHED, publishedAt: new Date() });
+    setMailTransportForTests(async () => {
+      throw new Error('Mail provider is down');
+    });
+
+    const res = await request(app)
+      .post(`/api/admin/courses/${course.id}/unpublish`)
+      .set('Authorization', `Bearer ${fixture.adminToken}`)
+      .send({ comment: 'Порушення правил платформи' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('UNPUBLISHED');
+    const stored = await prisma.course.findUniqueOrThrow({ where: { id: course.id } });
+    expect(stored.status).toBe(CourseStatus.UNPUBLISHED);
+  });
 });
