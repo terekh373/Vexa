@@ -1,6 +1,6 @@
 import { CourseStatus, ModerationAction, type Prisma } from '@prisma/client';
 import { AppError } from '../../lib/errors.js';
-import { sendModerationResultEmail } from '../../lib/mailer.js';
+import { sendCourseUnpublishedEmail, sendModerationResultEmail } from '../../lib/mailer.js';
 import {
   findAdminCourseById,
   findModerationCandidate,
@@ -109,6 +109,8 @@ export async function unpublishCourse(moderatorId: string, courseId: string, inp
   });
 
   if (!applied) throw AppError.conflict('Course status changed concurrently');
+
+  await sendCourseUnpublishedEmail({ email: course.authorEmail, courseTitle: course.title, comment: input.comment });
 
   return getAdminCourse(courseId);
 }
