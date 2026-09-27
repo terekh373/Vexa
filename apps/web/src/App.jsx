@@ -8,7 +8,6 @@ import Home from './pages/home/Home.jsx';
 import Catalog from './pages/catalog/Catalog.jsx';
 import ForAuthors from './pages/for-authors/ForAuthors.jsx';
 import Course from './pages/course/Course.jsx';
-import VexaAI from './pages/vexa-ai/VexaAI.jsx';
 import LoginPage from './pages/login/LoginPage.jsx';
 import RegisterPage from './pages/register/RegisterPage.jsx';
 import VerifyEmailPage from './pages/verify-email/VerifyEmailPage.jsx';
@@ -54,7 +53,6 @@ function App() {
         <Route path={routePatterns.forAuthors} element={<ForAuthors />} />
         <Route path={routePatterns.course} element={<Course />} />
         <Route path={routePatterns.authorProfile} element={<AuthorProfilePage />} />
-        <Route path={routePatterns.vexaAi} element={<VexaAI />} />
         <Route path={routePatterns.login} element={<LoginPage />} />
         <Route path={routePatterns.register} element={<RegisterPage />} />
         <Route path={routePatterns.verifyEmail} element={<VerifyEmailPage />} />
@@ -75,7 +73,6 @@ function App() {
         <Route path="/contacts" element={<Contacts />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/authors" element={<About />} />
-        <Route path="/ai" element={<VexaAI />} />
         <Route path="/vacancies" element={<ComingSoon />} />
         <Route path="/press" element={<ComingSoon />} />
 

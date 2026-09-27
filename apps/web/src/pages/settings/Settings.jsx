@@ -4,6 +4,7 @@ import { routes } from '@vexa/shared';
 import { useAuth } from "../../context/auth-context.js";
 import { updateProfile, changePassword, uploadAvatar } from '../../api/userApi.js';
 import styles from './Settings.module.css';
+import VerificationBanner from '../../components/auth/VerificationBanner/VerificationBanner.jsx';
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -151,6 +152,8 @@ const Settings = () => {
               <div className={styles.settingsCard}>
                 <h2 className={styles.sectionTitle}>Профіль</h2>
                 <p className={styles.sectionDesc}>Оновіть своє ім'я та аватар</p>
+
+                <VerificationBanner inline={true} />
 
                 {profileSuccessMsg && <div className={styles.successAlert}>{profileSuccessMsg}</div>}
                 {profileErrorMsg && <div className={styles.errorAlert}>{profileErrorMsg}</div>}
