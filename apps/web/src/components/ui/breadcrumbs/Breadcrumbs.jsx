@@ -14,3 +14,4 @@ const Breadcrumbs = ({title, link, pages}) => {
 };
 
 export default Breadcrumbs;
+

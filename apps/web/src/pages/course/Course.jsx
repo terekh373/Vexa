@@ -27,6 +27,7 @@ import { OpenMore } from '../../components/ui/openmore/OpenMore.jsx';
 import LessonModule from '../../components/ui/module/LessonModule.jsx';
 import CoursePageSkeleton from '../../components/ui/skeleton/course-page/CoursePageSkeleton.jsx';
 import { addToCart, getCart } from '../../services/cartService.js';
+import { enrollFreeCourse } from '../../services/learningService.js';
 import Toast from '../../components/ui/toast/Toast.jsx';
 
 import {
@@ -271,9 +272,31 @@ const Course = () => {
   const coverUrl = course.cover?.url || InfoBg;
   const authorAvatarUrl = author.avatar?.url || authorAvatar;
   const isMaterial = course.type === 'MATERIAL';
+  const isFreeCourse = !isMaterial && course.price?.amount === 0;
   const programLabel = isMaterial ? 'Матеріали' : 'Програма';
 
   const handlePurchase = async () => {
+    if (isFreeCourse) {
+      try {
+        setAddingToCart(true);
+
+        await enrollFreeCourse(course.id);
+
+        navigate(routes.player(course.id));
+      } catch (error) {
+        console.error('Не вдалося записатися на безкоштовний курс:', error);
+
+        setToast({
+          message: 'Не вдалося розпочати навчання',
+          type: 'error',
+        });
+      } finally {
+        setAddingToCart(false);
+      }
+
+      return;
+    }
+
     if (course.hasAccess) {
       navigate(routes.player(course.id));
       return;
@@ -311,14 +334,14 @@ const Course = () => {
   // const handleAddToWishlist = async () => {
   //   try {
   //     await addToWishlist(course.id);
-
+  //
   //     setToast({
   //       message: 'Курс додано в обране',
   //       type: 'success',
   //     });
   //   } catch (error) {
   //     console.error('Не вдалося додати курс в обране:', error);
-
+  //
   //     setToast({
   //       message: 'Не вдалося додати курс в обране',
   //       type: 'error',
@@ -327,6 +350,8 @@ const Course = () => {
   // };
 
   const getPurchaseButtonTitle = () => {
+    if (addingToCart && isFreeCourse) return 'Записуємо...';
+    if (isFreeCourse) return 'Розпочати навчання';
     if (course.hasAccess) return 'Перейти до навчання';
     if (addingToCart) return 'Додаємо...';
     if (isInCart) return 'Вже в кошику';
@@ -404,6 +429,7 @@ const Course = () => {
           type={toast?.type}
           onClose={() => setToast(null)}
         />
+
         <Breadcrumbs
           title="Головна"
           link={routes.home()}
@@ -448,7 +474,10 @@ const Course = () => {
               </ul>
 
               <div className={styles.author}>
-                <img src={authorAvatarUrl} alt={author.name || 'Автор курсу'} />
+                <img
+                  src={authorAvatarUrl}
+                  alt={author.name || 'Автор курсу'}
+                />
                 <div>
                   <span>{author.name || 'Автор курсу'}</span>
                   <span>{author.headline || ''}</span>
@@ -459,7 +488,9 @@ const Course = () => {
 
           <aside className={styles.coursePriceInfo}>
             <div className={styles.coursePrice}>
-              <span>{formatPrice(course.price?.amount, course.price?.currency)}</span>
+              <span>
+                {formatPrice(course.price?.amount, course.price?.currency)}
+              </span>
             </div>
 
             <div className={styles.courseRowBttn}>
@@ -478,12 +509,6 @@ const Course = () => {
                 // onClick={handleAddToWishlist}
               />
             </div>
-
-            {/* {purchaseMessage && (
-              <p className={styles.purchaseMessage} role="status">
-                {purchaseMessage}
-              </p>
-            )} */}
 
             <ul className={styles.priorityList}>
               <li>
@@ -514,11 +539,22 @@ const Course = () => {
 
         <section id="about" className={styles.aboutCourseBox}>
           <div className={styles.courseDetails}>
-            <nav className={styles.courseTabs} aria-label="Навігація по курсу">
-              <a href="#about" className={styles.linkItem}>Про курс</a>
-              <a href="#program" className={styles.linkItem}>{programLabel}</a>
-              <a href="#author" className={styles.linkItem}>Автор</a>
-              <a href="#reviews" className={styles.linkItem}>Відгуки</a>
+            <nav
+              className={styles.courseTabs}
+              aria-label="Навігація по курсу"
+            >
+              <a href="#about" className={styles.linkItem}>
+                Про курс
+              </a>
+              <a href="#program" className={styles.linkItem}>
+                {programLabel}
+              </a>
+              <a href="#author" className={styles.linkItem}>
+                Автор
+              </a>
+              <a href="#reviews" className={styles.linkItem}>
+                Відгуки
+              </a>
             </nav>
 
             <div className={styles.about}>
@@ -533,7 +569,9 @@ const Course = () => {
               <img src={checkBallIcon} alt="" aria-hidden="true" />
               <p>
                 <span>Рівень: </span>
-                <span>{course.grade ? `${course.grade} клас` : 'Для всіх'}</span>
+                <span>
+                  {course.grade ? `${course.grade} клас` : 'Для всіх'}
+                </span>
               </p>
             </li>
 
@@ -541,7 +579,9 @@ const Course = () => {
               <img src={checkBallIcon} alt="" aria-hidden="true" />
               <p>
                 <span>Формат: </span>
-                <span>{isMaterial ? 'Навчальний матеріал' : 'Відеокурс'}</span>
+                <span>
+                  {isMaterial ? 'Навчальний матеріал' : 'Відеокурс'}
+                </span>
               </p>
             </li>
 
@@ -573,7 +613,9 @@ const Course = () => {
                   <LessonModule key={module.id} module={module} />
                 ))
               ) : (
-                <p className={styles.emptyState}>Програма курсу поки недоступна.</p>
+                <p className={styles.emptyState}>
+                  Програма курсу поки недоступна.
+                </p>
               )}
             </div>
 
@@ -593,11 +635,15 @@ const Course = () => {
                   const format = material.format?.toUpperCase();
 
                   return (
-                    <article className={styles.materialItem} key={material.id}>
+                    <article
+                      className={styles.materialItem}
+                      key={material.id}
+                    >
                       <div>
                         <h4>{material.title || material.name}</h4>
                         <p>{material.name}</p>
                       </div>
+
                       <span>
                         {[format, fileSize].filter(Boolean).join(' · ') || 'Файл'}
                       </span>
@@ -606,7 +652,9 @@ const Course = () => {
                 })}
               </div>
             ) : (
-              <p className={styles.emptyState}>Матеріалів поки немає.</p>
+              <p className={styles.emptyState}>
+                Матеріалів поки немає.
+              </p>
             )}
           </section>
         )}
@@ -623,7 +671,9 @@ const Course = () => {
               variant="whatYouCanLearn"
             />
           ) : (
-            <p className={styles.emptyState}>Результати навчання поки не додані.</p>
+            <p className={styles.emptyState}>
+              Результати навчання поки не додані.
+            </p>
           )}
         </section>
 
@@ -643,19 +693,32 @@ const Course = () => {
           />
 
           {course.canReview && (
-            <form className={styles.reviewForm} onSubmit={handleReviewSubmit}>
+            <form
+              className={styles.reviewForm}
+              onSubmit={handleReviewSubmit}
+            >
               <div className={styles.reviewFormHeader}>
                 <div>
                   <h3>Залишити відгук</h3>
-                  <p>Оцініть курс від 1 до 5 зірок. Текст можна не додавати.</p>
+                  <p>
+                    Оцініть курс від 1 до 5 зірок. Текст можна не додавати.
+                  </p>
                 </div>
 
-                <div className={styles.reviewStars} role="radiogroup" aria-label="Оцінка курсу">
+                <div
+                  className={styles.reviewStars}
+                  role="radiogroup"
+                  aria-label="Оцінка курсу"
+                >
                   {[1, 2, 3, 4, 5].map((value) => (
                     <button
                       key={value}
                       type="button"
-                      className={value <= reviewRating ? styles.reviewStarActive : styles.reviewStar}
+                      className={
+                        value <= reviewRating
+                          ? styles.reviewStarActive
+                          : styles.reviewStar
+                      }
                       onClick={() => {
                         setReviewRating(value);
                         setReviewSubmitError('');
@@ -680,8 +743,13 @@ const Course = () => {
 
               <div className={styles.reviewFormFooter}>
                 <span>{reviewText.length}/4000</span>
+
                 <Button
-                  title={reviewSubmitting ? 'Надсилання...' : 'Опублікувати відгук'}
+                  title={
+                    reviewSubmitting
+                      ? 'Надсилання...'
+                      : 'Опублікувати відгук'
+                  }
                   type="submit"
                   variant="primary"
                   size="medium"
@@ -690,50 +758,77 @@ const Course = () => {
               </div>
 
               {reviewSubmitError && (
-                <p className={styles.reviewFormError} role="alert">{reviewSubmitError}</p>
+                <p
+                  className={styles.reviewFormError}
+                  role="alert"
+                >
+                  {reviewSubmitError}
+                </p>
               )}
             </form>
           )}
 
           {reviewSuccess && (
-            <p className={styles.reviewSuccess} role="status">{reviewSuccess}</p>
+            <p
+              className={styles.reviewSuccess}
+              role="status"
+            >
+              {reviewSuccess}
+            </p>
           )}
 
           {isReviewsOpen && (
             <>
               {reviewsLoading ? (
-                <p className={styles.emptyState}>Завантаження відгуків...</p>
+                <p className={styles.emptyState}>
+                  Завантаження відгуків...
+                </p>
               ) : reviewsError ? (
-                <p className={styles.errorText}>Не вдалося завантажити відгуки.</p>
+                <p className={styles.errorText}>
+                  Не вдалося завантажити відгуки.
+                </p>
               ) : reviews.length > 0 ? (
-                <CardsList cards={reviews} review="studentReview" />
+                <CardsList
+                  cards={reviews}
+                  review="studentReview"
+                />
               ) : (
-                <p className={styles.emptyState}>Відгуків поки немає.</p>
+                <p className={styles.emptyState}>
+                  Відгуків поки немає.
+                </p>
               )}
 
-              {!reviewsLoading && !reviewsError && reviewsTotalPages > 1 && (
-                <div className={styles.reviewsPagination}>
-                  <Button
-                    title="Попередня"
-                    variant="secondary"
-                    size="medium"
-                    disabled={reviewsPage === 1}
-                    onClick={() => setReviewsPage((page) => Math.max(1, page - 1))}
-                  />
+              {!reviewsLoading &&
+                !reviewsError &&
+                reviewsTotalPages > 1 && (
+                  <div className={styles.reviewsPagination}>
+                    <Button
+                      title="Попередня"
+                      variant="secondary"
+                      size="medium"
+                      disabled={reviewsPage === 1}
+                      onClick={() =>
+                        setReviewsPage((page) => Math.max(1, page - 1))
+                      }
+                    />
 
-                  <span>{reviewsPage} / {reviewsTotalPages}</span>
+                    <span>
+                      {reviewsPage} / {reviewsTotalPages}
+                    </span>
 
-                  <Button
-                    title="Наступна"
-                    variant="secondary"
-                    size="medium"
-                    disabled={reviewsPage === reviewsTotalPages}
-                    onClick={() => (
-                      setReviewsPage((page) => Math.min(reviewsTotalPages, page + 1))
-                    )}
-                  />
-                </div>
-              )}
+                    <Button
+                      title="Наступна"
+                      variant="secondary"
+                      size="medium"
+                      disabled={reviewsPage === reviewsTotalPages}
+                      onClick={() =>
+                        setReviewsPage((page) =>
+                          Math.min(reviewsTotalPages, page + 1)
+                        )
+                      }
+                    />
+                  </div>
+                )}
             </>
           )}
         </section>

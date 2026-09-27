@@ -16,6 +16,7 @@ import {
   updateAuthorModule,
 } from '../../../services/authorCoursesService.js';
 import { getCategories } from '../../../services/categoriesService.js';
+import { getCurriculum } from '../../../services/curriculumService.js';
 import { getFileDownloadUrl } from '../../../services/filesService.js';
 
 import styles from './CourseWizard.module.css';
@@ -69,6 +70,8 @@ const CourseWizard = () => {
   const [formState, setFormState] = useState(emptyFormState());
   const [categories, setCategories] = useState([]);
   const [categoriesError, setCategoriesError] = useState('');
+  const [curriculum, setCurriculum] = useState([]);
+  const [curriculumError, setCurriculumError] = useState('');
   const [loading, setLoading] = useState(Boolean(id));
   const [saving, setSaving] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -103,6 +106,22 @@ const CourseWizard = () => {
       })
       .catch(() => {
         if (active) setCategoriesError('Не вдалося завантажити категорії.');
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    getCurriculum()
+      .then((items) => {
+        if (active) setCurriculum(items);
+      })
+      .catch(() => {
+        if (active) setCurriculumError('Не вдалося завантажити теми шкільної програми.');
       });
 
     return () => {
@@ -253,7 +272,9 @@ const CourseWizard = () => {
 
   const handleFieldChange = (name, value) => {
     setFormState((current) => ({ ...current, [name]: value }));
-    setFieldErrors((current) => ({ ...current, [name]: undefined }));
+    setFieldErrors((current) => Object.fromEntries(
+      Object.entries(current).filter(([key]) => key !== name && !key.startsWith(`${name}.`)),
+    ));
     setFormError('');
   };
 
@@ -463,6 +484,8 @@ const CourseWizard = () => {
             onRemoveOutcome={handleRemoveOutcome}
             categories={categories}
             categoriesError={categoriesError}
+            curriculum={curriculum}
+            curriculumError={curriculumError}
             fieldErrors={fieldErrors}
             readOnly={isReadOnly}
             coverName={coverName}

@@ -2,6 +2,8 @@
   background: var(--footer-bg-color);
   padding-top: 16px;
   padding-bottom: 48px;
+  flex: 1;
+
 }
 .cart {
   width: 100%;
@@ -36,7 +38,6 @@
   grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
   gap: 40px;
   align-items: start;
-
 }
 
 .courses {

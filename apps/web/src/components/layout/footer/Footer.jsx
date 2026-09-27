@@ -19,7 +19,7 @@ const footerColumns = [
     links: [
       { to: routes.catalog(), label: 'Каталог курсів' },
       { to: routes.forAuthors(), label: 'Для авторів' },
-      { to: '/faq?role=student', label: 'FAQ для покупців' }, // ЗМІНЕНО!
+      { to: '/faq?role=student', label: 'FAQ для покупців' },
     ],
   },
   {
@@ -46,7 +46,7 @@ const footerColumns = [
     title: 'Співпраця',
     links: [
       { to: routes.becomeAuthor(), label: 'Стати автором' },
-      { to: '/faq?role=author', label: 'FAQ для авторів' }, // ЗМІНЕНО!
+      { to: '/faq?role=author', label: 'FAQ для авторів' },
       { to: '/partners', label: 'Для партнерів' },
       { to: '/brands', label: 'Для брендів' },
     ],
@@ -124,21 +124,20 @@ const Footer = () => {
         </div>
 
         <div className={styles.subfooter}>
-
-        <div className={styles.row} style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
-          <a href="https://facebook.com/vexa" target="_blank" rel="noopener noreferrer">
-           <img src={facebook} alt="Facebook" />
-          </a>
-           <a href="https://instagram.com/vexa" target="_blank" rel="noopener noreferrer">
-              <img src={instagram} alt="Instagram" />
-          </a>
-          <a href="https://tiktok.com/@vexa" target="_blank" rel="noopener noreferrer">
-             <img src={tiktok} alt="TikTok" />
-          </a>
-          <a href="https://t.me/vexa" target="_blank" rel="noopener noreferrer">
-            <img src={telegram} alt="Telegram" />
-          </a>
-        </div>
+          <div className={styles.row}>
+            <Link to="/facebook">
+              <img src={facebook} alt="" aria-hidden="true" />
+            </Link>
+            <Link to="/instagram">
+              <img src={instagram} alt="" aria-hidden="true" />
+            </Link>
+            <Link to="/tiktok">
+              <img src={tiktok} alt="" aria-hidden="true" />
+            </Link>
+            <Link to="/telegram">
+              <img src={telegram} alt="" aria-hidden="true" />
+            </Link>
+          </div>
 
           <div className={styles.copyright}>
             © 2026 Vexa. Усі права захищені

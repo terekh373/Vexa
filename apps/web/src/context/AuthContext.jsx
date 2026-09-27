@@ -64,11 +64,16 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
-
   const applyAuthSession = useCallback(({ user: nextUser, tokens }) => {
     setStoredTokens(tokens);
     setUser(nextUser);
   }, []);
+
+  const updateUser = useCallback((nextUser) => {
+  setUser(nextUser);
+}, []);
+
+
 
   const logout = async () => {
     const { refreshToken } = getStoredTokens();
@@ -97,8 +102,9 @@ export const AuthProvider = ({ children }) => {
       register,
       logout,
       applyAuthSession,
+      updateUser,
     }),
-    [user, isLoading, applyAuthSession],
+    [user, isLoading, applyAuthSession, updateUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
