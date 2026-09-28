@@ -128,9 +128,14 @@ const Footer = () => {
             <Link to="/facebook">
               <img src={facebook} alt="" aria-hidden="true" />
             </Link>
-            <Link to="/instagram">
+            <a
+              href="https://www.instagram.com/vexa_edu/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Vexa в Instagram (відкриється в новій вкладці)"
+            >
               <img src={instagram} alt="" aria-hidden="true" />
-            </Link>
+            </a>
             <Link to="/tiktok">
               <img src={tiktok} alt="" aria-hidden="true" />
             </Link>
