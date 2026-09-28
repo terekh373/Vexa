@@ -45,6 +45,19 @@ export const updateCourseSchema = z
   .object({
     ...courseWritableFields,
     slug: z.string().trim().min(1).max(180),
+    topicIds: z
+      .array(uuid)
+      .max(10)
+      .superRefine((ids, ctx) => {
+        const seen = new Set<string>();
+
+        for (const [index, id] of ids.entries()) {
+          if (seen.has(id)) {
+            ctx.addIssue({ code: 'custom', path: [index], message: 'Duplicate topic id' });
+          }
+          seen.add(id);
+        }
+      }),
   })
   .partial()
   .strict()

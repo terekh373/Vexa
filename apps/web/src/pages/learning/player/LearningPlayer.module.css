@@ -1,0 +1,189 @@
+.player {
+  padding: 32px 0 64px;
+  background: var(--main-bg-color);
+}
+
+.top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 48px;
+  margin: 32px 0;
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: var(--purple-color);
+  font-size: 14px;
+  line-height: 20px;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.back:hover {
+  color: var(--accessory-purple);
+}
+
+.top h1 {
+  margin: 0 0 12px;
+  color: var(--main-dark-color);
+  font-size: 36px;
+  line-height: 44px;
+  font-weight: 700;
+}
+
+.top p {
+  margin: 0;
+  color: var(--secondary-grey);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.progressInfo {
+  width: 100%;
+  max-width: 360px;
+}
+
+.progressHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.progressHeader span {
+  color: var(--main-dark-color);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.progressHeader strong {
+  color: var(--purple-color);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--secondary-purple);
+}
+
+.progressValue {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--purple-color);
+  transition: width 0.3s ease;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.state {
+  display: flex;
+  min-height: 400px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.state h2 {
+  margin: 0 0 8px;
+  color: var(--main-dark-color);
+  font-size: 24px;
+  line-height: 32px;
+}
+
+.state p {
+  margin: 0;
+  color: var(--secondary-grey);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+@media (max-width: 1100px) {
+  .content {
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 24px;
+  }
+}
+
+@media (max-width: 960px) {
+  .top {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .progressInfo {
+    max-width: 100%;
+  }
+
+  .content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 540px) {
+  .player {
+    padding: 24px 0 40px;
+  }
+
+  .top {
+    margin: 24px 0;
+  }
+
+  .top h1 {
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  .top p {
+    font-size: 14px;
+    line-height: 22px;
+  }
+
+  .state {
+    min-height: 300px;
+    padding: 32px 16px;
+  }
+
+  .state h2 {
+    font-size: 20px;
+    line-height: 28px;
+  }
+
+  .state p {
+    font-size: 14px;
+    line-height: 22px;
+  }
+}
+
+.courseLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  margin-top: 24px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  background: var(--purple-color);
+  color: var(--white-color);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.courseLink:hover {
+  background: var(--accessory-purple);
+}

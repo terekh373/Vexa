@@ -71,3 +71,15 @@ export interface CourseCatalogResponse {
   total: number;
   totalPages: number;
 }
+
+/** One autocomplete row: just enough to render a suggestion and link to it. */
+export interface CourseSuggestion {
+  id: string;
+  slug: string;
+  title: string;
+  type: 'course' | 'material';
+}
+
+export interface CourseSuggestResponse {
+  items: CourseSuggestion[];
+}

@@ -13,11 +13,13 @@ import {
   logoutHandler,
   refreshHandler,
   registerHandler,
+  resendVerificationHandler,
   resetPasswordHandler,
   verifyEmailHandler,
   meHandler,
 } from './auth.controller.js';
 import { authenticate } from '../../middleware/authenticate.js';
+import { googleCallbackHandler, googleExchangeHandler, googleStartHandler } from './googleOAuth.controller.js';
 
 export const authRouter: Router = Router();
 
@@ -43,6 +45,14 @@ const registrationLimiter = rateLimit({
 // Password recovery is explicitly called out as a credential-sensitive flow
 // in SRS 20.1. Unlike login, forgot-password always answers successfully, so
 // skipSuccessfulRequests must stay disabled or the limiter would never count.
+const verificationResendLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: { code: 'TOO_MANY_REQUESTS', message: 'Too many attempts, try again later' } },
+});
+
 const passwordRecoveryLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 10,
@@ -70,8 +80,12 @@ authRouter.post('/logout-all', logoutAllHandler);
 
 authRouter.post('/register', registrationLimiter, registerHandler);
 authRouter.post('/login', credentialsLimiter, loginHandler);
+authRouter.get('/google', googleStartHandler);
+authRouter.get('/google/callback', googleCallbackHandler);
+authRouter.post('/google/exchange', credentialsLimiter, googleExchangeHandler);
 authRouter.post('/forgot-password', passwordRecoveryLimiter, forgotPasswordHandler);
 authRouter.post('/reset-password', passwordRecoveryLimiter, resetPasswordHandler);
+authRouter.post('/resend-verification', verificationResendLimiter, resendVerificationHandler);
 authRouter.get('/verify-email', verifyEmailHandler);
 
 authRouter.get('/me', authenticate, meHandler);

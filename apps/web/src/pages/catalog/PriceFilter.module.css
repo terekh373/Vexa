@@ -1,9 +1,14 @@
 .wrapper {
-  width: 316px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .button {
   width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   padding: 16px 10px;
   margin-bottom: 8px;
   background: transparent;
@@ -12,21 +17,25 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   color: var(--main-dark-color);
   font-size: 18px;
   font-weight: 700;
   line-height: 24px;
+  text-align: left;
 }
 
 .dropdown {
-  width: 316px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-/* PRICE SLIDER */
 .slider {
   position: relative;
   width: 100%;
@@ -85,17 +94,15 @@
   pointer-events: auto;
 }
 
-/* PRICE */
 .price {
   margin: 16px 10px 10px;
   color: var(--main-dark-color);
   font-size: 20px;
-  font-weight: normal;
+  font-weight: 400;
   line-height: 32px;
   align-self: flex-start;
 }
 
-/* CHECKBOXES */
 .checkboxes {
   display: flex;
   flex-direction: column;
@@ -105,6 +112,7 @@
 
 .option {
   width: 100%;
+  box-sizing: border-box;
   padding: 10px;
   display: flex;
   align-items: center;
@@ -112,7 +120,7 @@
   gap: 16px;
   color: var(--main-dark-color);
   font-size: 20px;
-  font-weight: normal;
+  font-weight: 400;
   line-height: 32px;
   cursor: pointer;
 }
@@ -122,7 +130,6 @@
   width: 20px;
   height: 20px;
   flex-shrink: 0;
-
 }
 
 .checkboxWrapper input {
@@ -142,7 +149,7 @@
   box-sizing: border-box;
   border: 1px solid var(--border-grey);
   border-radius: 6px;
-  background: white;
+  background: var(--white-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -159,10 +166,11 @@
   display: block;
 }
 
-/* ARROW */
 .arrow {
   width: 8px;
   height: 8px;
+  flex: 0 0 8px;
+  margin-right: 2px;
   border-right: 2px solid var(--purple-color);
   border-bottom: 2px solid var(--purple-color);
   transform: rotate(45deg);
@@ -171,4 +179,44 @@
 
 .arrowUp {
   transform: rotate(-135deg);
+}
+
+@media (max-width: 960px) {
+  .button {
+    padding: 14px 8px;
+    font-size: 16px;
+    line-height: 22px;
+  }
+
+  .price {
+    margin: 12px 8px 8px;
+    font-size: 16px;
+    line-height: 24px;
+  }
+}
+
+@media (max-width: 540px) {
+  .button {
+    padding: 12px 4px;
+    margin-bottom: 4px;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .dropdown {
+    padding: 4px;
+  }
+
+  .price {
+    margin: 10px 4px 6px;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .arrow {
+    width: 7px;
+    height: 7px;
+    flex-basis: 7px;
+    margin-right: 3px;
+  }
 }

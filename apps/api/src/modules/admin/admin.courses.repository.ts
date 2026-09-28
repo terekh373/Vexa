@@ -175,6 +175,7 @@ export interface ModerationCandidate {
   status: CourseStatus;
   title: string;
   authorId: string;
+  authorEmail: string;
   publishedAt: Date | null;
 }
 
@@ -209,10 +210,21 @@ export async function findAdminCourseById(courseId: string): Promise<AdminFullCo
 }
 
 export async function findModerationCandidate(courseId: string): Promise<ModerationCandidate | null> {
-  return prisma.course.findFirst({
+  const course = await prisma.course.findFirst({
     where: { id: courseId, deletedAt: null },
-    select: { id: true, status: true, title: true, authorId: true, publishedAt: true },
+    select: {
+      id: true,
+      status: true,
+      title: true,
+      authorId: true,
+      publishedAt: true,
+      author: { select: { email: true } },
+    },
   });
+  if (course === null) return null;
+
+  const { author, ...rest } = course;
+  return { ...rest, authorEmail: author.email };
 }
 
 export interface CourseStatusTransitionInput {

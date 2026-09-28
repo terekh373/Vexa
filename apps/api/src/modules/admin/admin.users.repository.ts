@@ -4,6 +4,7 @@
  */
 import type { Prisma, UserStatus } from '@prisma/client';
 import { prisma } from '../../lib/prisma.js';
+import type { AdminUserListQuery } from './admin.users.validation.js';
 
 const adminUserSelect = {
   id: true,
@@ -16,6 +17,54 @@ const adminUserSelect = {
 } satisfies Prisma.UserSelect;
 
 export type AdminUserRow = Prisma.UserGetPayload<{ select: typeof adminUserSelect }>;
+
+const adminUserListSelect = {
+  id: true,
+  email: true,
+  fullName: true,
+  roles: true,
+  status: true,
+  createdAt: true,
+  authorProfile: {
+    select: {
+      displayName: true,
+      isVerified: true,
+    },
+  },
+} satisfies Prisma.UserSelect;
+
+export type AdminUserListRow = Prisma.UserGetPayload<{ select: typeof adminUserListSelect }>;
+
+export async function listUsers(
+  query: AdminUserListQuery,
+): Promise<{ items: AdminUserListRow[]; total: number }> {
+  const where: Prisma.UserWhereInput = {
+    deletedAt: null,
+    ...(query.role === undefined ? {} : { roles: { has: query.role } }),
+    ...(query.status === undefined ? {} : { status: query.status }),
+    ...(query.q === undefined
+      ? {}
+      : {
+          OR: [
+            { email: { contains: query.q, mode: 'insensitive' as const } },
+            { fullName: { contains: query.q, mode: 'insensitive' as const } },
+          ],
+        }),
+  };
+
+  const [items, total] = await prisma.$transaction([
+    prisma.user.findMany({
+      where,
+      orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
+      skip: (query.page - 1) * query.limit,
+      take: query.limit,
+      select: adminUserListSelect,
+    }),
+    prisma.user.count({ where }),
+  ]);
+
+  return { items, total };
+}
 
 export async function findUserById(userId: string): Promise<AdminUserRow | null> {
   return prisma.user.findUnique({ where: { id: userId }, select: adminUserSelect });

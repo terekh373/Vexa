@@ -1,10 +1,14 @@
 import styles from './Preview.module.css'
 import {Container} from '../../layout/container/Container.jsx';
 import heroVisual from '../../../assets/images/hero-visual.png'
+import { useNavigate } from 'react-router-dom';
+import { routes } from '@vexa/shared';
 
 import Button from '../../ui/buttons/Button.jsx';
 
 const Preview = () => {
+  const navigate = useNavigate();
+
   return (  
       <Container>
        <section className={styles.container}>
@@ -20,17 +24,29 @@ const Preview = () => {
           </p>
 
           <div className={styles.row}>
-            <Button title='Знайти курси' variant='primary' size='medium' />
-            <Button title='Стати автором' variant='secondary' size='medium' />
+            <Button
+              title="Знайти курси"
+              variant="primary"
+              size="medium"
+              onClick={() => navigate(routes.catalog())}
+            />
+            <Button
+              title="Стати автором"
+              variant="secondary"
+              size="medium"
+              onClick={() => navigate(routes.becomeAuthor())}
+            />
+            {/* <Button title='Знайти курси' variant='primary' size='medium' onClick={() => navigate(routes.catalog())}/>
+            <Button title='Стати автором' variant='secondary' size='medium' /> */}
           </div>
         </div>
 
         <div className={styles.img}>
-          <img src={heroVisual} alt='hero visual'/>
+          <img src={heroVisual} alt="hero visual" />
         </div>
-       </section>
-      </Container>
-  )
-}
+      </section>
+    </Container>
+  );
+};
 
 export default Preview;

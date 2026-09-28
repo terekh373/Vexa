@@ -1,0 +1,522 @@
+.page {
+  padding: 0 0 64px;
+  background: var(--main-bg-color);
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(380px, 0.7fr);
+  gap: 80px;
+  align-items: center;
+  margin: 48px 0 40px;
+}
+
+.heroContent {
+  min-width: 0;
+}
+
+.heroContent h1 {
+  margin: 0 0 16px;
+  color: var(--main-dark-color);
+  font-size: 36px;
+  line-height: 44px;
+  font-weight: 700;
+}
+
+.heroContent > p {
+  max-width: 620px;
+  margin: 0 0 32px;
+  color: var(--main-dark-color);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.searchWrapper {
+  width: 100%;
+  max-width: 640px;
+  margin-bottom: 16px;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.clearFilters,
+.filter {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.clearFilters {
+  padding: 8px 0;
+  border: none;
+  background: transparent;
+  color: var(--purple-color);
+  font-size: 16px;
+  line-height: 18px;
+  font-weight: 500;
+}
+
+.filter {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 36px;
+  padding: 8px 16px;
+  gap: 8px;
+  border: 1px solid var(--border-grey);
+  border-radius: 16px;
+  background: var(--white-color);
+  color: var(--main-dark-color);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.filter:hover {
+  border-color: var(--purple-color);
+}
+
+.filter span {
+  color: var(--main-dark-color);
+  font-size: 15px;
+  line-height: 1;
+}
+
+.heroImage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.heroImage img {
+  display: block;
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  object-fit: contain;
+}
+
+.vacancies {
+  width: 100%;
+}
+
+.vacanciesList {
+  display: grid;
+  grid-template-rows: repeat(5, 72px);
+  gap: 12px;
+  min-height: 408px;
+}
+
+.vacancyCard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 32px;
+  align-items: center;
+  height: 72px;
+  padding: 12px 18px;
+  box-sizing: border-box;
+  border: 1px solid var(--border-grey);
+  border-radius: 12px;
+  background: var(--white-color);
+}
+
+.vacancyInfo {
+  min-width: 0;
+  display: flex;
+  gap: 48px;
+}
+
+.vacancyInfo h2 {
+  margin: 0 0 4px;
+  color: var(--main-dark-color);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.vacancyInfo p {
+  margin: 0;
+  color: var(--secondary-grey);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.tags {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+}
+
+.level,
+.format {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 76px;
+  min-height: 30px;
+  padding: 10px 16px;
+  box-sizing: border-box;
+  border-radius: 20px;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.level {
+  border: 1px solid var(--secondary-purple);
+  background: var(--secondary-purple);
+  color: var(--purple-color);
+}
+
+.format {
+  border: 1px solid var(--border-grey);
+  background: var(--white-color);
+  color: var(--main-dark-color);
+}
+
+.arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--secondary-purple);
+  color: var(--purple-color);
+  font-family: inherit;
+  font-size: 18px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.arrow:hover {
+  background: var(--purple-color);
+  color: var(--white-color);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.pageButton,
+.paginationArrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--purple-color);
+  border-radius: 7px;
+  background: var(--white-color);
+  color: var(--purple-color);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 18px;
+  cursor: pointer;
+}
+
+.pageButton:hover,
+.paginationArrow:hover:not(:disabled) {
+  background: var(--secondary-purple);
+}
+
+.activePage {
+  background: var(--purple-color);
+  color: var(--white-color);
+}
+
+.paginationArrow:disabled {
+  border-color: var(--accessory-grey);
+  color: var(--secondary-grey);
+  cursor: default;
+  opacity: 0.5;
+}
+
+.empty {
+  padding: 64px 24px;
+  border: 1px solid var(--accessory-grey);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.empty h2 {
+  margin: 0 0 8px;
+  color: var(--main-dark-color);
+  font-size: 20px;
+  line-height: 28px;
+}
+
+.empty p {
+  margin: 0;
+  color: var(--secondary-grey);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+@media (max-width: 1200px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 40px;
+  }
+
+  .tags {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 960px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-top: 40px;
+  }
+
+  .heroImage {
+    grid-row: 1;
+  }
+
+  .heroImage img {
+    max-width: 420px;
+  }
+
+  .heroContent {
+    grid-row: 2;
+  }
+
+  .searchWrapper {
+    max-width: 100%;
+  }
+
+  .vacancyCard {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding-bottom: 48px;
+  }
+
+  .hero {
+    display: flex;
+    margin: 32px 0 40px;
+    flex-direction: column-reverse;
+    gap: 28px;
+  }
+
+  .heroImage img {
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .heroContent h1 {
+    margin-bottom: 12px;
+    font-size: 30px;
+    line-height: 38px;
+  }
+
+  .heroContent > p {
+    margin-bottom: 24px;
+    font-size: 14px;
+    line-height: 22px;
+  }
+
+  .filters {
+    gap: 10px;
+  }
+
+  .clearFilters {
+    width: 100%;
+    padding: 4px 0;
+    font-size: 14px;
+    text-align: left;
+  }
+
+  .filter {
+    min-height: 34px;
+    padding: 6px 12px;
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  .vacanciesList {
+    grid-template-rows: repeat(5, 112px);
+    gap: 12px;
+    min-height: 608px;
+  }
+
+  .vacancyCard {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 36px;
+    gap: 12px;
+    align-items: center;
+    height: 112px;
+    padding: 14px 16px;
+  }
+
+  .vacancyInfo {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .vacancyInfo h2 {
+    margin-bottom: 2px;
+    font-size: 15px;
+    line-height: 20px;
+  }
+
+  .vacancyInfo p {
+    font-size: 12px;
+    line-height: 18px;
+  }
+
+  .tags {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .level,
+  .format {
+    min-width: auto;
+    min-height: 26px;
+    padding: 4px 10px;
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .arrow {
+    width: 34px;
+    height: 34px;
+  }
+
+  .pagination {
+    margin-top: 24px;
+  }
+
+  .empty {
+    min-height: 608px;
+  }
+}
+
+@media (max-width: 540px) {
+  .page {
+    padding-bottom: 32px;
+  }
+
+  .hero {
+    margin: 24px 0 32px;
+    gap: 24px;
+  }
+
+  .heroImage img {
+    max-width: 280px;
+  }
+
+  .heroContent h1 {
+    font-size: 26px;
+    line-height: 34px;
+  }
+
+  .heroContent > p {
+    font-size: 14px;
+    line-height: 21px;
+  }
+
+  .searchWrapper {
+    margin-bottom: 14px;
+  }
+
+  .filters {
+    gap: 8px;
+  }
+
+  .clearFilters {
+    margin-bottom: 2px;
+  }
+
+  .filter {
+    min-height: 32px;
+    padding: 5px 10px;
+    border-radius: 14px;
+    font-size: 12px;
+  }
+
+  .vacanciesList {
+    grid-template-rows: repeat(5, 108px);
+    gap: 10px;
+    min-height: 580px;
+  }
+
+  .vacancyCard {
+    height: 108px;
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .vacancyInfo {
+    gap: 10px;
+  }
+
+  .vacancyInfo h2 {
+    font-size: 14px;
+    line-height: 19px;
+  }
+
+  .vacancyInfo p {
+    font-size: 11px;
+    line-height: 16px;
+  }
+
+  .tags {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .level,
+  .format {
+    min-height: 24px;
+    padding: 3px 8px;
+    font-size: 11px;
+    line-height: 16px;
+  }
+
+  .arrow {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+
+  .pagination {
+    gap: 8px;
+    margin-top: 24px;
+  }
+
+  .pageButton,
+  .paginationArrow {
+    width: 28px;
+    height: 28px;
+  }
+
+  .empty {
+    min-height: 580px;
+    padding: 32px 16px;
+  }
+}

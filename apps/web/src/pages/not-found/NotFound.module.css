@@ -2,11 +2,15 @@
   width: 100%;
   max-width: 1298px;
   margin: 32px auto;
+  min-height: 560px;
+  margin: 0 auto;
+  padding: 148px 32px;
 
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 64px;
+   flex: 1;
 }
 
 .img {

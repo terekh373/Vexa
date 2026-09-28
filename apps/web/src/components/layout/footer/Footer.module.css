@@ -1,49 +1,88 @@
 .footer {
   background: var(--footer-bg-color);
-  padding: 32px 0 26px 0;
+  padding: 32px 0 26px;
 }
 
 .container {
   display: flex;
-  gap: 110px;
   align-items: flex-start;
+  gap: 110px;
   margin-bottom: 32px;
 }
 
 .about {
   width: 230px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
   align-items: flex-start;
+  gap: 16px;
 }
 
 .description {
+  margin: 0;
   color: var(--main-dark-color);
   font-size: 16px;
   font-weight: 400;
   line-height: 24px;
 }
 
+.columns {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 40px;
+}
+
 .column {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
+.columnHeader {
+  width: 100%;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: default;
+}
+
 .column h4 {
+  margin: 0;
   color: var(--main-dark-color);
   font-size: 20px;
   font-weight: 600;
-  margin-bottom: 16px;
+  line-height: 28px;
 }
 
-.column a {
+.links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.links a {
+  margin-bottom: 8px;
   color: var(--main-dark-color);
   font-size: 16px;
   font-weight: 400;
+  line-height: 24px;
   text-decoration: none;
-  margin-bottom: 8px;
+}
+
+.links a:last-child {
+  margin-bottom: 0;
+}
+
+.arrow {
+  display: none;
 }
 
 .subfooter {
@@ -54,25 +93,40 @@
 
 .row {
   display: flex;
+  align-items: center;
   gap: 16px;
 }
 
-@media (max-width: 540px) {
+.row a {
+  display: flex;
+}
+
+.row img {
+  display: block;
+}
+
+.copyright {
+  color: var(--main-dark-color);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+/* TABLET */
+@media (max-width: 998px) {
   .footer {
-    padding: 24px 0;
+    padding: 32px 0;
   }
 
   .container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px 16px;
-    margin-bottom: 24px;
+    grid-template-columns: 200px 1fr;
+    gap: 48px;
+    margin-bottom: 32px;
   }
 
   .about {
     width: 100%;
-    grid-column: 1 / -1;
-    gap: 12px;
   }
 
   .description {
@@ -80,38 +134,127 @@
     line-height: 22px;
   }
 
+  .columns {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 32px 24px;
+  }
+
+  .column h4 {
+    font-size: 18px;
+    line-height: 24px;
+  }
+
+  .links a {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .row img {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* MOBILE */
+@media (max-width: 598px) {
+  .footer {
+    padding: 32px 0 24px;
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 24px;
+  }
+
+  .about {
+    width: 100%;
+    margin-bottom: 32px;
+  }
+
+  .description {
+    display: none;
+  }
+
+  .columns {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
   .column {
     width: 100%;
   }
 
-  .column h4 {
-    font-size: 16px;
-    margin-bottom: 12px;
+  .columnHeader {
+    width: 100%;
+    margin: 0;
+    padding: 16px 0;
+    cursor: pointer;
   }
 
-  .column a {
-    font-size: 14px;
-    line-height: 20px;
-    margin-bottom: 6px;
+  .column h4 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 28px;
+  }
+
+  .arrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--purple-color);
+    font-size: 24px;
+    line-height: 1;
+    transition: transform 0.2s ease;
+  }
+
+  .arrowOpen {
+    transform: rotate(180deg);
+  }
+
+  .links {
+    display: none;
+    width: 100%;
+    padding: 4px 0 16px 34%;
+  }
+
+  .columnOpen .links {
+    display: flex;
+  }
+
+  .links a {
+    margin-bottom: 16px;
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  .links a:last-child {
+    margin-bottom: 0;
   }
 
   .subfooter {
-    flex-direction: column;
+    flex-direction: column-reverse;
+    justify-content: center;
     align-items: center;
-    gap: 16px;
-  }
-
-  .row {
-    gap: 16px;
-  }
-  
-  .row img {
-    width: 20px;
-    height: 20px;
+    gap: 12px;
   }
 
   .copyright {
-    font-size: 12px;
+    font-size: 14px;
+    line-height: 20px;
     text-align: center;
+  }
+
+  .row {
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .row img {
+    width: 40px;
+    height: 40px;
   }
 }

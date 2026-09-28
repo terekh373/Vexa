@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { getCurrentUser, loginUser, logoutUser, registerUser } from '../api/authApi.js';
 import {
@@ -59,10 +59,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async ({ email, password, fullName }) => {
-    const { data } = await registerUser(email, password, fullName);
+  const register = async ({ email, password, fullName, acceptTerms }) => {
+    const { data } = await registerUser(email, password, fullName, acceptTerms);
     return data;
   };
+
+  const applyAuthSession = useCallback(({ user: nextUser, tokens }) => {
+    setStoredTokens(tokens);
+    setUser(nextUser);
+  }, []);
+
+  const updateUser = useCallback((nextUser) => {
+  setUser(nextUser);
+}, []);
+
+
 
   const logout = async () => {
     const { refreshToken } = getStoredTokens();
@@ -90,8 +101,10 @@ export const AuthProvider = ({ children }) => {
       login,
       register,
       logout,
+      applyAuthSession,
+      updateUser,
     }),
-    [user, isLoading],
+    [user, isLoading, applyAuthSession, updateUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

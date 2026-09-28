@@ -60,12 +60,17 @@ const testEnv = {
   JWT_ACCESS_TTL: process.env.JWT_ACCESS_TTL ?? '15m',
   JWT_REFRESH_TTL: process.env.JWT_REFRESH_TTL ?? '30d',
   CORS_ORIGINS: process.env.CORS_ORIGINS ?? 'http://localhost:5173',
+  WEB_APP_URL: process.env.WEB_APP_URL ?? 'http://localhost:5173',
   S3_ENDPOINT: process.env.S3_ENDPOINT ?? 'http://localhost:9000',
   S3_REGION: process.env.S3_REGION ?? 'us-east-1',
   S3_BUCKET: process.env.S3_BUCKET ?? 'vexa-test',
   S3_ACCESS_KEY_ID: process.env.S3_ACCESS_KEY_ID ?? 'test-access-key',
   S3_SECRET_ACCESS_KEY: process.env.S3_SECRET_ACCESS_KEY ?? 'test-secret-key',
   S3_SIGNED_URL_TTL_SEC: process.env.S3_SIGNED_URL_TTL_SEC ?? '600',
+  LIQPAY_PUBLIC_KEY: process.env.LIQPAY_PUBLIC_KEY ?? 'sandbox_test_public_key',
+  LIQPAY_PRIVATE_KEY: process.env.LIQPAY_PRIVATE_KEY ?? 'sandbox_test_private_key',
+  PAYMENT_WEBHOOK_URL: process.env.PAYMENT_WEBHOOK_URL ?? 'http://localhost:3000/api/payments/webhook',
+  PLATFORM_COMMISSION_BPS: process.env.PLATFORM_COMMISSION_BPS ?? '1500',
 };
 
 function run(args, cwd = apiRoot) {

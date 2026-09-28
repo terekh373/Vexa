@@ -5,7 +5,11 @@ import { routes } from '@vexa/shared';
 import styles from './AuthorCourses.module.css';
 import { Container } from '../../components/layout/container/Container.jsx';
 import CourseSkeleton from '../../components/ui/skeleton/CourseSkeleton.jsx';
-import { deleteAuthorCourse, getAuthorCourses } from '../../services/authorCoursesService.js';
+import {
+  deleteAuthorCourse,
+  getAuthorCourses,
+  unpublishAuthorCourse,
+} from '../../services/authorCoursesService.js';
 
 const STATUSES = [
   { value: '', label: 'Усі статуси' },
@@ -20,7 +24,7 @@ const STATUS_LABELS = Object.fromEntries(
   STATUSES.filter(({ value }) => value).map(({ value, label }) => [value, label]),
 );
 
-const EDITABLE_STATUSES = new Set(['DRAFT', 'REJECTED']);
+const EDITABLE_STATUSES = new Set(['DRAFT', 'REJECTED', 'UNPUBLISHED']);
 const DELETABLE_STATUSES = new Set(['DRAFT', 'REJECTED']);
 
 const TYPE_LABELS = {
@@ -49,6 +53,9 @@ const AuthorCourses = () => {
   const [courseToDelete, setCourseToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+  const [courseToUnpublish, setCourseToUnpublish] = useState(null);
+  const [isUnpublishing, setIsUnpublishing] = useState(false);
+  const [unpublishError, setUnpublishError] = useState('');
 
   const status = searchParams.get('status') ?? '';
   const isKnownStatus = STATUSES.some((item) => item.value === status);
@@ -122,6 +129,47 @@ const AuthorCourses = () => {
     }
   };
 
+  const openUnpublishModal = (course) => {
+    setUnpublishError('');
+    setCourseToUnpublish(course);
+  };
+
+  const closeUnpublishModal = () => {
+    if (isUnpublishing) return;
+    setCourseToUnpublish(null);
+    setUnpublishError('');
+  };
+
+  const confirmUnpublish = async () => {
+    if (!courseToUnpublish) return;
+
+    setIsUnpublishing(true);
+    setUnpublishError('');
+
+    try {
+      await unpublishAuthorCourse(courseToUnpublish.id);
+      setCourses((current) => {
+        const updated = current.map((course) =>
+          course.id === courseToUnpublish.id
+            ? { ...course, status: 'UNPUBLISHED', rejectionReason: null }
+            : course,
+        );
+
+        return activeStatus === 'PUBLISHED'
+          ? updated.filter((course) => course.id !== courseToUnpublish.id)
+          : updated;
+      });
+      setCourseToUnpublish(null);
+    } catch (error) {
+      const message =
+        error.response?.data?.error?.message ??
+        'Не вдалося зняти курс з публікації. Спробуйте ще раз.';
+      setUnpublishError(message);
+    } finally {
+      setIsUnpublishing(false);
+    }
+  };
+
   const skeletons = useMemo(
     () => Array.from({ length: 4 }, (_, index) => <CourseSkeleton key={index} />),
     [],
@@ -191,6 +239,7 @@ const AuthorCourses = () => {
             {courses.map((course) => {
               const canEdit = EDITABLE_STATUSES.has(course.status);
               const canDelete = DELETABLE_STATUSES.has(course.status);
+              const canUnpublish = course.status === 'PUBLISHED';
 
               return (
                 <article className={styles.courseCard} key={course.id}>
@@ -245,6 +294,16 @@ const AuthorCourses = () => {
                       </button>
                     )}
 
+                    {canUnpublish && (
+                      <button
+                        type="button"
+                        className={styles.unpublishButton}
+                        onClick={() => openUnpublishModal(course)}
+                      >
+                        Зняти з публікації
+                      </button>
+                    )}
+
                     <button
                       type="button"
                       className={styles.deleteButton}
@@ -261,6 +320,45 @@ const AuthorCourses = () => {
           </div>
         )}
       </Container>
+
+      {courseToUnpublish && (
+        <div className={styles.modalBackdrop} role="presentation" onMouseDown={closeUnpublishModal}>
+          <div
+            className={styles.modal}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="unpublish-course-title"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <h2 id="unpublish-course-title">Зняти курс з публікації?</h2>
+            <p>
+              «{courseToUnpublish.title}» зникне з каталогу. Користувачі, які вже мають доступ,
+              зможуть продовжити навчання. Після редагування курс можна знову подати на модерацію.
+            </p>
+
+            {unpublishError && <p className={styles.modalError}>{unpublishError}</p>}
+
+            <div className={styles.modalActions}>
+              <button
+                type="button"
+                className={styles.cancelButton}
+                onClick={closeUnpublishModal}
+                disabled={isUnpublishing}
+              >
+                Скасувати
+              </button>
+              <button
+                type="button"
+                className={styles.confirmUnpublishButton}
+                onClick={confirmUnpublish}
+                disabled={isUnpublishing}
+              >
+                {isUnpublishing ? 'Знімаємо…' : 'Зняти з публікації'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {courseToDelete && (
         <div className={styles.modalBackdrop} role="presentation" onMouseDown={closeDeleteModal}>

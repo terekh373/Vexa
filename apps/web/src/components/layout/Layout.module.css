@@ -1,0 +1,27 @@
+/* .layout {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  width: 100%;
+  flex: 1;
+} */
+
+.layout {
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+}

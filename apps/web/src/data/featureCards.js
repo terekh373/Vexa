@@ -2,10 +2,12 @@ import Analytics from '../assets/icons/for-authors-icons/analytics.svg'
 import Cloud from '../assets/icons/for-authors-icons/cloud.svg'
 import Payments from '../assets/icons/for-authors-icons/payments.svg'
 import User from '../assets/icons/for-authors-icons/user.svg'
+import Users from '../assets/icons/users.svg'
 import Wallet from '../assets/icons/for-authors-icons/wallet.svg'
 import Headset from '../assets/icons/for-authors-icons/headset.svg'
 import Folder from '../assets/icons/for-authors-icons/folder.svg'
 import Mssg from '../assets/icons/for-authors-icons/mssg.svg'
+import Community from '../assets/icons/community.svg'
 
 import Book from '../assets/icons/book.svg'
 import Monitor from '../assets/icons/monitor.svg'
@@ -240,6 +242,30 @@ export const whatCanPublishingCards = [
     subtitle: 'Консультації, гайди та персональний супровід для успішного розвитку.',
     image: heart,
     imageAlt: 'heart icon',
+  },
+];
+
+export const ForVeteransFeatures = [
+  {
+    id: 1,
+    title: 'Безкоштовні курси',
+    subtitle: 'Доступ до обраних курсів для ветеранів та їхніх родин на платформі Vexa.',
+    image: User,
+    imageAlt: 'User icon',
+  },
+  {
+    id: 2,
+    title: 'Професійна підтримка',
+    subtitle: 'Допомога у працевлаштуванні та розвитку професійних навичок.',
+    image: Users,
+    imageAlt: 'Users icon',
+  },
+  {
+    id: 3,
+    title: 'Спільнота ветеранів',
+    subtitle: 'Люди, які підтримують,  і допомагають рухатися вперед.',
+    image: Community,
+    imageAlt: 'Community icon',
   },
 ];
 

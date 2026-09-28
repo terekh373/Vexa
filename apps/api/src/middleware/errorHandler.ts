@@ -8,6 +8,7 @@ import { ZodError } from 'zod';
 import { isProduction } from '../config/env.js';
 import { AppError, type ErrorCode, type ErrorDetail } from '../lib/errors.js';
 import { logger } from '../lib/logger.js';
+import { reportServerError } from '../lib/sentry.js';
 
 interface ErrorResponseBody {
   error: {
@@ -44,7 +45,7 @@ function isZodError(error: unknown): error is ZodError {
   );
 }
 
-export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
+export const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
   if (err instanceof AppError) {
     const body: ErrorResponseBody = {
       error: { code: err.code, message: err.message },
@@ -52,6 +53,7 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     if (err.details) {
       body.error.details = err.details;
     }
+    reportServerError(err, req, err.status);
     res.status(err.status).json(body);
     return;
   }
@@ -80,6 +82,7 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
 
   // Anything below is an unhandled bug: log it in full, expose nothing.
   logger.error({ err }, 'Unhandled error');
+  reportServerError(err, req, 500);
 
   res.status(500).json({
     error: {

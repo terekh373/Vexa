@@ -10,12 +10,17 @@ import {
   courseDetailsController,
   courseReviewsController,
   createCourseReviewController,
+  suggestController,
   updateMyCourseReviewController,
 } from './course.controller.js';
 
 export const courseRouter = Router();
 
 courseRouter.get('/', optionalAuth, catalogController);
+
+// Must stay above '/:id/reviews' and '/:idOrSlug': otherwise "suggest" is
+// captured as a course slug.
+courseRouter.get('/suggest', suggestController);
 
 courseRouter.get('/:id/reviews', courseReviewsController);
 courseRouter.post(

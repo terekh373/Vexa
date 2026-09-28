@@ -43,6 +43,9 @@ export const registerSchema = z.object({
     .trim()
     .min(2, "Ім'я має містити щонайменше 2 символи")
     .max(160, "Ім'я не може бути довшим за 160 символів"),
+  acceptTerms: z.literal(true, {
+    error: 'Потрібно погодитися з офертою та політикою конфіденційності',
+  }),
 });
 
 export const loginSchema = z.object({
@@ -91,6 +94,11 @@ export const forgotPasswordSchema = z.object({
   email: emailSchema,
 });
 
+/** Resending confirmation uses the same non-enumerating email shape. */
+export const resendVerificationSchema = z.object({
+  email: emailSchema,
+});
+
 /** Single-use reset token plus the same password policy used at registration. */
 export const resetPasswordSchema = z.object({
   token: z.string().trim().min(1, 'Відсутній токен відновлення'),
@@ -98,4 +106,5 @@ export const resetPasswordSchema = z.object({
 });
 
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResendVerificationInput = z.infer<typeof resendVerificationSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

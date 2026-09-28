@@ -1,5 +1,6 @@
 import { CourseStatus, ModerationAction, type Prisma } from '@prisma/client';
 import { AppError } from '../../lib/errors.js';
+import { sendCourseUnpublishedEmail, sendModerationResultEmail } from '../../lib/mailer.js';
 import {
   findAdminCourseById,
   findModerationCandidate,
@@ -77,6 +78,8 @@ export async function moderateCourse(moderatorId: string, courseId: string, inpu
   // second moderator won the race between that read and this transaction.
   if (!applied) throw AppError.conflict('Course status changed concurrently');
 
+  await sendModerationResultEmail({ email: course.authorEmail, courseTitle: course.title, approved: isApproval, comment });
+
   return getAdminCourse(courseId);
 }
 
@@ -106,6 +109,8 @@ export async function unpublishCourse(moderatorId: string, courseId: string, inp
   });
 
   if (!applied) throw AppError.conflict('Course status changed concurrently');
+
+  await sendCourseUnpublishedEmail({ email: course.authorEmail, courseTitle: course.title, comment: input.comment });
 
   return getAdminCourse(courseId);
 }

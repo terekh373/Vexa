@@ -1,7 +1,9 @@
 import { ContentType, Prisma } from '@prisma/client';
+import type { CourseSuggestResponse } from '@vexa/shared';
 
 import { prisma } from '../../lib/prisma.js';
-import type { CourseCatalogQuery } from './catalog.validation.js';
+import { findTitleSuggestions } from './catalog.repository.js';
+import type { CourseCatalogQuery, CourseSuggestQuery } from './catalog.validation.js';
 
 interface CatalogCountRow {
   total: number;
@@ -135,6 +137,23 @@ const toApiContentType = (
 ): 'course' | 'material' =>
   value === ContentType.COURSE ? 'course' : 'material';
 
+const SUGGEST_LIMIT = 8;
+
+export async function getCourseSuggestions(
+  query: CourseSuggestQuery,
+): Promise<CourseSuggestResponse> {
+  const rows = await findTitleSuggestions(query.q, SUGGEST_LIMIT);
+
+  return {
+    items: rows.map((row) => ({
+      id: row.id,
+      slug: row.slug,
+      title: row.title,
+      type: toApiContentType(row.contentType),
+    })),
+  };
+}
+
 export async function getCatalog(query: CourseCatalogQuery) {
   const filters: Prisma.Sql[] = [
     Prisma.sql`c.status = 'PUBLISHED'::"CourseStatus"`,
@@ -173,6 +192,34 @@ export async function getCatalog(query: CourseCatalogQuery) {
       Prisma.sql`
         c.category_id IN (
           SELECT id FROM selected_categories
+        )
+      `,
+    );
+  }
+
+  if (query.subject) {
+    filters.push(
+      Prisma.sql`
+        EXISTS (
+          SELECT 1
+          FROM course_topics ct
+          JOIN curriculum_topics t ON t.id = ct.topic_id
+          JOIN curriculum_subjects s ON s.id = t.subject_id
+          WHERE ct.course_id = c.id
+            AND s.slug = ${query.subject}
+        )
+      `,
+    );
+  }
+
+  if (query.topic) {
+    filters.push(
+      Prisma.sql`
+        EXISTS (
+          SELECT 1
+          FROM course_topics ct
+          WHERE ct.course_id = c.id
+            AND ct.topic_id = ${query.topic}::uuid
         )
       `,
     );

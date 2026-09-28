@@ -45,6 +45,16 @@ export const courseCatalogQuerySchema = z
       z.string().trim().min(1).max(120).optional(),
     ),
 
+    subject: z.preprocess(
+      emptyStringToUndefined,
+      z.string().trim().min(1).max(120).optional(),
+    ),
+
+    topic: z.preprocess(
+      emptyStringToUndefined,
+      z.string().uuid().optional(),
+    ),
+
     grade: optionalInteger(1, 11),
 
     priceMin: optionalInteger(0, 100_000_000),
@@ -98,3 +108,9 @@ export const courseCatalogQuerySchema = z
 export type CourseCatalogQuery = z.infer<
   typeof courseCatalogQuerySchema
 >;
+
+export const courseSuggestQuerySchema = z
+  .object({ q: z.string().trim().min(2).max(120) })
+  .strict();
+
+export type CourseSuggestQuery = z.infer<typeof courseSuggestQuerySchema>;

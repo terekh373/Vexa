@@ -22,6 +22,7 @@ const USER_EMAILS = [
   'author-with-profile-uc@example.com',
   'author-no-profile-uc@example.com',
   'student-uc@example.com',
+  'deleted-user-uc@example.com',
 ];
 
 const CATEGORY_SLUGS = [
@@ -38,6 +39,7 @@ interface Fixture {
   admin2Id: string;
   admin2Token: string;
   authorWithProfileId: string;
+  authorWithProfileToken: string;
   authorNoProfileId: string;
   studentId: string;
   studentToken: string;
@@ -101,6 +103,15 @@ async function seedFixture(): Promise<Fixture> {
     data: { email: USER_EMAILS[4], fullName: 'Test Student', roles: [UserRole.STUDENT], passwordHash },
   });
 
+  await prisma.user.create({
+    data: {
+      email: USER_EMAILS[5],
+      fullName: 'Deleted User',
+      roles: [UserRole.STUDENT],
+      deletedAt: new Date(),
+    },
+  });
+
   const rootCategory = await prisma.category.create({
     data: { slug: CATEGORY_SLUGS[0], nameUk: 'Коренева категорія' },
   });
@@ -133,6 +144,7 @@ async function seedFixture(): Promise<Fixture> {
     admin2Id: admin2.id,
     admin2Token: signAccessToken(admin2.id, admin2.roles),
     authorWithProfileId: authorWithProfile.id,
+    authorWithProfileToken: signAccessToken(authorWithProfile.id, authorWithProfile.roles),
     authorNoProfileId: authorNoProfile.id,
     studentId: student.id,
     studentToken: signAccessToken(student.id, student.roles),
@@ -153,6 +165,80 @@ describe('admin users and categories integration', () => {
     await redis.del(CATEGORY_TREE_CACHE_KEY);
     await prisma.$disconnect();
     await redis.quit();
+  });
+
+  // ---------------------------------------------------------------------
+  // Users: list
+  // ---------------------------------------------------------------------
+
+  it('lists active users for ADMIN and searches by partial email or name', async () => {
+    const fixture = await seedFixture();
+
+    const byEmail = await request(app)
+      .get('/api/admin/users?q=WITH-PROFILE')
+      .set('Authorization', `Bearer ${fixture.admin1Token}`);
+
+    expect(byEmail.status).toBe(200);
+    expect(byEmail.body).toMatchObject({ page: 1, limit: 20, total: 1, totalPages: 1 });
+    expect(byEmail.body.items).toHaveLength(1);
+    expect(byEmail.body.items[0]).toMatchObject({
+      id: fixture.authorWithProfileId,
+      email: USER_EMAILS[2],
+      fullName: 'Author With Profile',
+      roles: ['AUTHOR'],
+      status: 'ACTIVE',
+      displayName: 'Author With Profile',
+      isVerified: false,
+    });
+    expect(byEmail.body.items[0].createdAt).toEqual(expect.any(String));
+
+    const byName = await request(app)
+      .get('/api/admin/users?q=Test%20Stu')
+      .set('Authorization', `Bearer ${fixture.admin1Token}`);
+
+    expect(byName.status).toBe(200);
+    expect(byName.body.items).toHaveLength(1);
+    expect(byName.body.items[0].id).toBe(fixture.studentId);
+  });
+
+  it('filters users by role and status, paginates, and excludes deleted users', async () => {
+    const fixture = await seedFixture();
+
+    await prisma.user.update({
+      where: { id: fixture.studentId },
+      data: { status: 'BLOCKED' },
+    });
+
+    const filtered = await request(app)
+      .get('/api/admin/users?role=STUDENT&status=BLOCKED&page=1&limit=1')
+      .set('Authorization', `Bearer ${fixture.admin1Token}`);
+
+    expect(filtered.status).toBe(200);
+    expect(filtered.body).toMatchObject({ page: 1, limit: 1, total: 1, totalPages: 1 });
+    expect(filtered.body.items).toHaveLength(1);
+    expect(filtered.body.items[0]).toMatchObject({ id: fixture.studentId, status: 'BLOCKED' });
+
+    const deleted = await request(app)
+      .get('/api/admin/users?q=deleted-user-uc')
+      .set('Authorization', `Bearer ${fixture.admin1Token}`);
+
+    expect(deleted.status).toBe(200);
+    expect(deleted.body.total).toBe(0);
+    expect(deleted.body.items).toEqual([]);
+  });
+
+  it('rejects STUDENT and AUTHOR on the users list with 403', async () => {
+    const fixture = await seedFixture();
+
+    const student = await request(app)
+      .get('/api/admin/users')
+      .set('Authorization', `Bearer ${fixture.studentToken}`);
+    expect(student.status).toBe(403);
+
+    const author = await request(app)
+      .get('/api/admin/users')
+      .set('Authorization', `Bearer ${fixture.authorWithProfileToken}`);
+    expect(author.status).toBe(403);
   });
 
   // ---------------------------------------------------------------------

@@ -1,30 +1,36 @@
 .wrapper {
-  width: 316px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .button {
   width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   padding: 16px 10px;
   margin-bottom: 8px;
-
   background: transparent;
   border: none;
   cursor: pointer;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
+  gap: 16px;
   color: var(--main-dark-color);
   font-size: 18px;
   font-weight: 700;
   line-height: 24px;
+  text-align: left;
 }
 
 .dropdown {
-  width: 316px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: 10px;
-
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -32,19 +38,20 @@
 
 .option {
   width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   padding: 10px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   color: var(--main-dark-color);
   font-size: 20px;
-  font-weight: normal;
+  font-weight: 400;
   line-height: 32px;
 }
 
 .box {
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -60,11 +67,9 @@
 .checkboxWrapper input {
   position: absolute;
   inset: 0;
-
   width: 20px;
   height: 20px;
   margin: 0;
-
   opacity: 0;
   cursor: pointer;
   z-index: 2;
@@ -73,12 +78,10 @@
 .checkbox {
   width: 20px;
   height: 20px;
-
   box-sizing: border-box;
   border: 1px solid var(--border-grey);
   border-radius: 6px;
-  background: white;
-
+  background: var(--white-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -113,14 +116,79 @@
 .arrow {
   width: 8px;
   height: 8px;
-
+  flex: 0 0 8px;
+  margin-right: 2px;
   border-right: 2px solid var(--purple-color);
   border-bottom: 2px solid var(--purple-color);
-
   transform: rotate(45deg);
   transition: transform 0.2s;
 }
 
 .arrowUp {
   transform: rotate(-135deg);
+}
+
+@media (max-width: 960px) {
+  .button {
+    padding: 14px 8px;
+    font-size: 16px;
+    line-height: 22px;
+  }
+
+  .option {
+    padding: 8px;
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  .box {
+    gap: 12px;
+  }
+
+  .star {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: 540px) {
+  .button {
+    padding: 12px 4px;
+    margin-bottom: 4px;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .dropdown {
+    padding: 4px;
+  }
+
+  .option {
+    padding: 8px 4px;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .box {
+    gap: 10px;
+  }
+
+  .checkboxWrapper,
+  .checkboxWrapper input,
+  .checkbox {
+    width: 18px;
+    height: 18px;
+  }
+
+  .star {
+    width: 16px;
+    height: 16px;
+  }
+
+  .arrow {
+    width: 7px;
+    height: 7px;
+    flex-basis: 7px;
+    margin-right: 3px;
+  }
 }

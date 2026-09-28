@@ -1,16 +1,16 @@
 /**
  * Email confirmation (SRS 15.1).
  *
- * The token lives in Redis only: it is short-lived and single-use, so a table
- * and a migration would buy nothing. Delivery is stubbed at this stage — the
- * link goes to the log, per the issue scope.
+ * Tokens are short-lived and single-use, so Redis is the source of truth. The
+ * mail function keeps its existing `(email, token) => void` signature while
+ * the transport performs best-effort asynchronous delivery.
  */
 import { randomBytes } from 'node:crypto';
 import { env } from '../../config/env.js';
 import { AppError } from '../../lib/errors.js';
-import { logger } from '../../lib/logger.js';
+import { sendMail } from '../../lib/mailer.js';
 import { redis } from '../../lib/redis.js';
-import { markEmailVerified } from './auth.repository.js';
+import { findActiveByEmail, markEmailVerified } from './auth.repository.js';
 
 const TOKEN_TTL_SECONDS = 24 * 60 * 60;
 
@@ -28,37 +28,43 @@ export async function createVerificationToken(userId: string): Promise<string> {
   return token;
 }
 
-/**
- * Placeholder for the mail transport. Replaced by a real provider in the
- * notifications issue; the signature stays the same.
- */
 export function sendVerificationEmail(email: string, token: string): void {
-  const verificationUrl = `${env.WEB_APP_URL.replace(/\/$/, '')}/verify-email?token=${token}`;
+  const verificationUrl = `${env.WEB_APP_URL.replace(/\/$/, '')}/verify-email?token=${encodeURIComponent(token)}`;
 
-  logger.info(
-    { email, verificationUrl },
-    'Verification email (delivery stubbed)',
-  );
+  void sendMail({
+    to: [{ email }],
+    subject: 'Vexa — підтвердіть email',
+    text: `Вітаємо у Vexa! Підтвердьте вашу email-адресу за посиланням: ${verificationUrl}\n\nПосилання дійсне 24 години.`,
+    html: `<p>Вітаємо у Vexa!</p><p>Підтвердьте вашу email-адресу:</p><p><a href="${verificationUrl}">Підтвердити email</a></p><p>Посилання дійсне 24 години.</p>`,
+  });
 }
 
 /**
- * Consumes a token.
- *
- * GETDEL would be a single round trip, but it requires Redis 6.2+. A
- * MULTI/EXEC transaction is executed atomically as well and runs on any
- * version, so two parallel requests still cannot both consume one token.
+ * Resends confirmation without exposing whether an account exists or is
+ * already verified. The HTTP controller always returns the same 204 response.
+ */
+export async function requestVerificationResend(email: string): Promise<void> {
+  const user = await findActiveByEmail(email);
+
+  if (user === null || user.emailVerifiedAt !== null) {
+    return;
+  }
+
+  const token = await createVerificationToken(user.id);
+  sendVerificationEmail(user.email, token);
+}
+
+/**
+ * Consumes a token atomically. Two parallel confirmations cannot both win.
  */
 export async function consumeVerificationToken(token: string): Promise<string> {
   const key = verificationKey(token);
-
   const results = await redis.multi().get(key).del(key).exec();
 
-  // exec() returns null when the transaction was aborted.
   if (results === null) {
     throw AppError.notFound('Verification token is invalid or expired');
   }
 
-  // Each entry is [error, value]; the first one belongs to GET.
   const userId = results[0]?.[1];
 
   if (typeof userId !== 'string') {

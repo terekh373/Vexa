@@ -1,9 +1,9 @@
 import apiClient from './client.js';
 
-export const registerUser = (email, password, fullName) =>
+export const registerUser = (email, password, fullName, acceptTerms) =>
   apiClient.post(
     '/auth/register',
-    { email, password, fullName },
+    { email, password, fullName, acceptTerms },
     { skipAuthRefresh: true, skipAuthHeader: true },
   );
 
@@ -29,3 +29,20 @@ export const verifyEmail = (token) =>
     skipAuthRefresh: true,
     skipAuthHeader: true,
   });
+
+export const forgotPasswordRequest = async (email) => {
+  return await apiClient.post('/api/auth/forgot-password', { email });
+};
+
+export const resetPasswordRequest = async (token, newPassword) => {
+  return await apiClient.post('/api/auth/reset-password', { token, newPassword });
+};
+
+export const resendVerificationEmail = async (email) => {
+  const response = await apiClient.post(
+    '/auth/resend-verification', 
+    { email },
+    { skipAuthRefresh: true, skipAuthHeader: true }
+  );
+  return response.data;
+};

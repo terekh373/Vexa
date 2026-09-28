@@ -2,7 +2,7 @@
  * Persistence for the files table and the join tables that attach a file to a
  * course. Prisma calls only — who may download what is decided in the service.
  */
-import { CourseStatus, type File, type FileKind, StorageProvider } from '@prisma/client';
+import { CourseStatus, type File, FileKind, StorageProvider } from '@prisma/client';
 import { prisma } from '../../lib/prisma.js';
 
 export interface CreatePendingFileInput {
@@ -30,6 +30,39 @@ export async function createPending(input: CreatePendingFileInput): Promise<File
       sizeBytes: input.sizeBytes,
       isReady: false,
     },
+  });
+}
+
+export interface CreatePendingVideoInput {
+  uploadedById: string;
+  /** Cloudflare Stream video UID. */
+  storageKey: string;
+  originalName: string;
+  mimeType: string;
+  sizeBytes: bigint;
+}
+
+/** Row for a Stream video whose direct upload link has just been issued. */
+export async function createPendingVideo(input: CreatePendingVideoInput): Promise<File> {
+  return prisma.file.create({
+    data: {
+      uploadedById: input.uploadedById,
+      kind: FileKind.VIDEO,
+      provider: StorageProvider.CLOUDFLARE_STREAM,
+      storageKey: input.storageKey,
+      originalName: input.originalName,
+      mimeType: input.mimeType,
+      sizeBytes: input.sizeBytes,
+      isReady: false,
+    },
+  });
+}
+
+/** Duration comes from Stream, the only party that has probed the video. */
+export async function markVideoReady(id: string, durationSec: number | null): Promise<File> {
+  return prisma.file.update({
+    where: { id },
+    data: { isReady: true, durationSec },
   });
 }
 

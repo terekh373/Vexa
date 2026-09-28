@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+import { routes } from '@vexa/shared';
 import styles from './BecomeAuthor.module.css'
 import { Container } from '../../layout/container/Container';
 import img from '../../../assets/images/author.png'
@@ -7,6 +9,8 @@ import graduationIcon from '../../../assets/icons/school.svg'
 import wallet from '../../../assets/icons/wallet.svg'
 
 const BecomeAuthor = () => {
+  const navigate = useNavigate();
+
   return (
     <section className={styles.section}>
       <Container>
@@ -32,7 +36,7 @@ const BecomeAuthor = () => {
               to="/lesson/2"
             />
 
-            <Button title='Отримати прибуток' />
+            <Button title='Отримати прибуток' onClick={() => navigate(routes.becomeAuthor())} />
           </div>
         </div>
       </Container>

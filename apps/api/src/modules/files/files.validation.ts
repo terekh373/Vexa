@@ -52,6 +52,17 @@ export const UPLOAD_POLICY: Readonly<Record<S3FileKind, KindPolicy>> = {
   [FileKind.ATTACHMENT]: { mimeTypes: [...IMAGE_MIMES, ...DOCUMENT_MIMES], maxSizeBytes: 100 * MB },
 };
 
+/**
+ * 200 MB is the ceiling of Stream's basic (non-tus) upload; 3600 s is the
+ * duration Cloudflare reserves for an upload that never finishes, and a lesson
+ * longer than an hour is not needed for the MVP.
+ */
+export const VIDEO_UPLOAD_POLICY = {
+  mimeTypes: ['video/mp4', 'video/quicktime', 'video/webm'],
+  maxSizeBytes: 200 * MB,
+  maxDurationSec: 3600,
+} as const;
+
 export function extensionForMime(mimeType: string): string | null {
   return MIME_EXTENSION[mimeType] ?? null;
 }
@@ -86,6 +97,33 @@ export const createUploadUrlSchema = z
   });
 
 export type CreateUploadUrlInput = z.infer<typeof createUploadUrlSchema>;
+
+export const createVideoUploadUrlSchema = z
+  .object({
+    originalName: z.string().trim().min(1).max(255),
+    mimeType: z.string().trim().min(1).max(127),
+    sizeBytes: z.number().int().positive(),
+  })
+  .strict()
+  .superRefine((value, ctx) => {
+    if (!VIDEO_UPLOAD_POLICY.mimeTypes.some((mimeType) => mimeType === value.mimeType)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['mimeType'],
+        message: 'Тип файлу не підтримується для VIDEO',
+      });
+    }
+
+    if (value.sizeBytes > VIDEO_UPLOAD_POLICY.maxSizeBytes) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['sizeBytes'],
+        message: `Файл завеликий: максимум ${VIDEO_UPLOAD_POLICY.maxSizeBytes / MB} МБ`,
+      });
+    }
+  });
+
+export type CreateVideoUploadUrlInput = z.infer<typeof createVideoUploadUrlSchema>;
 
 export const fileIdParamsSchema = z.object({
   id: z.string().uuid(),

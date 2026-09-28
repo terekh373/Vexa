@@ -27,6 +27,7 @@ import {
   reorderAuthorCourse,
   replyToCourseReview,
   submitAuthorCourse,
+  unpublishAuthorCourse,
   updateAuthorCourse,
   updateAuthorLesson,
   updateAuthorModule,
@@ -112,6 +113,12 @@ export const reorderCourseHandler: RequestHandler = async (req: Request, res: Re
   const { id } = courseIdParamsSchema.parse(req.params);
   const input = reorderCourseSchema.parse(req.body);
   const course = await reorderAuthorCourse(userIdFrom(req), id, input);
+  res.status(200).json(course);
+};
+
+export const unpublishCourseHandler: RequestHandler = async (req: Request, res: Response) => {
+  const { id } = courseIdParamsSchema.parse(req.params);
+  const course = await unpublishAuthorCourse(userIdFrom(req), id);
   res.status(200).json(course);
 };
 

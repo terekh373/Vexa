@@ -16,6 +16,7 @@ const StepPublish = ({
   submitting,
   submitError,
   submitMessage,
+  problems,
   onSubmit,
 }) => {
   const priceLabel = Number(formState.priceUah) > 0 ? `${formState.priceUah} грн` : 'Безкоштовно';
@@ -45,6 +46,16 @@ const StepPublish = ({
 
       {submitMessage && <p className={styles.success}>{submitMessage}</p>}
       {submitError && <p className={styles.formError}>{submitError}</p>}
+      {problems.length > 0 && (
+        <div className={styles.formError}>
+          <p>Перед подачею на модерацію виправте:</p>
+          <ul>
+            {problems.map((problem, index) => (
+              <li key={`${problem.field}${index}`}>{problem.message}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {!isReadOnly && (
         <button

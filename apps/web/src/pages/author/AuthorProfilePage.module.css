@@ -1,0 +1,174 @@
+.page {
+  padding: 32px 0 72px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 28px;
+  align-items: center;
+  margin-top: 32px;
+  padding: 32px;
+  border-radius: 24px;
+  border: 1px solid #e6e7ec;
+  background: linear-gradient(135deg, #ffffff 0%, #f6f2ff 100%);
+}
+
+.avatar {
+  width: 132px;
+  height: 132px;
+  border-radius: 28px;
+  object-fit: cover;
+  background: #eeeaf8;
+}
+
+.info {
+  min-width: 0;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.nameRow h1 {
+  margin: 0;
+  color: var(--main-dark-color);
+  font-size: clamp(30px, 4vw, 42px);
+  line-height: 1.15;
+}
+
+.verified {
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: #4b2cc4;
+  background: #eee8ff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.headline {
+  margin: 10px 0 0;
+  color: var(--purple-color);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.bio {
+  max-width: 760px;
+  margin: 14px 0 0;
+  color: #626672;
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+.stats {
+  display: flex;
+  gap: 12px;
+  margin: 0;
+}
+
+.stats div {
+  min-width: 96px;
+  padding: 16px;
+  text-align: center;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(45, 29, 85, 0.06);
+}
+
+.stats dt {
+  color: var(--purple-color);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.stats dd {
+  margin: 4px 0 0;
+  color: #6e7280;
+  font-size: 12px;
+}
+
+.coursesSection {
+  margin-top: 48px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.sectionHeader span {
+  color: var(--purple-color);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.sectionHeader h2 {
+  margin: 6px 0 0;
+  color: var(--main-dark-color);
+  font-size: 30px;
+}
+
+.sectionHeader strong {
+  color: #9195a1;
+  font-size: 16px;
+}
+
+.empty,
+.state {
+  color: #6e7280;
+}
+
+.empty {
+  padding: 32px;
+  border: 1px dashed #d9dbe2;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.state {
+  min-height: 360px;
+  display: grid;
+  place-items: center;
+}
+
+@media (max-width: 980px) {
+  .hero {
+    grid-template-columns: auto 1fr;
+  }
+
+  .stats {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+
+  .avatar {
+    width: 104px;
+    height: 104px;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+  }
+
+  .stats div {
+    min-width: 0;
+    padding: 12px 8px;
+  }
+}

@@ -1,5 +1,4 @@
 import {
-  CourseStatus,
   LessonType,
   QuestionType,
   type Prisma,
@@ -12,11 +11,7 @@ import type {
   UpdateQuestionInput,
   UpdateQuizInput,
 } from './author.quiz.validation.js';
-
-const EDITABLE_STATUSES = new Set<CourseStatus>([
-  CourseStatus.DRAFT,
-  CourseStatus.REJECTED,
-]);
+import { assertEditable } from './author.service.js';
 
 type DbClient = Prisma.TransactionClient | typeof prisma;
 
@@ -57,12 +52,6 @@ const authorQuizSelect = {
     select: authorQuestionSelect,
   },
 } satisfies Prisma.QuizSelect;
-
-function assertEditable(status: CourseStatus): void {
-  if (!EDITABLE_STATUSES.has(status)) {
-    throw AppError.conflict('Course can be edited only in DRAFT or REJECTED status');
-  }
-}
 
 async function findLessonForAuthor(db: DbClient, lessonId: string, userId: string) {
   const lesson = await db.lesson.findFirst({

@@ -2,6 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { routes } from '@vexa/shared';
 
 import { useAuth } from '../../context/auth-context.js';
+import Forbidden from '../../pages/forbidden/Forbidden.jsx';
 
 const ProtectedRoute = ({ allowedRoles = [], children }) => {
   const { user, isLoading } = useAuth();
@@ -19,7 +20,7 @@ const ProtectedRoute = ({ allowedRoles = [], children }) => {
     allowedRoles.length === 0 || allowedRoles.some((role) => user.roles?.includes(role));
 
   if (!hasRequiredRole) {
-    return <Navigate to={routes.home()} replace />;
+    return <Forbidden />;
   }
 
   return children ?? <Outlet />;

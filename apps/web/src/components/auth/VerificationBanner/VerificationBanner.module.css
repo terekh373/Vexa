@@ -1,0 +1,70 @@
+.wrapper {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+  
+  .global {
+    background-color: #fffbe6;
+    border-bottom: 1px solid #ffe58f;
+  }
+  
+  .inline {
+    background-color: #f9f9f9;
+    border: 1px dashed #ffa39e;
+    border-radius: 8px;
+    margin-bottom: 24px;
+  }
+  
+  .content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: 1440px;
+    margin: 0 auto;
+  }
+  
+  .text {
+    color: #d46b08;
+    font-weight: 500;
+  }
+  
+  .button {
+    background-color: #faad14;
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  
+  .button:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+  
+  .button:disabled {
+    background-color: #d9d9d9;
+    color: #8c8c8c;
+    cursor: not-allowed;
+  }
+  
+  .message {
+    margin-top: 8px;
+    font-size: 13px;
+    text-align: right;
+    max-width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .msgSuccess, .msgLimit {
+    color: #52c41a;
+  }
+  
+  .msgError {
+    color: #ff4d4f;
+  }
