@@ -1,0 +1,106 @@
+.overlay {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgb(0 0 0 / 35%);
+}
+
+.modal {
+  width: 100%;
+  max-width: 720px;
+  max-height: 100%;
+  padding: 24px;
+  overflow-y: auto;
+  background: var(--main-bg-color);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 15%);
+  outline: none;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.title {
+  margin: 0;
+  color: var(--main-dark-color);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+}
+
+.close {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  color: var(--purple-color);
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--secondary-purple);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.close:hover {
+  opacity: 0.8;
+}
+
+.text {
+  color: var(--main-dark-color);
+  font-size: 16px;
+  line-height: 24px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.state {
+  margin: 0;
+  color: var(--main-dark-color);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.state a {
+  color: var(--purple-color);
+  font-weight: 600;
+}
+
+.files {
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.files li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  color: var(--main-dark-color);
+  border-bottom: 1px solid var(--accessory-grey);
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  flex-shrink: 0;
+  color: var(--secondary-grey);
+  font-size: 14px;
+}
+
+@media (max-width: 540px) {
+  .overlay {
+    padding: 12px;
+  }
+
+  .modal {
+    padding: 20px 16px;
+  }
+}

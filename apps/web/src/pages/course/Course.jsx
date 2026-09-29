@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { routes } from '@vexa/shared';
 
 import styles from './Course.module.css';
@@ -29,6 +29,7 @@ import CoursePageSkeleton from '../../components/ui/skeleton/course-page/CourseP
 import { addToCart, getCart } from '../../services/cartService.js';
 import { enrollFreeCourse } from '../../services/learningService.js';
 import Toast from '../../components/ui/toast/Toast.jsx';
+import { useAuth } from '../../context/auth-context.js';
 
 import {
   createCourseReview,
@@ -93,6 +94,8 @@ const formatFileSize = (sizeBytes) => {
 const Course = () => {
   const { idOrSlug } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
 
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -272,19 +275,28 @@ const Course = () => {
   const coverUrl = course.cover?.url || InfoBg;
   const authorAvatarUrl = author.avatar?.url || authorAvatar;
   const isMaterial = course.type === 'MATERIAL';
-  const isFreeCourse = !isMaterial && course.price?.amount === 0;
+  // The API reports hasAccess=true for any free item before enrollment,
+  // so free items must not rely on it and always enroll first.
+  const isFree = course.price?.amount === 0;
   const programLabel = isMaterial ? 'Матеріали' : 'Програма';
 
   const handlePurchase = async () => {
-    if (isFreeCourse) {
+    if (isFree) {
+      if (!user) {
+        navigate(routes.login(), { state: { from: location } });
+        return;
+      }
+
       try {
         setAddingToCart(true);
 
         await enrollFreeCourse(course.id);
 
-        navigate(routes.player(course.id));
+        navigate(
+          isMaterial ? routes.learningMaterials() : routes.player(course.id),
+        );
       } catch (error) {
-        console.error('Не вдалося записатися на безкоштовний курс:', error);
+        console.error('Не вдалося записатися на безкоштовну позицію:', error);
 
         setToast({
           message: 'Не вдалося розпочати навчання',
@@ -350,8 +362,8 @@ const Course = () => {
   // };
 
   const getPurchaseButtonTitle = () => {
-    if (addingToCart && isFreeCourse) return 'Записуємо...';
-    if (isFreeCourse) return 'Розпочати навчання';
+    if (addingToCart && isFree) return 'Записуємо...';
+    if (isFree) return isMaterial ? 'Отримати безкоштовно' : 'Розпочати навчання';
     if (course.hasAccess) return 'Перейти до навчання';
     if (addingToCart) return 'Додаємо...';
     if (isInCart) return 'Вже в кошику';
