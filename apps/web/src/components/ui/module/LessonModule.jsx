@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import styles from './LessonModule.module.css';
+import LessonPreview from './LessonPreview.jsx';
 
 const formatDuration = (seconds) => {
   if (!seconds) return '0 хв';
@@ -23,6 +24,8 @@ const getLessonsText = (count) => {
 
 const LessonModule = ({ module }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [previewLesson, setPreviewLesson] = useState(null);
+  const closePreview = useCallback(() => setPreviewLesson(null), []);
   const lessons = module.lessons ?? [];
   const durationSec = lessons.reduce(
     (total, lesson) => total + (Number(lesson.durationSec) || 0),
@@ -54,8 +57,8 @@ const LessonModule = ({ module }) => {
           {lessons.map((lesson) => {
             const isPreview = lesson.isFreePreview ?? lesson.isPreview ?? false;
 
-            return (
-              <div className={styles.lesson} key={lesson.id}>
+            const rowContent = (
+              <>
                 <div className={styles.lessonTitleRow}>
                   <span>{lesson.title}</span>
                   {isPreview && (
@@ -66,10 +69,35 @@ const LessonModule = ({ module }) => {
                   )}
                 </div>
                 <span>{formatDuration(lesson.durationSec)}</span>
+              </>
+            );
+
+            // Access is decided by the server: only unlocked preview lessons open.
+            if (isPreview && lesson.isLocked === false) {
+              return (
+                <button
+                  className={`${styles.lesson} ${styles.lessonButton}`}
+                  key={lesson.id}
+                  onClick={() => setPreviewLesson(lesson)}
+                  type="button"
+                  title="Переглянути"
+                >
+                  {rowContent}
+                </button>
+              );
+            }
+
+            return (
+              <div className={styles.lesson} key={lesson.id}>
+                {rowContent}
               </div>
             );
           })}
         </div>
+      )}
+
+      {previewLesson && (
+        <LessonPreview lesson={previewLesson} onClose={closePreview} />
       )}
     </div>
   );
