@@ -6,7 +6,6 @@ import Breadcrumbs from '../../components/ui/breadcrumbs/Breadcrumbs.jsx'
 import { CardsList } from '../../components/ui/cards-list/CardsList.jsx'
 import { whyBecomeAuthorCards, howItWorksCards, whatPublishingCards, whatCanPublishingCards } from '../../data/featureCards.js'
 import { Title } from '../../components/ui/title/Title.jsx'
-import { authorsReviewCards } from '../../data/authorsReview.js'
 import Preview from '../../assets/images/for-authors-images/preview.png'
 
 import Button from '../../components/ui/buttons/Button.jsx'
@@ -88,13 +87,6 @@ const ForAuthors = () => {
         <Container>
           <Title title='Що можна публікувати на VEXA' size='small' />
           <CardsList cards={whatCanPublishingCards} last variant='whatCanPublishing' showArrow={false}/>
-        </Container>
-      </section>
-
-      <section className={styles.sectionReview}>
-        <Container>
-          <Title title='Що кажуть наші автори' size='small' />
-          <CardsList cards={authorsReviewCards} review='authorReview' beforeLast/>
         </Container>
       </section>
     </>

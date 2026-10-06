@@ -9,10 +9,6 @@
   background: var(--footer-bg-color);
 }
 
-.sectionReview {
-  width: 100%;
-}
-
 .row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(420px, 1fr);

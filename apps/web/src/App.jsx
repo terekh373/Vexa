@@ -51,7 +51,6 @@ import Privacy from './pages/Privacy/Privacy.jsx';
 import Cookies from './pages/Cookies/Cookies.jsx';
 import Support from './pages/Support/Support.jsx';
 
-import StudentDashboard from './pages/student-dashboard/StudentDashboard.jsx';
 import Schedule from './pages/schedule/Schedule.jsx';
 import Vacancies from './pages/footer/vacancies/Vacancies.jsx';
 import AllVacancies from './pages/footer/vacancies/AllVacancies.jsx';
@@ -108,7 +107,7 @@ function App() {
           <Route path={routePatterns.player} element={<LearningPlayer />} />
           <Route path={routePatterns.playerLesson} element={<LearningPlayer />} />
           <Route path={routePatterns.learningMaterials} element={<LearningMaterials />} />
-          <Route path={routePatterns.studentDashboard} element={<StudentDashboard />} />
+          <Route path={routePatterns.studentDashboard} element={<Navigate to={routes.learning()} replace />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['AUTHOR']} />}>
