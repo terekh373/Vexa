@@ -37,12 +37,3 @@ export const forgotPasswordRequest = async (email) => {
 export const resetPasswordRequest = async (token, newPassword) => {
   return await apiClient.post('/api/auth/reset-password', { token, newPassword });
 };
-
-export const resendVerificationEmail = async (email) => {
-  const response = await apiClient.post(
-    '/auth/resend-verification', 
-    { email },
-    { skipAuthRefresh: true, skipAuthHeader: true }
-  );
-  return response.data;
-};

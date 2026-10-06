@@ -67,6 +67,7 @@ describe('author profile integration', () => {
         displayName: 'Олена Автор',
         headline: 'Викладач математики',
         bio: 'Пояснюю складне простими словами.',
+        acceptRules: true,
       });
 
     expect(activated.status).toBe(201);
@@ -91,6 +92,7 @@ describe('author profile integration', () => {
     });
     expect(stored.roles).toContain(UserRole.AUTHOR);
     expect(stored.authorProfile?.displayName).toBe('Олена Автор');
+    expect(stored.authorProfile?.rulesAcceptedAt).toEqual(expect.any(Date));
 
     const oldTokenAuthorRoute = await request(app)
       .get('/api/author/courses')
@@ -110,13 +112,13 @@ describe('author profile integration', () => {
     const activated = await request(app)
       .post('/api/me/author-profile')
       .set('Authorization', `Bearer ${first.token}`)
-      .send({ displayName: 'Repeat Author' });
+      .send({ displayName: 'Repeat Author', acceptRules: true });
     expect(activated.status).toBe(201);
 
     const repeated = await request(app)
       .post('/api/me/author-profile')
       .set('Authorization', `Bearer ${activated.body.tokens.accessToken}`)
-      .send({ displayName: 'Repeat Author Again' });
+      .send({ displayName: 'Repeat Author Again', acceptRules: true });
     expect(repeated.status).toBe(409);
     expect(repeated.body.error.code).toBe('CONFLICT');
 
@@ -129,13 +131,40 @@ describe('author profile integration', () => {
     expect(blockedActivation.body.error.code).toBe('FORBIDDEN');
   });
 
+  it('rejects author activation without explicit rules acceptance', async () => {
+    const { token } = await createStudent();
+
+    const response = await request(app)
+      .post('/api/me/author-profile')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        displayName: 'Author Without Consent',
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+
+    expect(response.body.error.details).toEqual(
+      expect.arrayContaining([
+        {
+          field: 'acceptRules',
+          message: 'Потрібно підтвердити авторство або право на матеріали',
+        },
+      ]),
+    );
+  });
+
   it('allows an author to edit the same public profile fields', async () => {
     const account = await createStudent();
 
     const activated = await request(app)
       .post('/api/me/author-profile')
       .set('Authorization', `Bearer ${account.token}`)
-      .send({ displayName: 'Initial Author', headline: 'Initial headline' });
+      .send({
+        displayName: 'Initial Author',
+        headline: 'Initial headline',
+        acceptRules: true,
+      });
     expect(activated.status).toBe(201);
 
     const updated = await request(app)

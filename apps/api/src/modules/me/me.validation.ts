@@ -31,12 +31,25 @@ export const authorProfileCreateSchema = z
       .trim()
       .min(2, "Ім'я автора має містити щонайменше 2 символи")
       .max(160, "Ім'я автора не може бути довшим за 160 символів"),
-    headline: optionalProfileText(255, 'Заголовок не може бути довшим за 255 символів'),
-    bio: optionalProfileText(5000, 'Опис не може бути довшим за 5000 символів'),
+
+    headline: optionalProfileText(
+      255,
+      'Заголовок не може бути довшим за 255 символів',
+    ),
+
+    bio: optionalProfileText(
+      5000,
+      'Опис не може бути довшим за 5000 символів',
+    ),
+
+    acceptRules: z.literal(true, {
+      error: 'Потрібно підтвердити авторство або право на матеріали',
+    }),
   })
   .strict();
 
 export const authorProfileUpdateSchema = authorProfileCreateSchema
+  .omit({ acceptRules: true })
   .partial()
   .refine(
     (value) =>
