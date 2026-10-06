@@ -126,7 +126,7 @@ describe('author profile integration', () => {
     const blockedActivation = await request(app)
       .post('/api/me/author-profile')
       .set('Authorization', `Bearer ${blocked.token}`)
-      .send({ displayName: 'Blocked Author' });
+      .send({ displayName: 'Blocked Author', acceptRules: true });
     expect(blockedActivation.status).toBe(403);
     expect(blockedActivation.body.error.code).toBe('FORBIDDEN');
   });
