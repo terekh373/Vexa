@@ -111,10 +111,6 @@ const Header = () => {
 
   const studentNavigation = (
     <>
-      <Link to={routes.studentDashboard()} className={styles.link}>
-        Кабінет
-      </Link>
-
       <Link to={routes.learning()} className={styles.link}>
         Мої курси
       </Link>
