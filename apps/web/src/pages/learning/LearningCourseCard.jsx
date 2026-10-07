@@ -6,25 +6,19 @@ import fallbackImage from '../../assets/images/img01.png';
 
 import styles from './LearningCourseCard.module.css';
 
-const LearningCourseCard = ({ enrollment }) => {
-  const course = enrollment.course;
-  const progress = enrollment.progress;
+const formatPrice = (amount) => {
+  if (!amount) return 'Безкоштовно';
 
-  const image = course.cover?.url || fallbackImage;
+  return new Intl.NumberFormat('uk-UA', {
+    style: 'currency',
+    currency: 'UAH',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount / 100);
+};
 
-  const continueLesson = progress?.continueLesson;
-
-  const playerPath = continueLesson
-    ? routes.playerLesson(course.id, continueLesson.id)
-    : routes.player(course.id);
-
-  const isCompleted = progress?.state === 'COMPLETED';
-
-  const buttonTitle = isCompleted
-    ? 'Переглянути курс'
-    : progress?.state === 'NOT_STARTED'
-      ? 'Почати'
-      : 'Продовжити';
+const LearningCourseCard = ({ course }) => {
+  const image = course.image || fallbackImage;
 
   return (
     <article className={styles.card}>
@@ -38,56 +32,55 @@ const LearningCourseCard = ({ enrollment }) => {
 
       <div className={styles.content}>
         <div className={styles.top}>
-          {course.category?.name && (
-            <span className={styles.category}>
-              {course.category.name}
-            </span>
-          )}
+          <span className={styles.category}>
+            {course.category}
+          </span>
+
+          <span className={styles.price}>
+            {formatPrice(course.price)}
+          </span>
         </div>
 
         <h2>{course.title}</h2>
 
         <p className={styles.author}>
           <span>Викладач:</span>
-          {course.author?.name || 'Не вказано'}
+          {course.author}
         </p>
 
         <div className={styles.progressInfo}>
-          <span>{progress?.percent ?? 0}%</span>
+          <span>{course.progress}%</span>
 
           <div className={styles.progressTrack}>
             <div
               className={styles.progressBar}
-              style={{
-                width: `${progress?.percent ?? 0}%`,
-              }}
+              style={{ width: `${course.progress}%` }}
             />
           </div>
         </div>
 
         <p className={styles.lessons}>
-          {progress?.completedLessons ?? 0} із{' '}
-          {progress?.totalLessons ?? 0} уроків
+          {course.completedLessons} із {course.totalLessons} уроків
         </p>
 
-        {continueLesson && !isCompleted && (
+        {course.nextLesson && (
           <p className={styles.nextLesson}>
-            Наступний урок: {continueLesson.title}
+            Наступний урок: {course.nextLesson}
           </p>
         )}
 
-        {isCompleted && (
+        {course.status === 'COMPLETED' ? (
           <div className={styles.completed}>
             Курс завершено
           </div>
+        ) : (
+          <Link
+            to={routes.player(course.id)}
+            className={styles.continueButton}
+          >
+            Продовжити
+          </Link>
         )}
-
-        <Link
-          to={playerPath}
-          className={styles.continueButton}
-        >
-          {buttonTitle}
-        </Link>
       </div>
     </article>
   );

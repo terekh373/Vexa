@@ -153,6 +153,7 @@ Table author_profiles {
   headline varchar(255)
   bio text
   website_url varchar(255)
+  rules_accepted_at timestamptz
   is_verified boolean [not null, default: false]
   verified_at timestamptz
   commission_rate_bps integer [note: 'null = ставка платформи за замовчуванням']

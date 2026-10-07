@@ -6,9 +6,9 @@ import Layout from './components/layout/Layout.jsx';
 import ProtectedRoute from './components/auth/ProtectedRoute.jsx';
 import Home from './pages/home/Home.jsx';
 import Catalog from './pages/catalog/Catalog.jsx';
-import Curriculum from './pages/curriculum/Curriculum.jsx';
 import ForAuthors from './pages/for-authors/ForAuthors.jsx';
 import Course from './pages/course/Course.jsx';
+import VexaAI from './pages/vexa-ai/VexaAI.jsx';
 import LoginPage from './pages/login/LoginPage.jsx';
 import RegisterPage from './pages/register/RegisterPage.jsx';
 import VerifyEmailPage from './pages/verify-email/VerifyEmailPage.jsx';
@@ -45,12 +45,8 @@ import OrderDetails from './pages/order-details/OrderDetails.jsx';
 import Learning from './pages/learning/Learning.jsx';
 import LearningPlayer from './pages/learning/player/LearningPlayer.jsx';
 import LearningMaterials from './pages/learning/learning-materials/LearningMaterials.jsx';
-import Offer from './pages/Offer/Offer.jsx';
-import ContentRules from './pages/ContentRules/ContentRules.jsx';
-import Privacy from './pages/Privacy/Privacy.jsx';
-import Cookies from './pages/Cookies/Cookies.jsx';
-import Support from './pages/Support/Support.jsx';
 
+import StudentDashboard from './pages/student-dashboard/StudentDashboard.jsx';
 import Schedule from './pages/schedule/Schedule.jsx';
 import Vacancies from './pages/footer/vacancies/Vacancies.jsx';
 import AllVacancies from './pages/footer/vacancies/AllVacancies.jsx';
@@ -63,24 +59,18 @@ function App() {
       <Route path={routePatterns.home} element={<Layout />}>
         <Route index element={<Home />} />
         <Route path={routePatterns.catalog} element={<Catalog />} />
-        <Route path={routePatterns.curriculumSubject} element={<Curriculum />} />
-        <Route path={routePatterns.curriculumGrade} element={<Curriculum />} />
         <Route path={routePatterns.forAuthors} element={<ForAuthors />} />
         <Route path={routePatterns.course} element={<Course />} />
         <Route path={routePatterns.authorProfile} element={<AuthorProfilePage />} />
+        <Route path={routePatterns.vexaAi} element={<VexaAI />} />
         <Route path={routePatterns.login} element={<LoginPage />} />
         <Route path={routePatterns.register} element={<RegisterPage />} />
         <Route path={routePatterns.verifyEmail} element={<VerifyEmailPage />} />
         <Route path={routePatterns.forgotPassword} element={<ForgotPasswordPage />} />
         <Route path={routePatterns.resetPassword} element={<ResetPasswordPage />} />
-        <Route path="/offer" element={<Offer />} />
-        <Route path="/content-rules" element={<ContentRules />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/cookies" element={<Cookies />} />
-        <Route path="/support" element={<Support />} />
-
         <Route path={routePatterns.googleCallback} element={<GoogleCallbackPage />} />
 
+        {/* сделать роутинг */}
         <Route path="/veterans" element={<ForVeterans />} />
         <Route path="/faq" element={<Questions />} />
         <Route path="/blog" element={<Blog />} />
@@ -88,10 +78,12 @@ function App() {
         <Route path="/contacts" element={<Contacts />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/authors" element={<About />} />
+        <Route path="/ai" element={<VexaAI />} />
         <Route path={routePatterns.vacancies} element={<Vacancies />} />
         <Route path={routePatterns.allVacancies} element={<AllVacancies />} />
         <Route path={routePatterns.vacancy} element={<Vacancy />} />
         <Route path="/press" element={<ComingSoon />} />
+        {/* перемістити роут профілю та налаштувань с зони студента для перевірки фронту */}
 
         <Route element={<ProtectedRoute />}>
           <Route path={routePatterns.becomeAuthor} element={<BecomeAuthorPage />} />
@@ -107,7 +99,7 @@ function App() {
           <Route path={routePatterns.player} element={<LearningPlayer />} />
           <Route path={routePatterns.playerLesson} element={<LearningPlayer />} />
           <Route path={routePatterns.learningMaterials} element={<LearningMaterials />} />
-          <Route path={routePatterns.studentDashboard} element={<Navigate to={routes.learning()} replace />} />
+          <Route path={routePatterns.studentDashboard} element={<StudentDashboard />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['AUTHOR']} />}>
@@ -119,16 +111,16 @@ function App() {
           </Route>
           <Route path={routes.authorCourseNew()} element={<CourseWizard />} />
           <Route path={routePatterns.authorCourseEdit} element={<CourseWizard />} />
-          <Route
-            path={routePatterns.authorArea}
-            element={<Navigate to={routes.authorDashboard()} replace />}
-          />
-        </Route>
+<Route
+  path={routePatterns.authorArea}
+  element={<Navigate to={routes.authorDashboard()} replace />}
+/>
+</Route>
 
-        <Route element={<ProtectedRoute allowedRoles={['STUDENT', 'AUTHOR']} />}>
-          <Route path={routePatterns.profileEdit} element={<EditProfile />} />
-          <Route path={routePatterns.settings} element={<Settings />} />
-          <Route path={routePatterns.schedule} element={<Schedule />} />
+<Route element={<ProtectedRoute allowedRoles={['STUDENT', 'AUTHOR']} />}>
+  <Route path={routePatterns.profileEdit} element={<EditProfile />} />
+  <Route path={routePatterns.settings} element={<Settings />} />
+  <Route path={routePatterns.schedule} element={<Schedule />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>

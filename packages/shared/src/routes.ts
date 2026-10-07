@@ -156,10 +156,6 @@ export const routes = {
   support: (): string => build('/support'),
   offer: (): string => build('/offer'),
   privacy: (): string => build('/privacy'),
-  cookies: (): string => build('/cookies'),
-  contentRules: (): string => build('/content-rules'),
-  about: (): string => build('/about'),
-  contacts: (): string => build('/contacts'),
   notFound: (): string => build('/404'),
 } as const;
 
@@ -188,7 +184,6 @@ export const routePatterns = {
   verifyEmail: '/verify-email',
   googleCallback: '/auth/google/callback',
   learning: '/learning',
-  learningMaterials: '/learning/materials',
   orders: '/orders',
   settings: '/settings',
   authorDashboard: '/author',
@@ -209,15 +204,6 @@ export const routePatterns = {
   playerLesson: '/learn/:courseId/:lessonId',
   authorCourseEdit: '/author/courses/:id/edit',
   adminModerationCourse: '/admin/moderation/:id',
-  // --- Static Patterns ---
-  faq: '/faq',
-  support: '/support',
-  offer: '/offer',
-  privacy: '/privacy',
-  cookies: '/cookies',
-  contentRules: '/content-rules',
-  about: '/about',
-  contacts: '/contacts',
 
   studentDashboard: '/student',
   profileEdit: '/profile/edit',
@@ -251,10 +237,6 @@ export const routeAccess = {
     '/support',
     '/offer',
     '/privacy',
-    '/cookies',
-    '/content-rules',
-    '/about',
-    '/contacts',
   ],
 student: [
   '/cart',

@@ -12,10 +12,8 @@ import { Container } from '../container/Container.jsx';
 import UserMenu from './user-menu/UserMenu.jsx';
 import BellIcon from '../../../assets/icons/bell.svg';
 import NotificationModal from './notification-modal/NotificationModal.jsx';
-import VerificationBanner from '../../auth/VerificationBanner/VerificationBanner.jsx';
 
 import { useAuth } from '../../../context/auth-context.js';
-import { useCourseSuggestions } from '../../../hooks/useCourseSuggestions.js';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -25,7 +23,6 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
-  const searchSuggestions = useCourseSuggestions(searchValue);
 
   const isAuthor = user?.roles?.includes('AUTHOR');
   const isStudent = user?.roles?.includes('STUDENT');
@@ -48,13 +45,12 @@ const Header = () => {
     }
 
     setIsMenuOpen(false);
-    navigate(routes.catalog({ q: search }));
-  };
 
-  const handleSuggestionSelect = (suggestion) => {
-    setSearchValue(suggestion.title);
-    setIsMenuOpen(false);
-    navigate(routes.course(suggestion.slug || suggestion.id));
+    navigate(
+      routes.catalog({
+        search,
+      }),
+    );
   };
 
   const getSpaceRoute = () => {
@@ -86,6 +82,10 @@ const Header = () => {
       <Link to={routes.forAuthors()} className={styles.link}>
         Для авторів
       </Link>
+
+      <Link to={routes.vexaAi()} className={styles.link}>
+        Vexa AI
+      </Link>
     </>
   );
 
@@ -111,12 +111,16 @@ const Header = () => {
 
   const studentNavigation = (
     <>
+      <Link to={routes.studentDashboard()} className={styles.link}>
+        Кабінет
+      </Link>
+
       <Link to={routes.learning()} className={styles.link}>
         Мої курси
       </Link>
 
-      <Link to={routes.learningMaterials()} className={styles.link}>
-        Мої матеріали
+      <Link to={routes.schedule()} className={styles.link}>
+        Розклад
       </Link>
 
       <Link to={routes.catalog()} className={styles.link}>
@@ -183,6 +187,48 @@ const Header = () => {
   const signedInActions = (
     <>
       <Button title="Мій простір" onClick={() => goTo(getSpaceRoute())} />
+      {/* <div className={styles.userMenuWrap}>
+        <button
+          type="button"
+          className={styles.userMenuButton}
+          onClick={() => setIsUserMenuOpen((open) => !open)}
+          aria-expanded={isUserMenuOpen}
+          aria-haspopup="menu"
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 8px', borderRadius: '24px', border: '1px solid #eef0f5', background: 'transparent', cursor: 'pointer' }}
+        >
+          <img 
+            src={user?.avatarUrl || `https://ui-avatars.com/api/?name=${initials}&background=6236FF&color=fff&size=32`} 
+            alt="Avatar" 
+            style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
+          />
+          <span style={{ fontWeight: '500', fontSize: '14px', color: '#111' }}>
+            {user?.fullName || user?.email}
+          </span>
+        </button>
+
+        {isUserMenuOpen && (
+          <div className={styles.userMenu} role="menu">
+            <span className={styles.userEmail}>{user?.email}</span>
+            <button 
+              type="button" 
+              className={styles.menuItemButton} 
+              onClick={() => goTo(routes.settings())} 
+              role="menuitem"
+              style={{ width: '100%', textAlign: 'left', padding: '10px 16px', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#111' }}
+            >
+              Налаштування
+            </button>
+            <button 
+              type="button" 
+              className={styles.logoutButton} 
+              onClick={handleLogout} 
+              role="menuitem"
+            >
+              Вийти
+            </button>
+          </div>
+        )}
+      </div> */}
       <button
         type="button"
         className={styles.notificationButton}
@@ -205,7 +251,6 @@ const Header = () => {
 
   return (
     <header className={styles.header}>
-      <VerificationBanner />
       <Container>
         <div className={styles.container}>
           <div className={styles.logo}>
@@ -219,8 +264,6 @@ const Header = () => {
           <div className={styles.desktopSearch}>
             <Search
               value={searchValue}
-              suggestions={searchSuggestions}
-              onSuggestionSelect={handleSuggestionSelect}
               onChange={(event) => setSearchValue(event.target.value)}
               onKeyDown={handleSearch}
             />
@@ -231,6 +274,12 @@ const Header = () => {
               user ? signedInActions : guestActions
             )}
           </div>
+
+          {/* {!isLoading && user && (
+            <div className={styles.notificationSlot}>
+              <NotificationBell />
+            </div>
+          )} */}
 
           {/* Burger */}
           <button
@@ -255,8 +304,6 @@ const Header = () => {
               <div className={styles.mobileSearch}>
                 <Search
                   value={searchValue}
-                  suggestions={searchSuggestions}
-                  onSuggestionSelect={handleSuggestionSelect}
                   onChange={(event) => setSearchValue(event.target.value)}
                   onKeyDown={handleSearch}
                 />

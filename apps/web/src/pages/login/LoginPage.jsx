@@ -274,6 +274,7 @@ const LoginPage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
     setFormError('');
 
     const parsed = loginSchema.safeParse(values);

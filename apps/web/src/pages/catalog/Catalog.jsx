@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { routes } from '@vexa/shared';
+import { useSearchParams } from 'react-router-dom';
 
 import styles from './Catalog.module.css';
 
@@ -18,8 +17,6 @@ import PriceFilter, {
   MIN_CATALOG_PRICE,
 } from './PriceFilter.jsx';
 import { fetchCatalog } from '../../services/coursesService.js';
-import { getCurriculum } from '../../services/curriculumService.js';
-import { useCourseSuggestions } from '../../hooks/useCourseSuggestions.js';
 import {
   getItemsPerPage,
   getPaginationPages,
@@ -47,7 +44,6 @@ import {
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
 const Catalog = () => {
-  const navigate = useNavigate();
   const [itemsPerPage, setItemsPerPage] = useState(getItemsPerPage);
   const [searchParams, setSearchParams] = useSearchParams();
   const [courses, setCourses] = useState([]);
@@ -55,15 +51,12 @@ const Catalog = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [retryKey, setRetryKey] = useState(0);
-  const [curriculum, setCurriculum] = useState([]);
 
   const {
     q,
     sort,
     type,
     category,
-    subject,
-    topic,
     grade,
     language,
     rating,
@@ -73,7 +66,6 @@ const Catalog = () => {
   } = getCatalogParams(searchParams);
 
   const [searchValue, setSearchValue] = useState(q);
-  const searchSuggestions = useCourseSuggestions(searchValue);
 
   useEffect(() => {
     const handleResize = () => {
@@ -82,22 +74,6 @@ const Catalog = () => {
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    let active = true;
-
-    getCurriculum()
-      .then((items) => {
-        if (active) setCurriculum(items);
-      })
-      .catch(() => {
-        if (active) setCurriculum([]);
-      });
-
-    return () => {
-      active = false;
-    };
   }, []);
 
   useEffect(() => {
@@ -131,8 +107,6 @@ const Catalog = () => {
       sort,
       type,
       category,
-      subject,
-      topic,
       grade,
       language,
       rating,
@@ -146,8 +120,6 @@ const Catalog = () => {
       sort,
       type,
       category,
-      subject,
-      topic,
       grade,
       language,
       rating,
@@ -259,31 +231,8 @@ const Catalog = () => {
     setSearchParams(params);
   };
 
-  const selectedSubject = curriculum.find((item) => item.slug === subject) ?? null;
-  const selectedTopic = curriculum
-    .flatMap((item) => item.grades ?? [])
-    .flatMap((group) => group.topics ?? [])
-    .find((item) => item.id === topic) ?? null;
-
-  const handleSuggestionSelect = (suggestion) => {
-    navigate(routes.course(suggestion.slug || suggestion.id));
-  };
-
-  const handleSearchKeyDown = (event) => {
-    if (event.key !== 'Enter') return;
-
-    updateCatalogParams(
-      searchParams,
-      setSearchParams,
-      'q',
-      searchValue.trim(),
-    );
-  };
-
   const checkedFilters = getCheckedFilters({
     category,
-    subject,
-    topic,
     grade,
     type,
     language,
@@ -294,8 +243,6 @@ const Catalog = () => {
     grades,
     contentTypes,
     languages,
-    subjectLabel: selectedSubject?.nameUk,
-    topicLabel: selectedTopic?.title,
   });
 
   const priceMinUah = clamp(
@@ -323,36 +270,11 @@ const Catalog = () => {
           Знайди курс, який допоможе тобі розвиватися та досягати нових вершин
         </p>
 
-        {curriculum.length > 0 && (
-          <section className={styles.curriculumNav} aria-label="Шкільна програма">
-            <div className={styles.curriculumHeader}>
-              <div>
-                <h3>Шкільна програма</h3>
-                <p>Обери предмет → клас → тему</p>
-              </div>
-            </div>
-            <div className={styles.curriculumSubjects}>
-              {curriculum.map((item) => (
-                <Link
-                  key={item.id}
-                  to={routes.curriculumSubject(item.slug)}
-                  className={styles.curriculumSubject}
-                >
-                  {item.nameUk}
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
-
         <div className={styles.row}>
           <Search
             size="large"
             value={searchValue}
-            suggestions={searchSuggestions}
-            onSuggestionSelect={handleSuggestionSelect}
             onChange={(event) => setSearchValue(event.target.value)}
-            onKeyDown={handleSearchKeyDown}
           />
 
           <Dropdown
