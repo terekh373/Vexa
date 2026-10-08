@@ -363,7 +363,8 @@ const BecomeAuthorPage = () => {
                       Я підтверджую, що є автором або правовласником
                       матеріалів, які розміщуватиму, і приймаю{' '}
                       <a
-                        href={routes.contentRules()}
+                        // href={routes.contentRules()}
+                        href={routes.offer()}
                         target="_blank"
                         rel="noreferrer"
                       >
