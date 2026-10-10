@@ -26,7 +26,6 @@ import Blog from './pages/footer/blog/Blog.jsx';
 import About from './pages/footer/about/About.jsx';
 import Contacts from './pages/footer/contacts/Contacts.jsx';
 import Categories from './pages/categories/Categories.jsx';
-import Profile from './pages/profile/Profile.jsx';
 import Offer from './pages/Offer/Offer.jsx';
 import ContentRules from './pages/ContentRules/ContentRules.jsx';
 import Privacy from './pages/Privacy/Privacy.jsx';
