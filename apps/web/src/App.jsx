@@ -8,7 +8,6 @@ import Home from './pages/home/Home.jsx';
 import Catalog from './pages/catalog/Catalog.jsx';
 import ForAuthors from './pages/for-authors/ForAuthors.jsx';
 import Course from './pages/course/Course.jsx';
-import VexaAI from './pages/vexa-ai/VexaAI.jsx';
 import LoginPage from './pages/login/LoginPage.jsx';
 import RegisterPage from './pages/register/RegisterPage.jsx';
 import VerifyEmailPage from './pages/verify-email/VerifyEmailPage.jsx';
@@ -27,6 +26,11 @@ import Blog from './pages/footer/blog/Blog.jsx';
 import About from './pages/footer/about/About.jsx';
 import Contacts from './pages/footer/contacts/Contacts.jsx';
 import Categories from './pages/categories/Categories.jsx';
+import Offer from './pages/Offer/Offer.jsx';
+import ContentRules from './pages/ContentRules/ContentRules.jsx';
+import Privacy from './pages/Privacy/Privacy.jsx';
+import Cookies from './pages/Cookies/Cookies.jsx';
+import Support from './pages/Support/Support.jsx';
 import AdminLayout from './pages/admin/AdminLayout.jsx';
 import AdminModeration from './pages/admin/AdminModeration.jsx';
 import AdminModerationCourse from './pages/admin/AdminModerationCourse.jsx';
@@ -62,15 +66,19 @@ function App() {
         <Route path={routePatterns.forAuthors} element={<ForAuthors />} />
         <Route path={routePatterns.course} element={<Course />} />
         <Route path={routePatterns.authorProfile} element={<AuthorProfilePage />} />
-        <Route path={routePatterns.vexaAi} element={<VexaAI />} />
         <Route path={routePatterns.login} element={<LoginPage />} />
         <Route path={routePatterns.register} element={<RegisterPage />} />
         <Route path={routePatterns.verifyEmail} element={<VerifyEmailPage />} />
         <Route path={routePatterns.forgotPassword} element={<ForgotPasswordPage />} />
         <Route path={routePatterns.resetPassword} element={<ResetPasswordPage />} />
+        <Route path="/offer" element={<Offer />} />
+        <Route path="/content-rules" element={<ContentRules />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/cookies" element={<Cookies />} />
+        <Route path="/support" element={<Support />} />
+
         <Route path={routePatterns.googleCallback} element={<GoogleCallbackPage />} />
 
-        {/* сделать роутинг */}
         <Route path="/veterans" element={<ForVeterans />} />
         <Route path="/faq" element={<Questions />} />
         <Route path="/blog" element={<Blog />} />
@@ -78,12 +86,11 @@ function App() {
         <Route path="/contacts" element={<Contacts />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/authors" element={<About />} />
-        <Route path="/ai" element={<VexaAI />} />
+        <Route path="/vacancies" element={<ComingSoon />} />
         <Route path={routePatterns.vacancies} element={<Vacancies />} />
         <Route path={routePatterns.allVacancies} element={<AllVacancies />} />
         <Route path={routePatterns.vacancy} element={<Vacancy />} />
         <Route path="/press" element={<ComingSoon />} />
-        {/* перемістити роут профілю та налаштувань с зони студента для перевірки фронту */}
 
         <Route element={<ProtectedRoute />}>
           <Route path={routePatterns.becomeAuthor} element={<BecomeAuthorPage />} />

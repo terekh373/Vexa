@@ -12,7 +12,6 @@ import Community from '../assets/icons/community.svg'
 import Book from '../assets/icons/book.svg'
 import Monitor from '../assets/icons/monitor.svg'
 import Brain from '../assets/icons/brain.svg'
-import Certificate from '../assets/icons/certificate.svg'
 
 import Step01 from '../assets/icons/for-authors-icons/step-1.svg'
 import Step02 from '../assets/icons/for-authors-icons/step-2.svg'
@@ -145,13 +144,6 @@ export const whyVexaCards = [
     imageAlt: 'Brain icon',
     title: 'AI-помічник',
     subtitle: 'Навчайтеся ефективніше разом із персональним AI-помічником.'
-  },
-  {
-    id: 4,
-    image: Certificate,
-    imageAlt: 'Certificate icon',
-    title: 'Сертифікати',
-    subtitle: 'Завершуйте курси та отримуйте сертифікати.'
   },
   {
     id: 5,

@@ -12,6 +12,7 @@ import { Container } from '../container/Container.jsx';
 import UserMenu from './user-menu/UserMenu.jsx';
 import BellIcon from '../../../assets/icons/bell.svg';
 import NotificationModal from './notification-modal/NotificationModal.jsx';
+import VerificationBanner from '../../auth/VerificationBanner/VerificationBanner.jsx';
 
 import { useAuth } from '../../../context/auth-context.js';
 
@@ -83,9 +84,6 @@ const Header = () => {
         Для авторів
       </Link>
 
-      <Link to={routes.vexaAi()} className={styles.link}>
-        Vexa AI
-      </Link>
     </>
   );
 
@@ -187,48 +185,6 @@ const Header = () => {
   const signedInActions = (
     <>
       <Button title="Мій простір" onClick={() => goTo(getSpaceRoute())} />
-      {/* <div className={styles.userMenuWrap}>
-        <button
-          type="button"
-          className={styles.userMenuButton}
-          onClick={() => setIsUserMenuOpen((open) => !open)}
-          aria-expanded={isUserMenuOpen}
-          aria-haspopup="menu"
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 8px', borderRadius: '24px', border: '1px solid #eef0f5', background: 'transparent', cursor: 'pointer' }}
-        >
-          <img 
-            src={user?.avatarUrl || `https://ui-avatars.com/api/?name=${initials}&background=6236FF&color=fff&size=32`} 
-            alt="Avatar" 
-            style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
-          />
-          <span style={{ fontWeight: '500', fontSize: '14px', color: '#111' }}>
-            {user?.fullName || user?.email}
-          </span>
-        </button>
-
-        {isUserMenuOpen && (
-          <div className={styles.userMenu} role="menu">
-            <span className={styles.userEmail}>{user?.email}</span>
-            <button 
-              type="button" 
-              className={styles.menuItemButton} 
-              onClick={() => goTo(routes.settings())} 
-              role="menuitem"
-              style={{ width: '100%', textAlign: 'left', padding: '10px 16px', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#111' }}
-            >
-              Налаштування
-            </button>
-            <button 
-              type="button" 
-              className={styles.logoutButton} 
-              onClick={handleLogout} 
-              role="menuitem"
-            >
-              Вийти
-            </button>
-          </div>
-        )}
-      </div> */}
       <button
         type="button"
         className={styles.notificationButton}
@@ -251,6 +207,7 @@ const Header = () => {
 
   return (
     <header className={styles.header}>
+      <VerificationBanner />
       <Container>
         <div className={styles.container}>
           <div className={styles.logo}>
@@ -274,12 +231,6 @@ const Header = () => {
               user ? signedInActions : guestActions
             )}
           </div>
-
-          {/* {!isLoading && user && (
-            <div className={styles.notificationSlot}>
-              <NotificationBell />
-            </div>
-          )} */}
 
           {/* Burger */}
           <button
