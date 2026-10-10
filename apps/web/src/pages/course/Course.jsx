@@ -478,6 +478,24 @@ const Course = () => {
               />
             </div>
 
+            <button
+              type="button"
+              className={styles.complaintLink}
+              onClick={() =>
+                navigate(routes.support(), {
+                  state: {
+                    complaint: {
+                      courseId: course.id,
+                      courseTitle: course.title,
+                      courseUrl: window.location.href,
+                    },
+                  },
+                })
+              }
+            >
+              Поскаржитись на курс
+            </button>
+
             {/* {purchaseMessage && (
               <p className={styles.purchaseMessage} role="status">
                 {purchaseMessage}

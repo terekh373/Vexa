@@ -13,3 +13,9 @@
 .formError, .formSuccess { font-size: 14px; margin: 0; }
 .formSuccess { color: #067647; }
 @media (max-width: 480px) { .container { padding: 24px 16px; } .form { padding: 20px 16px; } .title { font-size: 26px; } }
+
+.courseName {
+  margin: -8px 0 20px;
+  overflow-wrap: anywhere;
+  color: #333;
+}
