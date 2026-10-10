@@ -10,7 +10,7 @@ import CourseCard from '../../ui/cards/course-card/CourseCard.jsx';
 import CourseSkeleton from '../../ui/skeleton/CourseSkeleton.jsx';
 import { getCourses } from '../../../services/coursesService.js';
 
-const COURSE_LIMIT = 8;
+const COURSE_LIMIT = 5;
 const SKELETONS = Array.from({ length: COURSE_LIMIT }, (_, index) => index);
 
 const CourseBlock = ({ title, courses, loading, error, onRetry, onOpenCatalog }) => (

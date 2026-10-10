@@ -45,10 +45,26 @@ const GoogleCallbackPage = () => {
         { code },
         { skipAuthRefresh: true, skipAuthHeader: true },
       )
+      // .then(({ data }) => {
+      //   if (cancelled) return;
+      //   applyAuthSession(data);
+      //   navigate(routes.home(), { replace: true });
+      // })
       .then(({ data }) => {
         if (cancelled) return;
+
         applyAuthSession(data);
-        navigate(routes.home(), { replace: true });
+
+        const goal = sessionStorage.getItem('vexa.registrationGoal');
+
+        sessionStorage.removeItem('vexa.registrationGoal');
+
+        navigate(
+          goal === 'author'
+            ? routes.becomeAuthor()
+            : routes.home(),
+          { replace: true },
+        );
       })
       .catch((error) => {
         if (cancelled) return;

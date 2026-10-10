@@ -147,20 +147,22 @@
   }
 
   .container {
+    width: 100%;
     min-width: 0;
     padding: 16px 0;
   }
 
-  .notificationSlot {
-    margin-left: auto;
+  .logo {
+    flex-shrink: 0;
   }
 
   .burger {
     width: 40px;
     height: 40px;
-    margin-left: 0;
+    margin-left: auto;
     padding: 8px;
     display: flex;
+    flex-shrink: 0;
     flex-direction: column;
     justify-content: center;
     gap: 5px;
@@ -178,6 +180,7 @@
 
   .mobileMenu {
     position: absolute;
+    z-index: 100;
     top: 100%;
     left: 0;
     right: 0;
@@ -186,7 +189,6 @@
     align-items: stretch;
     gap: 20px;
     padding: 20px 24px;
-    z-index: 100;
     border-top: 1px solid var(--accessory-grey);
     background: var(--footer-bg-color);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
@@ -216,38 +218,5 @@
     width: 100%;
     font-size: 14px;
     font-weight: 600;
-  }
-}
-
-@media (max-width: 540px) {
-  .container {
-    padding: 12px 0;
-  }
-
-  .burger {
-    width: 36px;
-    height: 36px;
-  }
-
-  .mobileMenu {
-    gap: 16px;
-    padding: 16px;
-  }
-
-  .mobileNavigation {
-    gap: 12px;
-  }
-
-  .mobileNavigation .link {
-    font-size: 14px;
-  }
-
-  .mobileActions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .mobileActions button {
-    width: 100%;
   }
 }
