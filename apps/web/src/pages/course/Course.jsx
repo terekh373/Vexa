@@ -12,7 +12,6 @@ import Book from '../../assets/icons/Book-2.svg';
 import Star from '../../assets/icons/star.svg';
 import Group from '../../assets/icons/for-authors-icons/groups.svg';
 
-import certificate from '../../assets/images/certificate.png';
 import InfoBg from '../../assets/images/for-course-images/course-info-bg.png';
 import authorAvatar from '../../assets/images/for-course-images/author-avatar.png';
 
@@ -575,11 +574,6 @@ const Course = () => {
               ) : (
                 <p className={styles.emptyState}>Програма курсу поки недоступна.</p>
               )}
-            </div>
-
-            <div className={styles.certificateBox}>
-              <img src={certificate} alt="Сертифікат" />
-              <p>Отримайте сертифікат після завершення курсу</p>
             </div>
           </section>
         ) : (
