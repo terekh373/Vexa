@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+Disallow: /cart
+Disallow: /checkout
+Disallow: /learning
+Disallow: /learn/
+Disallow: /orders
+Disallow: /settings
+Disallow: /admin
+Disallow: /author/
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+
+Sitemap: https://vexa-web-ten.vercel.app/sitemap.xml
