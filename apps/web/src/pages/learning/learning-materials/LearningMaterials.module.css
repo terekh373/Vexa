@@ -1,0 +1,267 @@
+.materials {
+  min-height: calc(100vh - 160px);
+  padding: 32px 0 64px;
+  background: var(--main-bg-color);
+}
+
+.heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  margin: 32px 0;
+}
+
+.heading h1 {
+  margin: 0 0 12px;
+  color: var(--main-dark-color);
+  font-size: 40px;
+  line-height: 48px;
+  font-weight: 700;
+}
+
+.heading p {
+  margin: 0;
+  color: var(--main-dark-color);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.navigation a {
+  padding: 8px 0;
+  color: var(--main-dark-color);
+  font-size: 15px;
+  line-height: 22px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.navigation a:hover {
+  color: var(--purple-color);
+}
+
+.navigation .active {
+  color: var(--purple-color);
+}
+
+.toolbar {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) 220px 180px;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.selectWrapper {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.select {
+  width: 100%;
+  height: 46px;
+  padding: 0 48px 0 16px;
+  border: 1.5px solid #8a8f98;
+  border-radius: 16px;
+  background: var(--main-bg-color);
+  color: var(--main-dark-color);
+  font: inherit;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.select:focus {
+  border-color: var(--purple-color);
+}
+
+.selectArrow {
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  width: 16px;
+  height: 16px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.card {
+  overflow: hidden;
+  border: 1px solid #e2e2e2;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.category {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: #fff;
+  color: var(--purple-color);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.cardContent h2 {
+  min-height: 56px;
+  margin: 0 0 8px;
+  color: var(--main-dark-color);
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+}
+
+.author {
+  margin: 0 0 20px;
+  color: #686868;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.meta span {
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: #f2effa;
+  color: var(--main-dark-color);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.download {
+  width: 100%;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--purple-color);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.download:hover {
+  opacity: 0.9;
+}
+
+.empty {
+  display: flex;
+  min-height: 350px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.empty h2 {
+  margin: 0 0 8px;
+  color: var(--main-dark-color);
+  font-size: 24px;
+  line-height: 32px;
+}
+
+.empty p {
+  margin: 0;
+  color: #686868;
+}
+
+@media (max-width: 1100px) {
+  .heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .toolbar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .toolbar > :first-child {
+    grid-column: 1 / -1;
+    max-width: 100%;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 960px) {
+  .navigation {
+    width: 100%;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 540px) {
+  .materials {
+    padding: 24px 0 40px;
+  }
+
+  .heading {
+    margin: 24px 0;
+  }
+
+  .heading h1 {
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  .navigation {
+    gap: 18px;
+  }
+
+  .toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cardContent h2 {
+    min-height: 0;
+  }
+}

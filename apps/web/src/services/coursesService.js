@@ -48,3 +48,15 @@ export const updateMyCourseReview = async (id, payload) => {
   const { data } = await apiClient.patch(`/courses/${id}/reviews/my`, payload);
   return data;
 };
+
+export const getCoursesCountByCategory = async (category) => {
+  const { data } = await apiClient.get('/courses', {
+    params: {
+      category,
+      page: 1,
+      limit: 1,
+    },
+  });
+
+  return data.total ?? 0;
+};

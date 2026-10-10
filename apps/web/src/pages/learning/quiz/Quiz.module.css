@@ -1,0 +1,258 @@
+.quiz {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--footer-bg-color);
+}
+
+.label {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: var(--purple-color);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.header h3 {
+  margin: 0 0 8px;
+  color: var(--main-dark-color);
+  font-size: 22px;
+  line-height: 30px;
+}
+
+.header p {
+  margin: 0;
+  color: var(--secondary-grey);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.timer {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.timer span {
+  color: var(--secondary-grey);
+  font-size: 12px;
+}
+
+.timer strong {
+  color: var(--purple-color);
+  font-size: 20px;
+}
+
+.quizProgress {
+  color: var(--secondary-grey);
+  font-size: 14px;
+}
+
+.questions {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.question {
+  padding: 24px;
+  border: 1px solid var(--accessory-grey);
+  border-radius: 16px;
+}
+
+.questionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+  color: var(--secondary-grey);
+  font-size: 13px;
+}
+
+.question h4 {
+  margin: 0;
+  color: var(--main-dark-color);
+  font-size: 18px;
+  line-height: 26px;
+}
+
+.hint {
+  margin: 8px 0 0;
+  color: var(--secondary-grey);
+  font-size: 13px;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--accessory-grey);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.option:hover {
+  border-color: var(--purple-color);
+  background: var(--footer-bg-color);
+}
+
+.option:has(input:checked) {
+  border-color: var(--purple-color);
+  background: var(--secondary-purple);
+}
+
+.option input {
+  margin-top: 3px;
+  accent-color: var(--purple-color);
+}
+
+.option span {
+  color: var(--main-dark-color);
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.correct {
+  margin-top: 16px;
+  color: var(--success-color);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.incorrect {
+  margin-top: 16px;
+  color: var(--error-dark-color);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.submit {
+  align-self: flex-end;
+  padding: 12px 24px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--purple-color);
+  color: var(--white-color);
+  font: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.submit:hover:not(:disabled) {
+  background: var(--accessory-purple);
+}
+
+.submit:active:not(:disabled) {
+  background: var(--adjuvant-purple);
+}
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.result {
+  padding: 24px;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.result h3 {
+  margin: 0 0 12px;
+}
+
+.result strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 32px;
+}
+
+.result p {
+  margin: 4px 0 0;
+}
+
+.passed {
+  background: var(--success-bg-color);
+  color: var(--success-color);
+}
+
+.failed {
+  background: var(--error-bg-color);
+  color: var(--error-dark-color);
+}
+
+.timeExpired {
+  margin-bottom: 24px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--warning-bg-color);
+  color: var(--main-dark-color);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.error {
+  margin-bottom: 24px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--error-bg-color);
+  color: var(--error);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.correctOption {
+  border-color: var(--success-border-color);
+  background: var(--success-option-bg-color);
+}
+
+.incorrectOption {
+  border-color: var(--error-border-color);
+  background: var(--error-bg-color);
+}
+
+.optionResult {
+  margin-left: auto;
+  font-size: 18px;
+}
+
+@media (max-width: 540px) {
+  .header {
+    flex-direction: column;
+    padding: 20px 16px;
+  }
+
+  .timer {
+    align-items: flex-start;
+  }
+
+  .question {
+    padding: 20px 16px;
+  }
+
+  .submit {
+    width: 100%;
+  }
+}

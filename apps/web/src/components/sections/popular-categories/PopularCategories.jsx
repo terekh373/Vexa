@@ -11,6 +11,7 @@ import { getCategories } from '../../../services/coursesService.js';
 const Section = styled.section`
   padding: 48px 0;
   background: var(--footer-bg-color);
+  margin-bottom: 48px;
 
   @media (max-width: 960px) {
     padding: 32px 0;
@@ -77,12 +78,13 @@ export const PopularCategories = () => {
     loadCategories();
   }, [loadCategories]);
 
-  const openCatalog = () => {
-    navigate(routes.catalog());
-  };
 
   const openCategory = (slug) => {
     navigate(routes.catalog({ category: slug }));
+  };
+
+  const openCategories = () => {
+    navigate('/categories');
   };
 
   return (
@@ -91,7 +93,7 @@ export const PopularCategories = () => {
         <OpenMore
           title='Популярні категорії'
           bttnTxt='Всі категорії'
-          onClick={openCatalog}
+          onClick={openCategories}
         />
 
         {loading && <State>Завантажуємо категорії...</State>}

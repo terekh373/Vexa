@@ -8,4 +8,8 @@
 .textarea { resize: vertical; min-height: 120px; }
 .submitBtn { background: #6236FF; color: white; padding: 14px 28px; border-radius: 12px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
 .submitBtn:hover { opacity: 0.9; }
-.submitBtn:disabled { background: #a08aff; cursor: not-allowed; }
+.submitBtn:disabled { background: #a08aff; cursor: not-allowed; }.input[aria-invalid="true"], .textarea[aria-invalid="true"] { border-color: #d92d20; }
+.fieldError, .formError { margin: 0; font-size: 13px; color: #d92d20; }
+.formError, .formSuccess { font-size: 14px; margin: 0; }
+.formSuccess { color: #067647; }
+@media (max-width: 480px) { .container { padding: 24px 16px; } .form { padding: 20px 16px; } .title { font-size: 26px; } }

@@ -56,7 +56,10 @@ export async function updateProfile(
 
 export async function createAuthorProfileAndGrantRole(
   userId: string,
-  input: Required<Pick<AuthorProfileData, 'displayName'>> & AuthorProfileData,
+  input: Required<Pick<AuthorProfileData, 'displayName'>> &
+    AuthorProfileData & {
+      acceptRules: true;
+    },
 ): Promise<{ user: User; authorProfile: AuthorProfile }> {
   return prisma.$transaction(async (tx) => {
     const authorProfile = await tx.authorProfile.create({
@@ -65,6 +68,7 @@ export async function createAuthorProfileAndGrantRole(
         displayName: input.displayName,
         headline: input.headline ?? null,
         bio: input.bio ?? null,
+        rulesAcceptedAt: new Date(),
       },
     });
 
