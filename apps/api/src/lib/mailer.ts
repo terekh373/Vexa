@@ -159,26 +159,6 @@ export async function sendModerationResultEmail(input: {
   });
 }
 
-export async function sendCourseUnpublishedEmail(input: {
-  email: string;
-  courseTitle: string;
-  comment: string;
-}): Promise<void> {
-  const coursesUrl = webUrl('/author/courses');
-  const commentText = input.comment.trim();
-
-  await sendMail({
-    to: [{ email: input.email }],
-    subject: 'Vexa — курс знято з публікації',
-    text: [
-      `Курс «${input.courseTitle}» знято з публікації адміністратором.`,
-      `Коментар адміністратора: ${commentText}`,
-      `Ваші курси: ${coursesUrl}`,
-    ].join('\n'),
-    html: `<p>Курс «<strong>${escapeHtml(input.courseTitle)}</strong>» знято з публікації адміністратором.</p><p>Коментар адміністратора: ${escapeHtml(commentText)}</p><p><a href="${escapeHtml(coursesUrl)}">Перейти до курсів</a></p>`,
-  });
-}
-
 export async function sendPayoutRequestEmail(input: {
   email: string;
   payoutId: string;

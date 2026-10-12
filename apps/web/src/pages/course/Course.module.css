@@ -587,3 +587,21 @@
     flex-direction: column;
   }
 }
+
+.complaintLink {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--secondary-grey);
+  font: inherit;
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.complaintLink:hover,
+.complaintLink:focus-visible {
+  color: var(--purple-color);
+}

@@ -3,8 +3,6 @@ const findLabel = (options, value) =>
 
 export const getCheckedFilters = ({
   category,
-  subject,
-  topic,
   grade,
   type,
   language,
@@ -15,8 +13,6 @@ export const getCheckedFilters = ({
   grades,
   contentTypes,
   languages,
-  subjectLabel,
-  topicLabel,
 }) => {
   const filters = [];
 
@@ -24,21 +20,6 @@ export const getCheckedFilters = ({
     filters.push({
       key: 'category',
       label: findLabel(categories, category),
-    });
-  }
-
-
-  if (subject) {
-    filters.push({
-      key: 'subject',
-      label: subjectLabel || subject,
-    });
-  }
-
-  if (topic) {
-    filters.push({
-      key: 'topic',
-      label: topicLabel || 'Тема програми',
     });
   }
 

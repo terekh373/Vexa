@@ -188,7 +188,6 @@ export const routePatterns = {
   verifyEmail: '/verify-email',
   googleCallback: '/auth/google/callback',
   learning: '/learning',
-  learningMaterials: '/learning/materials',
   orders: '/orders',
   settings: '/settings',
   authorDashboard: '/author',

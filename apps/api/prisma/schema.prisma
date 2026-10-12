@@ -216,6 +216,10 @@ model AuthorProfile {
   bio         String? @db.Text
   websiteUrl  String? @map("website_url") @db.VarChar(255)
 
+  /// Exact moment when the author accepted the content-placement rules.
+  /// Existing author profiles remain null.
+  rulesAcceptedAt DateTime? @map("rules_accepted_at") @db.Timestamptz(6)
+
   isVerified Boolean   @default(false) @map("is_verified")
   verifiedAt DateTime? @map("verified_at") @db.Timestamptz(6)
 

@@ -47,16 +47,6 @@ const footerColumns = [
     links: [
       { to: routes.becomeAuthor(), label: 'Стати автором' },
       { to: '/faq?role=author', label: 'FAQ для авторів' },
-      { to: '/partners', label: 'Для партнерів' },
-      { to: '/brands', label: 'Для брендів' },
-    ],
-  },
-  {
-    id: 'brands',
-    title: 'Бренди',
-    links: [
-      { to: '/advertising', label: 'Рекламні можливості' },
-      { to: '/projects', label: 'Спільні проєкти' },
     ],
   },
 ];
@@ -124,24 +114,19 @@ const Footer = () => {
         </div>
 
         <div className={styles.subfooter}>
-          <div className={styles.row}>
-            <Link to="/facebook">
-              <img src={facebook} alt="" aria-hidden="true" />
-            </Link>
-            <a
-              href="https://www.instagram.com/vexa_edu/"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Vexa в Instagram (відкриється в новій вкладці)"
-            >
-              <img src={instagram} alt="" aria-hidden="true" />
+          <div className={styles.row} style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+            <a href="https://facebook.com/vexa" target="_blank" rel="noopener noreferrer">
+             <img src={facebook} alt="Facebook" />
             </a>
-            <Link to="/tiktok">
-              <img src={tiktok} alt="" aria-hidden="true" />
-            </Link>
-            <Link to="/telegram">
-              <img src={telegram} alt="" aria-hidden="true" />
-            </Link>
+             <a href="https://instagram.com/vexa" target="_blank" rel="noopener noreferrer">
+                <img src={instagram} alt="Instagram" />
+            </a>
+            <a href="https://tiktok.com/@vexa" target="_blank" rel="noopener noreferrer">
+               <img src={tiktok} alt="TikTok" />
+            </a>
+            <a href="https://t.me/vexa" target="_blank" rel="noopener noreferrer">
+              <img src={telegram} alt="Telegram" />
+            </a>
           </div>
 
           <div className={styles.copyright}>

@@ -15,7 +15,6 @@ import NotificationModal from './notification-modal/NotificationModal.jsx';
 import VerificationBanner from '../../auth/VerificationBanner/VerificationBanner.jsx';
 
 import { useAuth } from '../../../context/auth-context.js';
-import { useCourseSuggestions } from '../../../hooks/useCourseSuggestions.js';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -25,7 +24,6 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
-  const searchSuggestions = useCourseSuggestions(searchValue);
 
   const isAuthor = user?.roles?.includes('AUTHOR');
   const isStudent = user?.roles?.includes('STUDENT');
@@ -48,13 +46,12 @@ const Header = () => {
     }
 
     setIsMenuOpen(false);
-    navigate(routes.catalog({ q: search }));
-  };
 
-  const handleSuggestionSelect = (suggestion) => {
-    setSearchValue(suggestion.title);
-    setIsMenuOpen(false);
-    navigate(routes.course(suggestion.slug || suggestion.id));
+    navigate(
+      routes.catalog({
+        search,
+      }),
+    );
   };
 
   const getSpaceRoute = () => {
@@ -86,6 +83,7 @@ const Header = () => {
       <Link to={routes.forAuthors()} className={styles.link}>
         Для авторів
       </Link>
+
     </>
   );
 
@@ -119,8 +117,8 @@ const Header = () => {
         Мої курси
       </Link>
 
-      <Link to={routes.learningMaterials()} className={styles.link}>
-        Мої матеріали
+      <Link to={routes.schedule()} className={styles.link}>
+        Розклад
       </Link>
 
       <Link to={routes.catalog()} className={styles.link}>
@@ -223,8 +221,6 @@ const Header = () => {
           <div className={styles.desktopSearch}>
             <Search
               value={searchValue}
-              suggestions={searchSuggestions}
-              onSuggestionSelect={handleSuggestionSelect}
               onChange={(event) => setSearchValue(event.target.value)}
               onKeyDown={handleSearch}
             />
@@ -259,8 +255,6 @@ const Header = () => {
               <div className={styles.mobileSearch}>
                 <Search
                   value={searchValue}
-                  suggestions={searchSuggestions}
-                  onSuggestionSelect={handleSuggestionSelect}
                   onChange={(event) => setSearchValue(event.target.value)}
                   onKeyDown={handleSearch}
                 />

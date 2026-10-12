@@ -76,19 +76,6 @@
   line-height: 22px;
 }
 
-.lessonButton {
-  width: 100%;
-  border: none;
-  background: transparent;
-  font-family: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.lessonButton:hover {
-  background: var(--footer-bg-color);
-}
-
 .lesson + .lesson {
   border-top: 1px solid #ececf0;
 }

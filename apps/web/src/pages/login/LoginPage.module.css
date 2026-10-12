@@ -66,6 +66,9 @@
   background: var(--footer-bg-color);
   border-radius: 16px;
 }
+.loginFooter + .loginFooter {
+  margin-top: 12px;
+}
 
 .benefit {
   display: flex;

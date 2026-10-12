@@ -6,7 +6,6 @@ import Layout from './components/layout/Layout.jsx';
 import ProtectedRoute from './components/auth/ProtectedRoute.jsx';
 import Home from './pages/home/Home.jsx';
 import Catalog from './pages/catalog/Catalog.jsx';
-import Curriculum from './pages/curriculum/Curriculum.jsx';
 import ForAuthors from './pages/for-authors/ForAuthors.jsx';
 import Course from './pages/course/Course.jsx';
 import LoginPage from './pages/login/LoginPage.jsx';
@@ -27,6 +26,11 @@ import Blog from './pages/footer/blog/Blog.jsx';
 import About from './pages/footer/about/About.jsx';
 import Contacts from './pages/footer/contacts/Contacts.jsx';
 import Categories from './pages/categories/Categories.jsx';
+import Offer from './pages/Offer/Offer.jsx';
+import ContentRules from './pages/ContentRules/ContentRules.jsx';
+import Privacy from './pages/Privacy/Privacy.jsx';
+import Cookies from './pages/Cookies/Cookies.jsx';
+import Support from './pages/Support/Support.jsx';
 import AdminLayout from './pages/admin/AdminLayout.jsx';
 import AdminModeration from './pages/admin/AdminModeration.jsx';
 import AdminModerationCourse from './pages/admin/AdminModerationCourse.jsx';
@@ -45,11 +49,6 @@ import OrderDetails from './pages/order-details/OrderDetails.jsx';
 import Learning from './pages/learning/Learning.jsx';
 import LearningPlayer from './pages/learning/player/LearningPlayer.jsx';
 import LearningMaterials from './pages/learning/learning-materials/LearningMaterials.jsx';
-import Offer from './pages/Offer/Offer.jsx';
-import ContentRules from './pages/ContentRules/ContentRules.jsx';
-import Privacy from './pages/Privacy/Privacy.jsx';
-import Cookies from './pages/Cookies/Cookies.jsx';
-import Support from './pages/Support/Support.jsx';
 
 import StudentDashboard from './pages/student-dashboard/StudentDashboard.jsx';
 import Schedule from './pages/schedule/Schedule.jsx';
@@ -64,8 +63,6 @@ function App() {
       <Route path={routePatterns.home} element={<Layout />}>
         <Route index element={<Home />} />
         <Route path={routePatterns.catalog} element={<Catalog />} />
-        <Route path={routePatterns.curriculumSubject} element={<Curriculum />} />
-        <Route path={routePatterns.curriculumGrade} element={<Curriculum />} />
         <Route path={routePatterns.forAuthors} element={<ForAuthors />} />
         <Route path={routePatterns.course} element={<Course />} />
         <Route path={routePatterns.authorProfile} element={<AuthorProfilePage />} />
@@ -89,6 +86,7 @@ function App() {
         <Route path="/contacts" element={<Contacts />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/authors" element={<About />} />
+        <Route path="/vacancies" element={<ComingSoon />} />
         <Route path={routePatterns.vacancies} element={<Vacancies />} />
         <Route path={routePatterns.allVacancies} element={<AllVacancies />} />
         <Route path={routePatterns.vacancy} element={<Vacancy />} />
@@ -120,16 +118,16 @@ function App() {
           </Route>
           <Route path={routes.authorCourseNew()} element={<CourseWizard />} />
           <Route path={routePatterns.authorCourseEdit} element={<CourseWizard />} />
-          <Route
-            path={routePatterns.authorArea}
-            element={<Navigate to={routes.authorDashboard()} replace />}
-          />
-        </Route>
+<Route
+  path={routePatterns.authorArea}
+  element={<Navigate to={routes.authorDashboard()} replace />}
+/>
+</Route>
 
-        <Route element={<ProtectedRoute allowedRoles={['STUDENT', 'AUTHOR']} />}>
-          <Route path={routePatterns.profileEdit} element={<EditProfile />} />
-          <Route path={routePatterns.settings} element={<Settings />} />
-          <Route path={routePatterns.schedule} element={<Schedule />} />
+<Route element={<ProtectedRoute allowedRoles={['STUDENT', 'AUTHOR']} />}>
+  <Route path={routePatterns.profileEdit} element={<EditProfile />} />
+  <Route path={routePatterns.settings} element={<Settings />} />
+  <Route path={routePatterns.schedule} element={<Schedule />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>

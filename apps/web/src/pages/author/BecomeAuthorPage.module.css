@@ -159,6 +159,41 @@
   background: #edf9f3;
 }
 
+.consent {
+  display: grid;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.consentRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.consentRow input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  margin: 2px 0 0;
+  accent-color: var(--purple-color);
+}
+
+.consentRow label {
+  color: #4f5360;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.consentRow a {
+  color: var(--purple-color);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;
@@ -196,5 +231,25 @@
 
   .actions button {
     width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .intro,
+  .formCard {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .intro h1 {
+    font-size: 30px;
+  }
+
+  .consentRow {
+    gap: 8px;
+  }
+
+  .consentRow label {
+    font-size: 13px;
   }
 }
