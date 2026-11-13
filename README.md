@@ -26,6 +26,12 @@
 
 </div>
 
+> **In English.** Vexa is a Ukrainian-language marketplace for online courses: authors publish a course or a file bundle, students buy it and study on the site. It started as the diploma project of a four-developer team at IT STEP Academy (seven two-week sprints, July to September 2026), was defended with 12 of 12, and is still in development.
+>
+> I'm the team lead ([@terekh373](https://github.com/terekh373)). I wrote the 55-page spec, designed the PostgreSQL schema (33 tables, 21 enums), set up the monorepo and CI with five required checks, and built auth (JWT with refresh-token rotation, argon2), the shared API contract, checkout with LiqPay and an idempotent webhook, and course access and progress. 45 of the 88 merged PRs are mine; I reviewed 40 of the 43 merged PRs from teammates.
+>
+> Node.js 20 · Express 5 · TypeScript strict · Prisma 6 · PostgreSQL 16 · Redis · zod · React 19 + Vite · Docker · GitHub Actions · Vitest + Supertest, 274 API tests. Live: [vexa-edu.com](https://vexa-edu.com) · demo video: [youtu.be/1U90UNY5lus](https://youtu.be/1U90UNY5lus).
+
 ---
 
 > **Джерело істини — [Технічне завдання](docs/Технічне_завдання_Vexa.pdf).**
